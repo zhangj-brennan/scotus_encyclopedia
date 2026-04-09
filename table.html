@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Supreme Court Justices Crossfilter Table</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.css"
+  />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #fafafa;
+      color: #111;
+    }
+
+    .wrap {
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 16px 0;
+      font-size: 28px;
+    }
+
+    .controls {
+      background: #fafafa;
+      padding: 12px 0 16px 0;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 16px;
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .control {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .control label,
+    .group-label {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .control input {
+      font-size: 14px;
+      padding: 8px 10px;
+      border: 1px solid #bbb;
+      border-radius: 0;
+      background: white;
+    }
+
+    .slider-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items: start;
+      max-width: 900px;
+    }
+
+    .range-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: white;
+      border: 1px solid #bbb;
+      border-radius: 0;
+      padding: 14px 12px 10px 12px;
+    }
+
+    .slider-box {
+      padding: 6px 4px 2px 4px;
+    }
+
+    .range-summary {
+      font-size: 13px;
+      color: #444;
+      font-weight: 700;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 8px 12px;
+      border: 1px solid #888;
+      background: white;
+      border-radius: 0;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background: #f3f3f3;
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .filter-chip {
+      padding: 6px 10px;
+      border: 1px solid #999;
+      background: white;
+      border-radius: 0;
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 1.2;
+    }
+
+    .filter-chip.active {
+      background: #111;
+      color: white;
+      border-color: #111;
+    }
+
+    .summary {
+      margin: 10px 0 14px 0;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .section-block {
+      margin-top: 14px;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid #ddd;
+      background: white;
+      max-height: calc(100vh - 220px);
+      position: relative;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1220px;
+      table-layout: fixed;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      background: #f2f2f2;
+      z-index: 20;
+      text-align: left;
+      font-size: 12px;
+      padding: 10px 8px;
+      border-bottom: 1px solid #ccc;
+      white-space: nowrap;
+      vertical-align: bottom;
+    }
+
+    tbody td {
+      font-size: 13px;
+      padding: 8px;
+      border-bottom: 1px solid #eee;
+      vertical-align: top;
+    }
+
+    tbody tr:hover {
+      background: #fcfcfc;
+    }
+
+    th.col-name,
+    td.col-name {
+      width: 185px;
+    }
+
+    th.col-oath,
+    td.col-oath {
+      width: 130px;
+    }
+
+    th.col-federal,
+    td.col-federal {
+      width: 420px;
+    }
+
+    th.col-circuit,
+    td.col-circuit {
+      width: 220px;
+    }
+
+    th.col-education,
+    td.col-education {
+      width: 230px;
+    }
+
+    th.col-career,
+    td.col-career {
+      width: 230px;
+    }
+
+    a {
+      color: #0a58ca;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .stack-line + .stack-line {
+      margin-top: 2px;
+    }
+
+    .entry + .entry {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    .birth-label,
+    .source-label {
+      margin-top: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #666;
+    }
+
+    .birth-text,
+    .source-text {
+      margin-top: 2px;
+      font-size: 12px;
+      color: #333;
+      line-height: 1.35;
+    }
+
+    .source-text a {
+      font-size: 12px;
+    }
+
+    .noUi-target {
+      border: 1px solid #bbb;
+      box-shadow: none;
+      background: #e9e9e9;
+      height: 10px;
+      border-radius: 0;
+    }
+
+    .noUi-connect {
+      background: #111;
+      border-radius: 0;
+    }
+
+    .noUi-handle {
+      border: 1px solid #777;
+      box-shadow: none;
+      border-radius: 0 !important;
+      width: 18px !important;
+      height: 18px !important;
+      right: -9px !important;
+      top: -5px !important;
+      cursor: grab;
+    }
+
+    .noUi-handle:before,
+    .noUi-handle:after {
+      display: none;
+    }
+
+    .noUi-draggable {
+      cursor: grab;
+    }
+
+    @media (max-width: 980px) {
+      .controls-grid {
+        grid-template-columns: repeat(2, minmax(180px, 1fr));
+      }
+
+      .slider-grid {
+        grid-template-columns: 1fr;
+        max-width: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 12px;
+      }
+
+      .controls-grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      .table-wrap {
+        max-height: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Supreme Court Justices Crossfilter Table</h1>
+
+    <div class="controls">
+      <div class="controls-grid">
+        <div class="control">
+          <label for="nameFilter">Name</label>
+          <input id="nameFilter" type="text" placeholder="Search name" />
+        </div>
+      </div>
+
+      <div class="section-block">
+        <div class="slider-grid">
+          <div>
+            <div class="group-label">Birth Year Range</div>
+            <div class="range-wrap">
+              <div class="slider-box">
+                <div id="birthYearSlider"></div>
+              </div>
+              <div id="birthYearSummary" class="range-summary"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="group-label">Oath Year Range</div>
+            <div class="range-wrap">
+              <div class="slider-box">
+                <div id="oathYearSlider"></div>
+              </div>
+              <div id="oathYearSummary" class="range-summary"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-block">
+        <div class="group-label">Education: Degree Type</div>
+        <div id="degreeButtons" class="button-group"></div>
+      </div>
+
+      <div class="section-block">
+        <div class="group-label">Education: Top 10 Schools</div>
+        <div id="schoolButtons" class="button-group"></div>
+      </div>
+
+      <div class="section-block">
+        <div class="group-label">Professional Career: Top 10 Positions</div>
+        <div id="careerButtons" class="button-group"></div>
+      </div>
+
+      <div class="buttons">
+        <button id="clearFiltersBtn">Clear Filters</button>
+        <button id="downloadCsvBtn">Download Filtered CSV</button>
+      </div>
+    </div>
+
+    <div class="summary" id="summary">Loading…</div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-name">Name</th>
+            <th class="col-oath">Supreme Court Oath</th>
+            <th class="col-federal">Federal Judicial Service</th>
+            <th class="col-circuit">Circuit Allotment</th>
+            <th class="col-education">Education</th>
+            <th class="col-career">Professional Career</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.js"></script>
+  <script>
+  const DATA_URL = "justices_structured.json";
+
+  const ALLOWED_DEGREES = [
+    "Read law",
+    "B.A.",
+    "LL.B.",
+    "A.B.",
+    "J.D.",
+    "M.A.",
+    "B.S.",
+    "A.M.",
+    "LL.M."
+  ];
+
+  const els = {
+    nameFilter: document.getElementById("nameFilter"),
+
+    birthYearSlider: document.getElementById("birthYearSlider"),
+    oathYearSlider: document.getElementById("oathYearSlider"),
+    birthYearSummary: document.getElementById("birthYearSummary"),
+    oathYearSummary: document.getElementById("oathYearSummary"),
+
+    degreeButtons: document.getElementById("degreeButtons"),
+    schoolButtons: document.getElementById("schoolButtons"),
+    careerButtons: document.getElementById("careerButtons"),
+
+    clearFiltersBtn: document.getElementById("clearFiltersBtn"),
+    downloadCsvBtn: document.getElementById("downloadCsvBtn"),
+    summary: document.getElementById("summary"),
+    tableBody: document.getElementById("tableBody")
+  };
+
+  let rawData = [];
+  let flattenedData = [];
+
+  let birthSlider = null;
+  let oathSlider = null;
+
+  const activeFilters = {
+    degree: new Set(),
+    school: new Set(),
+    career: new Set()
+  };
+
+  const globalRanges = {
+    birthYearMin: 0,
+    birthYearMax: 0,
+    oathYearMin: 0,
+    oathYearMax: 0
+  };
+
+  function safeArray(v) {
+    return Array.isArray(v) ? v : [];
+  }
+
+  function safeObj(v) {
+    return v && typeof v === "object" ? v : {};
+  }
+
+  function safeText(v) {
+    return v == null ? "" : String(v).trim();
+  }
+
+  function includesText(haystack, needle) {
+    return safeText(haystack).toLowerCase().includes(safeText(needle).toLowerCase());
+  }
+
+  function escapeHtml(str) {
+    return safeText(str)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;");
+  }
+
+  function extractYear(text) {
+    const match = safeText(text).match(/\b(\d{4})\b/);
+    return match ? Number(match[1]) : null;
+  }
+
+  function normalizeDegree(text) {
+    const t = safeText(text);
+    if (!t) return "";
+
+    const upper = t.toUpperCase();
+
+    if (upper.includes("READ LAW")) return "Read law";
+    if (upper.includes("LL.B")) return "LL.B.";
+    if (upper.includes("J.D")) return "J.D.";
+    if (upper.includes("B.A")) return "B.A.";
+    if (upper.includes("A.B")) return "A.B.";
+    if (upper.includes("B.S")) return "B.S.";
+    if (upper.includes("M.A")) return "M.A.";
+    if (upper.includes("A.M")) return "A.M.";
+    if (upper.includes("LL.M")) return "LL.M.";
+
+    return "";
+  }
+
+  function uniq(arr) {
+    return [...new Set(arr.filter(Boolean))];
+  }
+
+  function countFromRows(rows, key) {
+    const counts = new Map();
+
+    rows.forEach(row => {
+      const values = safeArray(row[key]);
+      values.forEach(v => {
+        const label = safeText(v);
+        if (!label) return;
+        counts.set(label, (counts.get(label) || 0) + 1);
+      });
+    });
+
+    return counts;
+  }
+
+  function flattenJustice(j) {
+    const born = safeObj(j.Born);
+
+    const federalService = safeArray(j["Federal Judicial Service"]);
+    const circuitAllotments = safeArray(j["Allotment as Circuit Justice"]);
+    const education = safeArray(j["Education"]);
+    const career = safeArray(j["Professional Career"]);
+
+    const degreeTypes = uniq(
+      education.map(d => normalizeDegree(d.degree || d.institution))
+    );
+
+    const schoolNames = uniq(
+      education.map(d => safeText(d.institution))
+    );
+
+    const careerPositions = uniq(
+      career.map(d => safeText(d.position))
+    );
+
+    const birthYear = extractYear(born.date);
+    const oathYear = extractYear(j["Supreme Court Oath"]);
+
+    return {
+      name: safeText(j.name),
+      url: safeText(j.url),
+
+      birth_date: safeText(born.date),
+      birth_place: safeText(born.place),
+      birth_year: birthYear,
+
+      oath_date: safeText(j["Supreme Court Oath"]),
+      oath_year: oathYear,
+
+      degree_types: degreeTypes,
+      school_names: schoolNames,
+      career_positions: careerPositions,
+
+      federal_service_entries: federalService,
+      allotment_entries: circuitAllotments,
+      education_entries: education,
+      career_entries: career
+    };
+  }
+
+  function makeToggleButtons(container, items, filterKey) {
+    container.innerHTML = "";
+
+    items.forEach(([label, count]) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "filter-chip";
+      btn.dataset.value = label;
+      btn.textContent = `${label} (${count})`;
+
+      if (activeFilters[filterKey].has(label)) {
+        btn.classList.add("active");
+      }
+
+      btn.addEventListener("click", () => {
+        if (activeFilters[filterKey].has(label)) {
+          activeFilters[filterKey].delete(label);
+        } else {
+          activeFilters[filterKey].add(label);
+        }
+        renderTable();
+      });
+
+      container.appendChild(btn);
+    });
+  }
+
+  function rowMatchesSet(rowValues, selectedSet) {
+    if (!selectedSet.size) return true;
+    return rowValues.some(v => selectedSet.has(v));
+  }
+
+  function getBirthRange() {
+    return birthSlider.get().map(v => Math.round(Number(v)));
+  }
+
+  function getOathRange() {
+    return oathSlider.get().map(v => Math.round(Number(v)));
+  }
+
+  function updateRangeLabels() {
+    const [birthMin, birthMax] = getBirthRange();
+    els.birthYearSummary.textContent = `${birthMin} to ${birthMax}`;
+
+    const [oathMin, oathMax] = getOathRange();
+    els.oathYearSummary.textContent = `${oathMin} to ${oathMax}`;
+  }
+
+  function getFilteredRows(options = {}) {
+    const excludeKey = options.excludeKey || null;
+
+    const [birthMin, birthMax] = getBirthRange();
+    const [oathMin, oathMax] = getOathRange();
+
+    return flattenedData.filter(row => {
+      if (els.nameFilter.value && !includesText(row.name, els.nameFilter.value)) return false;
+
+      if (row.birth_year != null && (row.birth_year < birthMin || row.birth_year > birthMax)) return false;
+      if (row.oath_year != null && (row.oath_year < oathMin || row.oath_year > oathMax)) return false;
+
+      if (excludeKey !== "degree" && !rowMatchesSet(row.degree_types, activeFilters.degree)) return false;
+      if (excludeKey !== "school" && !rowMatchesSet(row.school_names, activeFilters.school)) return false;
+      if (excludeKey !== "career" && !rowMatchesSet(row.career_positions, activeFilters.career)) return false;
+
+      return true;
+    }).sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
+  }
+
+  function renderFederalService(entries) {
+    return safeArray(entries).map(entry => {
+      const lines = [];
+      if (entry.position || entry.court) {
+        lines.push(`<div class="stack-line"><strong>${escapeHtml(entry.position || "")}</strong>${entry.court ? `, ${escapeHtml(entry.court)}` : ""}</div>`);
+      }
+      if (entry.nominated_by || entry.nomination_date) {
+        lines.push(`<div class="stack-line">Nominated by ${escapeHtml(entry.nominated_by || "")}${entry.nomination_date ? ` on ${escapeHtml(entry.nomination_date)}` : ""}</div>`);
+      }
+      if (entry.seat_vacated_by) {
+        lines.push(`<div class="stack-line">Seat vacated by ${escapeHtml(entry.seat_vacated_by)}</div>`);
+      }
+      if (entry.confirmed_date) {
+        lines.push(`<div class="stack-line">Confirmed ${escapeHtml(entry.confirmed_date)}</div>`);
+      }
+      if (entry.commission_date) {
+        lines.push(`<div class="stack-line">Commission ${escapeHtml(entry.commission_date)}</div>`);
+      }
+      if (entry.service_terminated_date || entry.termination_reason) {
+        lines.push(`<div class="stack-line">Terminated ${escapeHtml(entry.service_terminated_date || "")}${entry.termination_reason ? `, due to ${escapeHtml(entry.termination_reason)}` : ""}</div>`);
+      }
+      return `<div class="entry">${lines.join("")}</div>`;
+    }).join("");
+  }
+
+  function renderAllotments(entries) {
+    return safeArray(entries).map(entry => {
+      const lines = [];
+      if (entry.circuit) lines.push(`<div class="stack-line"><strong>${escapeHtml(entry.circuit)}</strong></div>`);
+      if (entry.start_date || entry.end_date) {
+        lines.push(`<div class="stack-line">${escapeHtml(entry.start_date || "")}${entry.end_date ? ` – ${escapeHtml(entry.end_date)}` : ""}</div>`);
+      } else if (entry.details_raw) {
+        lines.push(`<div class="stack-line">${escapeHtml(entry.details_raw)}</div>`);
+      }
+      return `<div class="entry">${lines.join("")}</div>`;
+    }).join("");
+  }
+
+  function renderEducation(entries) {
+    return safeArray(entries).map(entry => {
+      const parts = [];
+      if (entry.institution) parts.push(escapeHtml(entry.institution));
+      if (entry.degree) parts.push(escapeHtml(entry.degree));
+      if (entry.year) parts.push(escapeHtml(entry.year));
+      return `<div class="entry">${parts.join(" | ")}</div>`;
+    }).join("");
+  }
+
+  function renderCareer(entries) {
+    return safeArray(entries).map(entry => {
+      const lines = [];
+      if (entry.position) lines.push(`<div class="stack-line"><strong>${escapeHtml(entry.position)}</strong></div>`);
+      if (entry.details) lines.push(`<div class="stack-line">${escapeHtml(entry.details)}</div>`);
+      if (entry.years) lines.push(`<div class="stack-line">${escapeHtml(entry.years)}</div>`);
+      return `<div class="entry">${lines.join("")}</div>`;
+    }).join("");
+  }
+
+  function buildDynamicButtons() {
+  const degreeRows = getFilteredRows({ excludeKey: "degree" });
+  const schoolRows = getFilteredRows({ excludeKey: "school" });
+  const careerRows = getFilteredRows({ excludeKey: "career" });
+
+  const degreeCounts = countFromRows(degreeRows, "degree_types");
+  const schoolCounts = countFromRows(schoolRows, "school_names");
+  const careerCounts = countFromRows(careerRows, "career_positions");
+
+  const degreeItems = ALLOWED_DEGREES
+    .map(label => [label, degreeCounts.get(label) || 0])
+    .filter(([label, count]) => count > 0 || activeFilters.degree.has(label));
+
+  const schoolItems = [...schoolCounts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], undefined, { sensitivity: "base" }))
+    .slice(0, 10);
+
+  const careerItems = [...careerCounts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], undefined, { sensitivity: "base" }))
+    .slice(0, 10);
+
+  makeToggleButtons(els.degreeButtons, degreeItems, "degree");
+  makeToggleButtons(els.schoolButtons, schoolItems, "school");
+  makeToggleButtons(els.careerButtons, careerItems, "career");
+}
+
+  function renderTable() {
+    updateRangeLabels();
+    buildDynamicButtons();
+
+    const rows = getFilteredRows();
+    els.summary.textContent = `${rows.length} of ${flattenedData.length} justices shown`;
+
+    const html = rows.map(row => {
+      const sourceHtml = row.url
+        ? `
+          <div class="source-label">Source</div>
+          <div class="source-text">
+            <a href="${escapeHtml(row.url)}" target="_blank" rel="noopener noreferrer">Source Link</a>
+          </div>
+        `
+        : "";
+
+      const nameHtml = `
+        <div><strong>${escapeHtml(row.name)}</strong></div>
+        <div class="birth-label">Born</div>
+        <div class="birth-text">${escapeHtml(row.birth_date)}</div>
+        <div class="birth-text">${escapeHtml(row.birth_place)}</div>
+        ${sourceHtml}
+      `;
+
+      return `
+        <tr>
+          <td class="col-name">${nameHtml}</td>
+          <td class="col-oath">${escapeHtml(row.oath_date)}</td>
+          <td class="col-federal">${renderFederalService(row.federal_service_entries)}</td>
+          <td class="col-circuit">${renderAllotments(row.allotment_entries)}</td>
+          <td class="col-education">${renderEducation(row.education_entries)}</td>
+          <td class="col-career">${renderCareer(row.career_entries)}</td>
+        </tr>
+      `;
+    }).join("");
+
+    els.tableBody.innerHTML = html;
+  }
+
+  function clearFilters() {
+    els.nameFilter.value = "";
+
+    activeFilters.degree.clear();
+    activeFilters.school.clear();
+    activeFilters.career.clear();
+
+    birthSlider.set([globalRanges.birthYearMin, globalRanges.birthYearMax]);
+    oathSlider.set([globalRanges.oathYearMin, globalRanges.oathYearMax]);
+
+    renderTable();
+  }
+
+  function toCsvValue(value) {
+    const text = safeText(value).replaceAll('"', '""');
+    return `"${text}"`;
+  }
+
+  function stringifyFederalService(entries) {
+    return safeArray(entries).map(entry => {
+      const parts = [];
+      if (entry.position) parts.push(entry.position);
+      if (entry.court) parts.push(entry.court);
+      if (entry.nominated_by || entry.nomination_date) parts.push(`Nominated by ${entry.nominated_by || ""} on ${entry.nomination_date || ""}`.trim());
+      if (entry.seat_vacated_by) parts.push(`Seat vacated by ${entry.seat_vacated_by}`);
+      if (entry.confirmed_date) parts.push(`Confirmed ${entry.confirmed_date}`);
+      if (entry.commission_date) parts.push(`Commission ${entry.commission_date}`);
+      if (entry.service_terminated_date || entry.termination_reason) {
+        parts.push(`Terminated ${entry.service_terminated_date || ""}${entry.termination_reason ? ` due to ${entry.termination_reason}` : ""}`.trim());
+      }
+      return parts.join(" | ");
+    }).join(" || ");
+  }
+
+  function stringifyAllotments(entries) {
+    return safeArray(entries).map(entry => {
+      if (entry.start_date || entry.end_date) {
+        return `${entry.circuit || ""} | ${entry.start_date || ""}${entry.end_date ? ` - ${entry.end_date}` : ""}`;
+      }
+      return `${entry.circuit || ""} | ${entry.details_raw || ""}`;
+    }).join(" || ");
+  }
+
+  function stringifyEducation(entries) {
+    return safeArray(entries).map(entry => {
+      return [entry.institution, entry.degree, entry.year].filter(Boolean).join(" | ");
+    }).join(" || ");
+  }
+
+  function stringifyCareer(entries) {
+    return safeArray(entries).map(entry => {
+      return [entry.position, entry.details, entry.years].filter(Boolean).join(" | ");
+    }).join(" || ");
+  }
+
+  function getTimestamp() {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
+    const hh = String(now.getHours()).padStart(2, "0");
+    const mi = String(now.getMinutes()).padStart(2, "0");
+    const ss = String(now.getSeconds()).padStart(2, "0");
+    return `${yyyy}${mm}${dd}_${hh}${mi}${ss}`;
+  }
+
+  function getActiveFiltersSummary() {
+    const [birthMin, birthMax] = getBirthRange();
+    const [oathMin, oathMax] = getOathRange();
+
+    const lines = [];
+    lines.push("Supreme Court Justices Crossfilter Export");
+    lines.push("");
+
+    lines.push(`Generated: ${new Date().toISOString()}`);
+    lines.push(`Name search: ${els.nameFilter.value || "(none)"}`);
+    lines.push(`Birth year range: ${birthMin} to ${birthMax}`);
+    lines.push(`Oath year range: ${oathMin} to ${oathMax}`);
+    lines.push(`Degree filters: ${[...activeFilters.degree].join(" | ") || "(none)"}`);
+    lines.push(`School filters: ${[...activeFilters.school].join(" | ") || "(none)"}`);
+    lines.push(`Career filters: ${[...activeFilters.career].join(" | ") || "(none)"}`);
+    lines.push("");
+    lines.push(`Rows included: ${getFilteredRows().length} of ${flattenedData.length}`);
+
+    return lines.join("\n");
+  }
+
+  function triggerDownload(filename, content, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function downloadFilteredFiles() {
+    const rows = getFilteredRows();
+    const timestamp = getTimestamp();
+
+    const headers = [
+      "Name",
+      "Birth Date",
+      "Birth Place",
+      "Supreme Court Oath",
+      "Federal Judicial Service",
+      "Circuit Allotment",
+      "Education",
+      "Professional Career",
+      "URL"
+    ];
+
+    const csvLines = [headers.map(toCsvValue).join(",")];
+
+    rows.forEach(row => {
+      csvLines.push([
+        row.name,
+        row.birth_date,
+        row.birth_place,
+        row.oath_date,
+        stringifyFederalService(row.federal_service_entries),
+        stringifyAllotments(row.allotment_entries),
+        stringifyEducation(row.education_entries),
+        stringifyCareer(row.career_entries),
+        row.url
+      ].map(toCsvValue).join(","));
+    });
+
+    const csvContent = csvLines.join("\n");
+    const readmeContent = getActiveFiltersSummary();
+
+    triggerDownload(`justices_filtered_${timestamp}.csv`, csvContent, "text/csv;charset=utf-8;");
+    setTimeout(() => {
+      triggerDownload(`justices_filtered_${timestamp}_README.txt`, readmeContent, "text/plain;charset=utf-8;");
+    }, 250);
+  }
+
+  function initSliders() {
+    const birthYears = flattenedData.map(d => d.birth_year).filter(v => Number.isFinite(v));
+    const oathYears = flattenedData.map(d => d.oath_year).filter(v => Number.isFinite(v));
+
+    globalRanges.birthYearMin = Math.min(...birthYears);
+    globalRanges.birthYearMax = Math.max(...birthYears);
+    globalRanges.oathYearMin = Math.min(...oathYears);
+    globalRanges.oathYearMax = Math.max(...oathYears);
+
+    birthSlider = noUiSlider.create(els.birthYearSlider, {
+      start: [globalRanges.birthYearMin, globalRanges.birthYearMax],
+      connect: true,
+      step: 1,
+      behaviour: "drag",
+      range: {
+        min: globalRanges.birthYearMin,
+        max: globalRanges.birthYearMax
+      }
+    });
+
+    oathSlider = noUiSlider.create(els.oathYearSlider, {
+      start: [globalRanges.oathYearMin, globalRanges.oathYearMax],
+      connect: true,
+      step: 1,
+      behaviour: "drag",
+      range: {
+        min: globalRanges.oathYearMin,
+        max: globalRanges.oathYearMax
+      }
+    });
+
+    birthSlider.on("update", renderTable);
+    oathSlider.on("update", renderTable);
+  }
+
+  async function init() {
+    try {
+      const response = await fetch(DATA_URL);
+      if (!response.ok) {
+        throw new Error(`Failed to load ${DATA_URL}: ${response.status}`);
+      }
+
+      rawData = await response.json();
+      flattenedData = rawData.map(flattenJustice);
+
+      initSliders();
+
+      els.nameFilter.addEventListener("input", renderTable);
+      els.clearFiltersBtn.addEventListener("click", clearFilters);
+      els.downloadCsvBtn.addEventListener("click", downloadFilteredFiles);
+
+      renderTable();
+    } catch (err) {
+      console.error(err);
+      els.summary.textContent = `Error: ${err.message}`;
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>
