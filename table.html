@@ -13,7 +13,7 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 20px;
-      background: #fafafa;
+      background: #fff;
       color: #111;
     }
 
@@ -28,9 +28,8 @@
     }
 
     .controls {
-      background: #fafafa;
+      background: #fff;
       padding: 12px 0 16px 0;
-      border-bottom: 1px solid #ddd;
       margin-bottom: 16px;
     }
 
@@ -73,9 +72,8 @@
     .range-wrap {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 2px;
       background: white;
-      border: 1px solid #bbb;
       border-radius: 0;
       padding: 14px 12px 10px 12px;
     }
@@ -92,14 +90,14 @@
 
     .buttons {
       display: flex;
-      gap: 8px;
-      margin-top: 12px;
+      gap: 2px;
+      margin-top: 2px;
       flex-wrap: wrap;
     }
 
     button {
       padding: 8px 12px;
-      border: 1px solid #888;
+      border: 1px solid #000;
       background: white;
       border-radius: 0;
       cursor: pointer;
@@ -119,7 +117,7 @@
 
     .filter-chip {
       padding: 6px 10px;
-      border: 1px solid #999;
+      border: 1px solid #000;
       background: white;
       border-radius: 0;
       cursor: pointer;
@@ -233,12 +231,12 @@
 
     .birth-label,
     .source-label {
-      margin-top: 6px;
+      margin-top: 20px;
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      color: #666;
+      color: #000;
     }
 
     .birth-text,
@@ -318,8 +316,8 @@
 </head>
 <body>
   <div class="wrap">
-    <h1>Supreme Court Justices Crossfilter Table</h1>
-
+    <h1>SCOTUS education, jobs - UNVERIFED SCRAPE, DO NOT SHARE</h1>
+    <b>SOURCE: </b>https://www.fjc.gov/history/courts/supreme-court-united-states-justices
     <div class="controls">
       <div class="controls-grid">
         <div class="control">
@@ -733,7 +731,7 @@
 
     const careerItems = [...careerCounts.entries()]
       .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], undefined, { sensitivity: "base" }))
-      .slice(0, 20);
+      .slice(0, 10);
 
     makeToggleButtons(els.degreeButtons, degreeItems, "degree");
     makeToggleButtons(els.schoolButtons, schoolItems, "school");
