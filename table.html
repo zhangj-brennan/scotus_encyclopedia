@@ -408,6 +408,25 @@
     "LL.M."
   ];
 
+  const SCHOOL_NORMALIZATION = {
+    "Harvard University/College": [
+      "Harvard College",
+      "Harvard University"
+    ],
+    "Yale University/College": [
+      "Yale College",
+      "Yale University"
+    ],
+    "Columbia University": [
+      "Columbia College",
+      "Columbia University"
+    ],
+    "Princeton University(formerly College of New Jersey)":[
+         "Princeton University",
+         "College of New Jersey (now Princeton University)"
+    ]
+  };
+
   const els = {
     nameFilter: document.getElementById("nameFilter"),
 
@@ -493,6 +512,18 @@
     return "";
   }
 
+  function normalizeSchoolName(name) {
+    const clean = safeText(name);
+
+    for (const [label, variants] of Object.entries(SCHOOL_NORMALIZATION)) {
+      if (variants.some(v => clean.toLowerCase().includes(v.toLowerCase()))) {
+        return label;
+      }
+    }
+
+    return clean;
+  }
+
   function uniq(arr) {
     return [...new Set(arr.filter(Boolean))];
   }
@@ -525,7 +556,7 @@
     );
 
     const schoolNames = uniq(
-      education.map(d => safeText(d.institution))
+      education.map(d => normalizeSchoolName(d.institution))
     );
 
     const careerPositions = uniq(
@@ -666,7 +697,7 @@
   function renderEducation(entries) {
     return safeArray(entries).map(entry => {
       const parts = [];
-      if (entry.institution) parts.push(escapeHtml(entry.institution));
+      if (entry.institution) parts.push(escapeHtml(normalizeSchoolName(entry.institution)));
       if (entry.degree) parts.push(escapeHtml(entry.degree));
       if (entry.year) parts.push(escapeHtml(entry.year));
       return `<div class="entry">${parts.join(" | ")}</div>`;
@@ -684,30 +715,30 @@
   }
 
   function buildDynamicButtons() {
-  const degreeRows = getFilteredRows({ excludeKey: "degree" });
-  const schoolRows = getFilteredRows({ excludeKey: "school" });
-  const careerRows = getFilteredRows({ excludeKey: "career" });
+    const degreeRows = getFilteredRows({ excludeKey: "degree" });
+    const schoolRows = getFilteredRows({ excludeKey: "school" });
+    const careerRows = getFilteredRows({ excludeKey: "career" });
 
-  const degreeCounts = countFromRows(degreeRows, "degree_types");
-  const schoolCounts = countFromRows(schoolRows, "school_names");
-  const careerCounts = countFromRows(careerRows, "career_positions");
+    const degreeCounts = countFromRows(degreeRows, "degree_types");
+    const schoolCounts = countFromRows(schoolRows, "school_names");
+    const careerCounts = countFromRows(careerRows, "career_positions");
 
-  const degreeItems = ALLOWED_DEGREES
-    .map(label => [label, degreeCounts.get(label) || 0])
-    .filter(([label, count]) => count > 0 || activeFilters.degree.has(label));
+    const degreeItems = ALLOWED_DEGREES
+      .map(label => [label, degreeCounts.get(label) || 0])
+      .filter(([label, count]) => count > 0 || activeFilters.degree.has(label));
 
-  const schoolItems = [...schoolCounts.entries()]
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], undefined, { sensitivity: "base" }))
-    .slice(0, 10);
+    const schoolItems = [...schoolCounts.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], undefined, { sensitivity: "base" }))
+      .slice(0, 10);
 
-  const careerItems = [...careerCounts.entries()]
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], undefined, { sensitivity: "base" }))
-    .slice(0, 10);
+    const careerItems = [...careerCounts.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], undefined, { sensitivity: "base" }))
+      .slice(0, 20);
 
-  makeToggleButtons(els.degreeButtons, degreeItems, "degree");
-  makeToggleButtons(els.schoolButtons, schoolItems, "school");
-  makeToggleButtons(els.careerButtons, careerItems, "career");
-}
+    makeToggleButtons(els.degreeButtons, degreeItems, "degree");
+    makeToggleButtons(els.schoolButtons, schoolItems, "school");
+    makeToggleButtons(els.careerButtons, careerItems, "career");
+  }
 
   function renderTable() {
     updateRangeLabels();
@@ -794,7 +825,11 @@
 
   function stringifyEducation(entries) {
     return safeArray(entries).map(entry => {
-      return [entry.institution, entry.degree, entry.year].filter(Boolean).join(" | ");
+      return [
+        entry.institution ? normalizeSchoolName(entry.institution) : "",
+        entry.degree,
+        entry.year
+      ].filter(Boolean).join(" | ");
     }).join(" || ");
   }
 
