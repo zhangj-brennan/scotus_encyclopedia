@@ -621,37 +621,18 @@ function renderTable() {
 
   if (!filteredRows.length) {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td colspan="4" class="empty">No rows match the current filters.</td>`;
+    tr.innerHTML = `<td colspan="3" class="empty">No rows match the current filters.</td>`;
     els.tbody.appendChild(tr);
     return;
   }
 
   filteredRows.forEach(row => {
+    // --- EDUCATION ---
     const educationLines = row.__education.length
       ? row.__education.map(line => `<div>${escapeHtml(line)}</div>`).join('')
       : '<div class="empty">—</div>';
 
-    const justiceStack = `
-      <div class="justice-stack">
-        <div class="justice-stack-item">
-          <span class="justice-stack-label">Name</span>
-          <span class="justice-stack-value justice-name">${escapeHtml(row.__name) || '<span class="empty">—</span>'}</span>
-        </div>
-        <div class="justice-stack-item">
-          <span class="justice-stack-label">Birth Date</span>
-          <span class="justice-stack-value">${escapeHtml(row.__birthDate) || '<span class="empty">—</span>'}</span>
-        </div>
-        <div class="justice-stack-item">
-          <span class="justice-stack-label">Birth State</span>
-          <span class="justice-stack-value">${escapeHtml(row.__birthState) || '<span class="empty">—</span>'}</span>
-        </div>
-        <div class="justice-stack-item">
-          <span class="justice-stack-label">Gender / Race or Ethnicity</span>
-          <span class="justice-stack-value">${escapeHtml(row.__genderRace) || '<span class="empty">—</span>'}</span>
-        </div>
-      </div>
-    `;
-
+    // --- CAREER ---
     const rawCareer = safe(getCell(row, COLS.professionalCareer));
     const careerLines = rawCareer
       ? rawCareer
@@ -680,14 +661,51 @@ function renderTable() {
           .join('')
       : '<div class="empty">—</div>';
 
+    // --- JUSTICE STACK ---
+    const justiceStack = `
+      <div class="justice-stack">
+        <div class="justice-stack-item">
+          <span class="justice-stack-label">Name</span>
+          <span class="justice-stack-value justice-name">
+            ${escapeHtml(row.__name) || '<span class="empty">—</span>'}
+          </span>
+        </div>
+        <div class="justice-stack-item">
+          <span class="justice-stack-label">Birth Date</span>
+          <span class="justice-stack-value">${escapeHtml(row.__birthDate) || '<span class="empty">—</span>'}</span>
+        </div>
+        <div class="justice-stack-item">
+          <span class="justice-stack-label">Birth State</span>
+          <span class="justice-stack-value">${escapeHtml(row.__birthState) || '<span class="empty">—</span>'}</span>
+        </div>
+        <div class="justice-stack-item">
+          <span class="justice-stack-label">Gender / Race or Ethnicity</span>
+          <span class="justice-stack-value">${escapeHtml(row.__genderRace) || '<span class="empty">—</span>'}</span>
+        </div>
+      </div>
+    `;
+
+    // --- NEW STACKED COLUMN ---
+    const eduCareerStack = `
+      <div class="edu-career-stack">
+        <div class="edu-career-section">
+          <span class="edu-career-label">Education</span>
+          ${educationLines}
+        </div>
+        <div class="edu-career-section">
+          <span class="edu-career-label">Professional Career</span>
+          <div class="career-stack">${careerLines}</div>
+        </div>
+      </div>
+    `;
+
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td data-label="Justice">${justiceStack}</td>
-      <td data-label="Education">${educationLines}</td>
-      <td data-label="Professional Career">
-        <div class="career-stack">${careerLines}</div>
+      <td data-label="Education & Career">${eduCareerStack}</td>
+      <td data-label="Ayes/Nays (1)">
+        ${escapeHtml(safe(getCell(row, COLS.ayesNays))) || '<span class="empty">—</span>'}
       </td>
-      <td data-label="Ayes/Nays (1)">${escapeHtml(safe(getCell(row, COLS.ayesNays))) || '<span class="empty">—</span>'}</td>
     `;
     els.tbody.appendChild(tr);
   });

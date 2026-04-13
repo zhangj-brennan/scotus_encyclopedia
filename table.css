@@ -537,3 +537,46 @@ tbody tr:nth-child(even) td{
 .career-rest {
   font-weight: 400;
 }
+
+/* Education + Career stacked column */
+.edu-career-stack {
+  display: grid;
+  gap: 0;
+}
+
+.edu-career-section {
+  padding-top: 8px;
+  margin-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.edu-career-section:first-child {
+  margin-top: 0;
+}
+
+.edu-career-label {
+  display: block;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+/* Career formatting (from previous step) */
+.career-stack {
+  display: grid;
+  gap: 6px;
+}
+
+.career-line {
+  line-height: 1.3;
+}
+
+.career-role {
+  font-weight: 700;
+}
+
+.career-rest {
+  font-weight: 400;
+}

@@ -16,9 +16,9 @@
 
           <div class="upload-row">
             <div class="panel">
-              <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+              <!-- <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
                 <div id="fileName" class="file-name">Loading CSV...</div>
-              </div>
+              </div> -->
             </div>
           </div>
 
@@ -27,7 +27,6 @@
           </div>
 
           <div class="actions-row">
-            <div class="small-note">Name is a live search. School and degree tallies update based on all active filters.</div>
             <button class="action-btn" id="clearBtn" type="button">Clear Filters</button>
             <button class="action-btn" id="downloadBtn" type="button">Download Filtered CSV</button>
           </div>
@@ -102,12 +101,11 @@
           <div class="table-scroll">
             <table id="dataTable">
               <thead>
-                <tr>
-                  <th style="width: 28%;">Justice</th>
-                  <th style="width: 28%;">Education</th>
-                  <th style="width: 34%;">Professional Career</th>
-                  <th style="width: 10%;">Ayes/Nays (1)</th>
-                </tr>
+             <tr>
+  <th style="width: 30%;">Justice</th>
+  <th style="width: 60%;">Education & Career</th>
+  <th style="width: 10%;">Ayes/Nays (1)</th>
+</tr>
               </thead>
               <tbody></tbody>
             </table>
