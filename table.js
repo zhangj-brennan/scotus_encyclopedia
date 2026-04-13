@@ -94,7 +94,30 @@ const filters = {
   termMax: null,
   birthStates: new Set()
 };
+let currentSort = {
+  type: 'name',   // 'name' or 'confirm'
+  direction: 1    // 1 = asc, -1 = desc
+};
+function sortRows(rows) {
+  if (currentSort.type === 'name') {
+    rows.sort((a, b) => {
+      const aLast = (safe(getCell(a, COLS.lastName)) || '').toLowerCase();
+      const bLast = (safe(getCell(b, COLS.lastName)) || '').toLowerCase();
 
+      if (aLast < bLast) return -1 * currentSort.direction;
+      if (aLast > bLast) return 1 * currentSort.direction;
+      return 0;
+    });
+  }
+
+  if (currentSort.type === 'confirm') {
+    rows.sort((a, b) => {
+      const aVal = a.__confirmMs || 0;
+      const bVal = b.__confirmMs || 0;
+      return (aVal - bVal) * currentSort.direction;
+    });
+  }
+}
 function createNullElement() {
   return {
     value: '',
@@ -507,23 +530,81 @@ function formatEducation(row) {
   });
 }
 
-function parseDateValue(value) {
+function choosePlausibleYear(year, birthYear, minAge = 25, maxAge = 90) {
+  if (!birthYear || Number.isNaN(Number(birthYear))) return year;
+
+  const birth = Number(birthYear);
+  let candidates = [year - 200, year - 100, year, year + 100, year + 200]
+    .filter(y => y > birth);
+
+  const preferred = candidates.find(y => {
+    const age = y - birth;
+    return age >= minAge && age <= maxAge;
+  });
+
+  if (preferred != null) return preferred;
+
+  // fallback: choose the candidate after birth with the smallest positive age
+  if (candidates.length) {
+    candidates.sort((a, b) => (a - birth) - (b - birth));
+    return candidates[0];
+  }
+
+  return year;
+}
+
+function parseDateValue(value, birthYear = null) {
   const raw = safe(value);
   if (!raw) return null;
 
-  const d = new Date(raw);
-  if (!Number.isNaN(d.getTime())) return d.getTime();
+  // YYYY-MM-DD
+  const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (iso) {
+    let year = Number(iso[1]);
+    const month = Number(iso[2]) - 1;
+    const day = Number(iso[3]);
 
-  const mdy = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
-  if (mdy) {
-    const year = mdy[3].length === 2 ? Number(`19${mdy[3]}`) : Number(mdy[3]);
-    const dt = new Date(year, Number(mdy[1]) - 1, Number(mdy[2]));
+    year = choosePlausibleYear(year, birthYear);
+
+    const dt = new Date(year, month, day);
     if (!Number.isNaN(dt.getTime())) return dt.getTime();
   }
 
-  if (/^\d{4}$/.test(raw)) {
-    const dt = new Date(Number(raw), 0, 1);
+  // MM/DD/YYYY or MM/DD/YY
+  const mdy = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if (mdy) {
+    const month = Number(mdy[1]) - 1;
+    const day = Number(mdy[2]);
+    let year = Number(mdy[3]);
+
+    if (mdy[3].length === 2) {
+      // start with a neutral modern parse, then fix with birth year
+      year = 2000 + year;
+    }
+
+    year = choosePlausibleYear(year, birthYear);
+
+    const dt = new Date(year, month, day);
     if (!Number.isNaN(dt.getTime())) return dt.getTime();
+  }
+
+  // YYYY
+  if (/^\d{4}$/.test(raw)) {
+    let year = Number(raw);
+    year = choosePlausibleYear(year, birthYear);
+
+    const dt = new Date(year, 0, 1);
+    if (!Number.isNaN(dt.getTime())) return dt.getTime();
+  }
+
+  // fallback parse, then repair year if needed
+  const d = new Date(raw);
+  if (!Number.isNaN(d.getTime())) {
+    let year = d.getFullYear();
+    year = choosePlausibleYear(year, birthYear);
+
+    const repaired = new Date(year, d.getMonth(), d.getDate());
+    if (!Number.isNaN(repaired.getTime())) return repaired.getTime();
   }
 
   return null;
@@ -532,11 +613,11 @@ function parseDateValue(value) {
 function formatDateLabel(ms) {
   if (ms == null || Number.isNaN(ms)) return '—';
   const d = new Date(ms);
+  const year = d.getFullYear();
   const month = `${d.getMonth() + 1}`.padStart(2, '0');
   const day = `${d.getDate()}`.padStart(2, '0');
-  return `${d.getFullYear()}-${month}-${day}`;
+  return `${year}-${month}-${day}`;
 }
-
 function escapeHtml(str) {
   return safe(str)
     .replace(/&/g, '&amp;')
@@ -575,6 +656,8 @@ function processRows(rows) {
       const degreeValues = getDegreeValues(row);
       const educationLines = formatEducation(row);
 
+      const birthYear = safe(getCell(row, COLS.birthYear));
+
       return {
         ...row,
         __name: formatName(row),
@@ -586,8 +669,8 @@ function processRows(rows) {
         __lawSchoolValues: lawSchoolValues,
         __degreeValues: degreeValues,
         __courtTypes: courtTypes,
-        __confirmMs: parseDateValue(getCell(row, COLS.confirmationDate)),
-        __termMs: parseDateValue(getCell(row, COLS.terminationDate))
+        __confirmMs: parseDateValue(getCell(row, COLS.confirmationDate), birthYear),
+        __termMs: parseDateValue(getCell(row, COLS.terminationDate), birthYear)
       };
     })
     .filter(row => row.__courtTypes.includes(DEFAULT_COURT_TYPE));
@@ -615,24 +698,21 @@ function processRows(rows) {
   applyFilters();
   initRangeBands();
 }
-
 function renderTable() {
   els.tbody.innerHTML = '';
 
   if (!filteredRows.length) {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td colspan="3" class="empty">No rows match the current filters.</td>`;
+    tr.innerHTML = `<td colspan="2" class="empty">No rows match the current filters.</td>`;
     els.tbody.appendChild(tr);
     return;
   }
 
   filteredRows.forEach(row => {
-    // --- EDUCATION ---
     const educationLines = row.__education.length
       ? row.__education.map(line => `<div>${escapeHtml(line)}</div>`).join('')
       : '<div class="empty">—</div>';
 
-    // --- CAREER ---
     const rawCareer = safe(getCell(row, COLS.professionalCareer));
     const careerLines = rawCareer
       ? rawCareer
@@ -661,31 +741,55 @@ function renderTable() {
           .join('')
       : '<div class="empty">—</div>';
 
-    // --- JUSTICE STACK ---
+    const ayesNaysValue = escapeHtml(safe(getCell(row, COLS.ayesNays)) || '—');
+
     const justiceStack = `
-      <div class="justice-stack">
-        <div class="justice-stack-item">
-          <span class="justice-stack-label">Name</span>
-          <span class="justice-stack-value justice-name">
-            ${escapeHtml(row.__name) || '<span class="empty">—</span>'}
-          </span>
-        </div>
-        <div class="justice-stack-item">
-          <span class="justice-stack-label">Birth Date</span>
-          <span class="justice-stack-value">${escapeHtml(row.__birthDate) || '<span class="empty">—</span>'}</span>
-        </div>
-        <div class="justice-stack-item">
-          <span class="justice-stack-label">Birth State</span>
-          <span class="justice-stack-value">${escapeHtml(row.__birthState) || '<span class="empty">—</span>'}</span>
-        </div>
-        <div class="justice-stack-item">
-          <span class="justice-stack-label">Gender / Race or Ethnicity</span>
-          <span class="justice-stack-value">${escapeHtml(row.__genderRace) || '<span class="empty">—</span>'}</span>
-        </div>
+  <div class="justice-stack">
+    <div class="justice-stack-item">
+      <span class="justice-stack-label">Name</span>
+      <span class="justice-stack-value justice-name">
+        ${escapeHtml(row.__name) || '<span class="empty">—</span>'}
+      </span>
+    </div>
+
+    <div class="justice-stack-item">
+      <span class="justice-stack-label">Confirmed</span>
+      <span class="justice-stack-value">
+        ${
+          row.__confirmMs
+            ? formatDateLabel(row.__confirmMs)
+            : '<span class="empty">—</span>'
+        }
+      </span>
+    </div>
+
+    <div class="justice-stack-item">
+      <span class="justice-stack-label">Born</span>
+      <span class="justice-stack-value">
+        ${
+          (row.__birthDate || row.__birthState)
+            ? `${escapeHtml(row.__birthDate || '')}${row.__birthDate && row.__birthState ? ', ' : ''}${escapeHtml(row.__birthState || '')}`
+            : '<span class="empty">—</span>'
+        }
+      </span>
+    </div>
+
+    <div class="justice-stack-item">
+      <span class="justice-stack-label">Gender / Race or Ethnicity</span>
+      <span class="justice-stack-value">
+        ${escapeHtml(row.__genderRace) || '<span class="empty">—</span>'}
+      </span>
+    </div>
+
+    <div class="justice-stack-item">
+      <span class="justice-stack-label">Ayes/Nays</span>
+      <div class="ayes-box">
+        ${escapeHtml(safe(getCell(row, COLS.ayesNays)) || '—')}
       </div>
+    </div>
+  </div>
     `;
 
-    // --- NEW STACKED COLUMN ---
     const eduCareerStack = `
       <div class="edu-career-stack">
         <div class="edu-career-section">
@@ -703,9 +807,6 @@ function renderTable() {
     tr.innerHTML = `
       <td data-label="Justice">${justiceStack}</td>
       <td data-label="Education & Career">${eduCareerStack}</td>
-      <td data-label="Ayes/Nays (1)">
-        ${escapeHtml(safe(getCell(row, COLS.ayesNays))) || '<span class="empty">—</span>'}
-      </td>
     `;
     els.tbody.appendChild(tr);
   });

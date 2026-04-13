@@ -8,112 +8,125 @@
   <link rel="stylesheet" href="table.css" />
 </head>
 <body>
-  <div class="wrap">
-    <div class="page-layout">
-      <aside class="sidebar">
-        <div class="topbar">
-          <h1>SCOTUS education, jobs, birth etc.</h1>
+ <div class="wrap">
+  <div class="page-layout">
+    <aside class="sidebar">
+      <div class="topbar">
+        <h1>SCOTUS education, jobs, birth etc.</h1>
 
-          <div class="upload-row">
-            <div class="panel">
-              <!-- <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-                <div id="fileName" class="file-name">Loading CSV...</div>
-              </div> -->
+        <!-- <div class="upload-row">
+          <div class="panel">
+            <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+              <div id="fileName" class="file-name">Loading CSV...</div>
             </div>
           </div>
+        </div> -->
 
-          <div class="summary-line">
-            Showing <span id="filteredRows">0</span> of <span id="totalRows">0</span> records
-          </div>
+        <div class="filter-grid">
+          <div class="panel span-12">
+            <div style="display:grid; gap:10px;">
+              <div>
+                <h2>Name</h2>
+                <input id="nameSearch" type="text" placeholder="Search name..." />
+              </div>
+              </div>
 
-          <div class="actions-row">
-            <button class="action-btn" id="clearBtn" type="button">Clear Filters</button>
-            <button class="action-btn" id="downloadBtn" type="button">Download Filtered CSV</button>
-          </div>
-
-          <div class="filter-grid">
-            <div class="panel span-12">
-              <div style="display:grid; gap:10px;">
+              </div>
+          <div class="panel span-12">
+              <div>
                 <div>
-                  <h2>Name</h2>
-                  <input id="nameSearch" type="text" placeholder="Search name..." />
-                </div>
+                <h2>Appointing President (1)</h2>
+                <select id="presidentSelect">
+                  <option value="">All presidents</option>
+                </select>
+              </div>
 
-                <div>
-                  <h2>Appointing President (1)</h2>
-                  <select id="presidentSelect">
-                    <option value="">All presidents</option>
-                  </select>
-                </div>
+              <div>
+                <h2>Party of Appointing President (1)</h2>
+                <div id="partyButtons" class="top-list"></div>
               </div>
             </div>
+          </div>
 
-            <div class="panel span-12">
-              <div style="display:grid; gap:12px;">
-                <div>
-                  <h2>Confirmation Date (1)</h2>
-                  <div class="range-wrap">
-                    <div class="range-values">
-                      <span id="confirmMinLabel">—</span>
-                      <span id="confirmMaxLabel">—</span>
-                    </div>
-                    <div class="range-stack">
-                      <div id="confirmFill" class="range-fill"></div>
-                      <div id="confirmBand" class="range-band" aria-hidden="true"></div>
-                      <input id="confirmMin" type="range" />
-                      <input id="confirmMax" type="range" />
-                    </div>
+          <div class="panel span-12">
+            <div style="display:grid; gap:12px;">
+              <div>
+                <h2>Confirmation Date (1)</h2>
+                <div class="range-wrap">
+                  <div class="range-values">
+                    <span id="confirmMinLabel">—</span>
+                    <span id="confirmMaxLabel">—</span>
+                  </div>
+                  <div class="range-stack">
+                    <div id="confirmFill" class="range-fill"></div>
+                    <div id="confirmBand" class="range-band" aria-hidden="true"></div>
+                    <input id="confirmMin" type="range" />
+                    <input id="confirmMax" type="range" />
                   </div>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div class="panel span-12">
-              <h2>Birth State</h2>
-              <div id="birthStateButtons" class="state-cartogram-panel"></div>
-            </div>
+          <div class="panel span-12">
+            <h2>Birth State</h2>
+            <div id="birthStateButtons" class="state-cartogram-panel"></div>
+          </div>
 
-            <div class="panel span-12">
-              <h2>Top 10 Schools + Degrees by School Slot</h2>
-              <div id="topSchools" class="top-list"></div>
-              <div id="topDegrees" class="top-list"></div>
-            </div>
+          <div class="panel span-12">
+            <h2>Top 10 Schools + Degrees by School Slot</h2>
+            <div id="topSchools" class="top-list"></div>
+            <div id="topDegrees" class="top-list"></div>
+          </div>
 
-            <div class="panel span-12">
-              <div style="display:grid; gap:10px;">
-                <div>
-                  <h2>Court Type (1)</h2>
-                  <div id="courtTypeButtons" class="top-list"></div>
-                </div>
-
-                <div>
-                  <h2>Party of Appointing President (1)</h2>
-                  <div id="partyButtons" class="top-list"></div>
-                </div>
+          <div class="panel span-12">
+            <div style="display:grid; gap:10px;">
+              <div>
+                <h2>Court Type (1)</h2>
+                <div id="courtTypeButtons" class="top-list"></div>
               </div>
+
             </div>
           </div>
         </div>
-      </aside>
+      </div>
+    </aside>
 
-      <main class="main-table">
-        <div class="table-wrap">
-          <div class="table-scroll">
-            <table id="dataTable">
-              <thead>
-             <tr>
-  <th style="width: 30%;">Justice</th>
-  <th style="width: 60%;">Education & Career</th>
-  <th style="width: 10%;">Ayes/Nays (1)</th>
-</tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-      </main>
-    </div>
+    <main class="main-table">
+<div class="table-topbar">
+  <div class="table-summary-line">
+    Showing <span id="filteredRows">0</span> of <span id="totalRows">0</span> records
   </div>
+
+  <div class="table-actions">
+    <button class="action-btn" id="sortNameBtn" type="button">
+      Sort: Last Name
+    </button>
+    <button class="action-btn" id="sortConfirmBtn" type="button">
+      Sort: Confirmation Date
+    </button>
+
+    <button class="action-btn" id="clearBtn" type="button">Clear Filters</button>
+    <button class="action-btn" id="downloadBtn" type="button">Download Filtered CSV</button>
+  </div>
+</div>
+
+      <div class="table-wrap">
+        <div class="table-scroll">
+          <table id="dataTable">
+            <thead>
+              <tr>
+                <th style="width: 32%;">Justice</th>
+                <th style="width: 68%;">Education & Career</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
 
   <script id="grid" type="text/plain">
                               ME

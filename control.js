@@ -28,10 +28,35 @@ function getCartogramTileStyles(count, maxCount, isActive) {
   };
 }
 function setButtonGroupActiveState(container, activeSet) {
+  if (!container) return;
+
   const buttons = container.querySelectorAll('[data-filter-value]');
   buttons.forEach(btn => {
     const value = btn.dataset.filterValue || '';
-    btn.classList.toggle('active', activeSet.has(value));
+    const isActive = activeSet.has(value);
+
+    btn.classList.toggle('active', isActive);
+
+    if (btn.classList.contains('degree-histogram-row')) {
+      const bar = btn.querySelector('.degree-histogram-bar');
+      const label = btn.querySelector('.degree-histogram-label');
+      const count = btn.querySelector('.degree-histogram-count');
+
+      btn.style.background = isActive ? 'var(--accent-soft)' : '#fff';
+      btn.style.color = 'var(--text)';
+
+      if (bar) {
+        bar.style.background = isActive ? 'var(--accent)' : 'var(--accent-soft)';
+      }
+
+      if (label) {
+        label.style.color = isActive ? '#fff' : 'var(--text)';
+      }
+
+      if (count) {
+        count.style.color = isActive ? '#fff' : 'var(--text)';
+      }
+    }
   });
 }
 function buildDropdown(selectEl, values, currentValue) {
@@ -604,6 +629,7 @@ function applyFilters() {
 
   renderSummary();
   renderTopLists();
+  sortRows(filteredRows);
   renderTable();
   buildStateCartogramFilter(
     els.birthStateButtons,
@@ -911,6 +937,33 @@ els.termMax.addEventListener('input', e => {
   debugLog('[DEBUG termMax changed]', v);
   applyFilters();
 });
+
+const sortNameBtn = document.getElementById('sortNameBtn');
+const sortConfirmBtn = document.getElementById('sortConfirmBtn');
+
+if (sortNameBtn) {
+  sortNameBtn.addEventListener('click', () => {
+    if (currentSort.type === 'name') {
+      currentSort.direction *= -1;
+    } else {
+      currentSort.type = 'name';
+      currentSort.direction = 1;
+    }
+    applyFilters();
+  });
+}
+
+if (sortConfirmBtn) {
+  sortConfirmBtn.addEventListener('click', () => {
+    if (currentSort.type === 'confirm') {
+      currentSort.direction *= -1;
+    } else {
+      currentSort.type = 'confirm';
+      currentSort.direction = 1;
+    }
+    applyFilters();
+  });
+}
 
 window.addEventListener('resize', () => {
   updateRangeBand('confirm');
