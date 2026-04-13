@@ -1,3 +1,4 @@
+
 const COLS = {
   lastName: 'Last Name',
   firstName: 'First Name',
@@ -94,30 +95,75 @@ const filters = {
   birthStates: new Set()
 };
 
+function createNullElement() {
+  return {
+    value: '',
+    textContent: '',
+    innerHTML: '',
+    min: 0,
+    max: 0,
+    disabled: false,
+    checked: false,
+    dataset: {},
+    style: {},
+    className: '',
+    classList: {
+      add() {},
+      remove() {},
+      toggle() { return false; },
+      contains() { return false; }
+    },
+    appendChild() {},
+    insertBefore() {},
+    removeChild() {},
+    remove() {},
+    setAttribute() {},
+    getAttribute() { return null; },
+    addEventListener() {},
+    removeEventListener() {},
+    querySelector() { return null; },
+    querySelectorAll() { return []; },
+    closest() { return null; },
+    focus() {},
+    blur() {},
+    click() {},
+    parentNode: null,
+    clientWidth: 0
+  };
+}
+
+function getEl(id) {
+  return document.getElementById(id) || createNullElement();
+}
+
+function getQueryEl(selector) {
+  return document.querySelector(selector) || createNullElement();
+}
+
 const els = {
-  fileName: document.getElementById('fileName'),
-  downloadBtn: document.getElementById('downloadBtn'),
-  clearBtn: document.getElementById('clearBtn'),
-  totalRows: document.getElementById('totalRows'),
-  filteredRows: document.getElementById('filteredRows'),
-  courtTypesCount: document.getElementById('courtTypesCount'),
-  presidentsCount: document.getElementById('presidentsCount'),
-  nameSearch: document.getElementById('nameSearch'),
-  courtTypeButtons: document.getElementById('courtTypeButtons'),
-  presidentSelect: document.getElementById('presidentSelect'),
-  partyButtons: document.getElementById('partyButtons'),
-  birthStateButtons: document.getElementById('birthStateButtons'),
-  confirmMin: document.getElementById('confirmMin'),
-  confirmMax: document.getElementById('confirmMax'),
-  termMin: document.getElementById('termMin'),
-  termMax: document.getElementById('termMax'),
-  confirmMinLabel: document.getElementById('confirmMinLabel'),
-  confirmMaxLabel: document.getElementById('confirmMaxLabel'),
-  termMinLabel: document.getElementById('termMinLabel'),
-  termMaxLabel: document.getElementById('termMaxLabel'),
-  topSchools: document.getElementById('topSchools'),
-  topDegrees: document.getElementById('topDegrees'),
-  tbody: document.querySelector('#dataTable tbody')
+  fileName: getEl('fileName'),
+  downloadBtn: getEl('downloadBtn'),
+  clearBtn: getEl('clearBtn'),
+  totalRows: getEl('totalRows'),
+  filteredRows: getEl('filteredRows'),
+  courtTypesCount: getEl('courtTypesCount'),
+  presidentsCount: getEl('presidentsCount'),
+  nameSearch: getEl('nameSearch'),
+  courtTypeButtons: getEl('courtTypeButtons'),
+  presidentSelect: getEl('presidentSelect'),
+  partyButtons: getEl('partyButtons'),
+  birthStateButtons: getEl('birthStateButtons'),
+  confirmMin: getEl('confirmMin'),
+  confirmMax: getEl('confirmMax'),
+  termMin: getEl('termMin'),
+  termMax: getEl('termMax'),
+  confirmMinLabel: getEl('confirmMinLabel'),
+  confirmMaxLabel: getEl('confirmMaxLabel'),
+  termMinLabel: getEl('termMinLabel'),
+  termMaxLabel: getEl('termMaxLabel'),
+  topSchools: getEl('topSchools'),
+  topDegrees: getEl('topDegrees'),
+  tbody: getQueryEl('#dataTable tbody')
 };
 
 const rangeBands = {
@@ -520,50 +566,54 @@ function processRows(rows) {
         safe(getCell(row, COLS.professionalCareer)) === 'Professional Career';
 
       if (isHeaderRow) return false;
-      return Object.values(row).some(v => safe(v));
+      return Object.values(row).some(value => safe(value) !== '');
     })
-    .filter(row => getMultiValues(row, COURT_TYPE_COLS).includes(DEFAULT_COURT_TYPE))
     .map(row => {
-      const out = { ...row };
-      out.__name = formatName(row);
-      out.__birthDate = formatBirthDate(row);
-      out.__birthState = formatBirthState(row);
-      out.__genderRace = formatGenderRace(row);
-      out.__education = formatEducation(row);
-      out.__schoolValues = getSchoolValues(row);
-      out.__lawSchoolValues = getLawSchoolValues(row);
-      out.__degreeValues = getDegreeValues(row);
-      out.__courtTypes = getMultiValues(row, COURT_TYPE_COLS).filter(value => value !== DEFAULT_COURT_TYPE);
-      out.__confirmMs = parseDateValue(getCell(row, COLS.confirmationDate));
-      out.__termMs = parseDateValue(getCell(row, COLS.terminationDate));
-      return out;
-    });
+      const courtTypes = getMultiValues(row, COURT_TYPE_COLS);
+      const schoolValues = getSchoolValues(row);
+      const lawSchoolValues = getLawSchoolValues(row);
+      const degreeValues = getDegreeValues(row);
+      const educationLines = formatEducation(row);
 
-  confirmDomain = [...new Set(rawRows.map(d => d.__confirmMs).filter(v => v != null))].sort((a, b) => a - b);
-  termDomain = [...new Set(rawRows.map(d => d.__termMs).filter(v => v != null))].sort((a, b) => a - b);
+      return {
+        ...row,
+        __name: formatName(row),
+        __birthDate: formatBirthDate(row),
+        __birthState: formatBirthState(row),
+        __genderRace: formatGenderRace(row),
+        __education: educationLines,
+        __schoolValues: schoolValues,
+        __lawSchoolValues: lawSchoolValues,
+        __degreeValues: degreeValues,
+        __courtTypes: courtTypes,
+        __confirmMs: parseDateValue(getCell(row, COLS.confirmationDate)),
+        __termMs: parseDateValue(getCell(row, COLS.terminationDate))
+      };
+    })
+    .filter(row => row.__courtTypes.includes(DEFAULT_COURT_TYPE));
+
+  filteredRows = [...rawRows];
+
+  confirmDomain = [...new Set(rawRows.map(r => r.__confirmMs).filter(v => v != null))].sort((a, b) => a - b);
+  termDomain = [...new Set(rawRows.map(r => r.__termMs).filter(v => v != null))].sort((a, b) => a - b);
 
   filters.confirmMin = confirmDomain.length ? 0 : null;
   filters.confirmMax = confirmDomain.length ? confirmDomain.length - 1 : null;
   filters.termMin = termDomain.length ? 0 : null;
   filters.termMax = termDomain.length ? termDomain.length - 1 : null;
 
-  debugGroup('[DEBUG processRows normalized]', {
-    normalizedRowCount: rawRows.length,
-    firstNormalizedRow: rawRows[0] || null,
-    firstFiveSchoolSamples: rawRows.slice(0, 5).map((row, index) => ({
-      index,
-      name: row.__name,
-      schools: row.__schoolValues,
-      lawSchools: row.__lawSchoolValues,
-      degrees: row.__degreeValues,
-      otherCourtTypes: row.__courtTypes
-    })),
-    datasetFilteredTo: DEFAULT_COURT_TYPE
+  debugGroup('[DEBUG processRows output]', {
+    rawRowCount: rawRows.length,
+    firstProcessedRow: rawRows[0] || null,
+    confirmDomainCount: confirmDomain.length,
+    termDomainCount: termDomain.length,
+    courtTypeSamples: rawRows.slice(0, 5).map(r => ({ name: r.__name, courtTypes: r.__courtTypes })),
+    schoolSamples: rawRows.slice(0, 5).map(r => ({ name: r.__name, schools: r.__schoolValues, lawSchools: r.__lawSchoolValues, degrees: r.__degreeValues }))
   });
 
   buildAllFilterControls();
-  initRangeBands();
   applyFilters();
+  initRangeBands();
 }
 
 function renderTable() {
@@ -571,7 +621,7 @@ function renderTable() {
 
   if (!filteredRows.length) {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td colspan="7" class="empty">No rows match the current filters.</td>`;
+    tr.innerHTML = `<td colspan="4" class="empty">No rows match the current filters.</td>`;
     els.tbody.appendChild(tr);
     return;
   }
@@ -581,14 +631,62 @@ function renderTable() {
       ? row.__education.map(line => `<div>${escapeHtml(line)}</div>`).join('')
       : '<div class="empty">—</div>';
 
+    const justiceStack = `
+      <div class="justice-stack">
+        <div class="justice-stack-item">
+          <span class="justice-stack-label">Name</span>
+          <span class="justice-stack-value justice-name">${escapeHtml(row.__name) || '<span class="empty">—</span>'}</span>
+        </div>
+        <div class="justice-stack-item">
+          <span class="justice-stack-label">Birth Date</span>
+          <span class="justice-stack-value">${escapeHtml(row.__birthDate) || '<span class="empty">—</span>'}</span>
+        </div>
+        <div class="justice-stack-item">
+          <span class="justice-stack-label">Birth State</span>
+          <span class="justice-stack-value">${escapeHtml(row.__birthState) || '<span class="empty">—</span>'}</span>
+        </div>
+        <div class="justice-stack-item">
+          <span class="justice-stack-label">Gender / Race or Ethnicity</span>
+          <span class="justice-stack-value">${escapeHtml(row.__genderRace) || '<span class="empty">—</span>'}</span>
+        </div>
+      </div>
+    `;
+
+    const rawCareer = safe(getCell(row, COLS.professionalCareer));
+    const careerLines = rawCareer
+      ? rawCareer
+          .split(';')
+          .map(part => part.trim())
+          .filter(Boolean)
+          .map(part => {
+            const commaIndex = part.indexOf(',');
+            if (commaIndex === -1) {
+              return `
+                <div class="career-line">
+                  <span class="career-role">${escapeHtml(part)}</span>
+                </div>
+              `;
+            }
+
+            const role = part.slice(0, commaIndex).trim();
+            const rest = part.slice(commaIndex + 1).trim();
+
+            return `
+              <div class="career-line">
+                <span class="career-role">${escapeHtml(role)}</span><span class="career-rest">, ${escapeHtml(rest)}</span>
+              </div>
+            `;
+          })
+          .join('')
+      : '<div class="empty">—</div>';
+
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td data-label="Name">${escapeHtml(row.__name) || '<span class="empty">—</span>'}</td>
-      <td data-label="Birth Date">${escapeHtml(row.__birthDate) || '<span class="empty">—</span>'}</td>
-      <td data-label="Birth State">${escapeHtml(row.__birthState) || '<span class="empty">—</span>'}</td>
-      <td data-label="Gender / Race or Ethnicity">${escapeHtml(row.__genderRace) || '<span class="empty">—</span>'}</td>
+      <td data-label="Justice">${justiceStack}</td>
       <td data-label="Education">${educationLines}</td>
-      <td data-label="Professional Career">${escapeHtml(safe(getCell(row, COLS.professionalCareer))) || '<span class="empty">—</span>'}</td>
+      <td data-label="Professional Career">
+        <div class="career-stack">${careerLines}</div>
+      </td>
       <td data-label="Ayes/Nays (1)">${escapeHtml(safe(getCell(row, COLS.ayesNays))) || '<span class="empty">—</span>'}</td>
     `;
     els.tbody.appendChild(tr);
