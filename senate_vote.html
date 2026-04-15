@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diverging Vote Bars</title>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --text: #000000;
+      --muted: #666666;
+      --border: #ffffff;
+      --accent: #c8102e;
+      --max: 1200px;
+      --gutter: 24px;
+      --section-gap: 40px;
+      --card-gap: 24px;
+      --radius: 0;
+      --shadow: none;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-sans);
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.45;
+      font-size:14px;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .wrap {
+      width: min(100% - 2 * var(--gutter), var(--max));
+      margin-inline: auto;
+      padding: 0;
+    }
+
+    .hero {
+      padding: 56px 0 18px;
+
+    }
+
+    .hero-kicker {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .subhed {
+      max-width: 60ch;
+      margin: 16px 0 0;
+      font-size: 1.125rem;
+      color: var(--muted);
+    }
+
+    .section {
+      padding: 0;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 0;
+      border-radius: 0;
+      padding: 18px 0;
+      margin: 0;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 26px;
+      padding: 0 10px;
+      border: 1px solid black;
+      background: var(--text);
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1;
+      border-radius: 0;
+      box-shadow: none;
+      transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+    }
+
+    button:not(.active) {
+      background: #fff;
+      color: var(--text);
+    }
+
+    button:hover {
+      text-decoration: none;
+      border-color: var(--accent);
+    }
+
+    .chart-wrap {
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    svg {
+      width: 100%;
+      display: block;
+      background: #fff;
+    }
+
+    .axis path {
+      stroke:none;
+      shape-rendering: crispEdges;
+    }
+    .axis line {
+      stroke: #999;
+      shape-rendering: crispEdges;
+    }
+
+    .center-line {
+      stroke: #000;
+      stroke-width: 1;
+    }
+
+    .bar-yea {
+      fill: #111;
+    }
+
+    .bar-no {
+      fill: #b3b3b3;
+    }
+
+    .bar-yea.highlight {
+      fill: var(--accent);
+    }
+
+    .bar-no.highlight {
+      fill: #f3a3b1;
+    }
+
+    .name-label {
+      font-size: 12px;
+      dominant-baseline: middle;
+      fill: var(--text);
+    }
+
+    .name-label.highlight {
+      fill: var(--accent);
+      font-weight: 700;
+    }
+
+    .year-label {
+      font-size: 12px;
+      dominant-baseline: middle;
+      fill: var(--muted);
+    }
+
+    .value-label {
+      font-size: 11px;
+      fill: var(--text);
+      dominant-baseline: middle;
+    }
+
+    .axis-title {
+      font-size: 12px;
+      fill: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: #fff;
+      color: #000;
+      border: 1px solid black;
+      padding: 10px 12px;
+      border-radius: 0;
+      font-size: 13px;
+      line-height: 1.4;
+      max-width: 320px;
+      opacity: 0;
+      transform: translate(-50%, calc(-100% - 12px));
+      transition: opacity 120ms ease;
+      white-space: normal;
+      z-index: 5;
+    }
+
+    @media (max-width: 980px) {
+      .hero {
+        padding: 40px 0 24px;
+      }
+
+      .section {
+        padding: 4px 0;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      button {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .subhed {
+        font-size: 1rem;
+      }
+    }
+    .legend {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-swatch {
+  width: 14px;
+  height: 14px;
+  border: 1px solid #000;
+  display: inline-block;
+}
+
+.legend-swatch.current {
+  background: var(--accent);
+}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="hero-kicker">Supreme Court</div>
+      <h1>Senate Votes</h1>
+      <p class="subhed">
+      </p>
+  
+      <div class="panel">
+        <div class="controls">SORT BY: 
+          <button id="sort-date" class="active" type="button">Date: Early to Late</button>
+          <button id="sort-partisanship" type="button">Close calls: Most to least</button>
+         
+</div>
+        </div>
+        <div class="chart-wrap" id="chart"></div>
+         <div class="legend">
+  <span class="legend-item">
+    <span class="legend-swatch current"></span>
+    Current justices
+  </span>
+      </div>
+            Source: https://www.senate.gov/legislative/nominations/SupremeCourtNominations1789present.html
+
+    </section>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    
+  </div>
+
+  <script>
+    const csvPath = "senate_vote.csv";
+
+    const HIGHLIGHT_NAMES = new Set([
+      "Barrett, Amy Coney",
+      "Jackson, Ketanji Brown",
+      "Alito, Samuel A., Jr.",
+      "Sotomayor, Sonia",
+      "Kagan, Elena",
+      "Gorsuch, Neil M.",
+      "Kavanaugh, Brett",
+      "Thomas, Clarence",
+      "Roberts, John G., Jr."
+    ]);
+
+    const chartContainer = d3.select("#chart");
+    const tooltip = d3.select("#tooltip");
+
+    let allData = [];
+    let currentSort = "date";
+
+    d3.csv(csvPath, d => ({
+      voteYear: +String(d["Vote Year"] || "").trim(),
+      yeaVotes: +String(d["Yea Votes"] || "").replace(/,/g, "").trim(),
+      noVotes: +String(d["No Votes"] || "").replace(/,/g, "").trim(),
+      justiceName: String(d["Justice Full Name"] || "").trim()
+    }))
+    .then(data => {
+      allData = data.filter(d =>
+        !isNaN(d.voteYear) &&
+        !isNaN(d.yeaVotes) &&
+        !isNaN(d.noVotes) &&
+        d.justiceName
+      );
+
+      updateChart();
+    })
+    .catch(error => {
+      console.error(error);
+      chartContainer.html("<p>Could not load CSV.</p>");
+    });
+
+    document.getElementById("sort-date").addEventListener("click", () => {
+      currentSort = "date";
+      setActiveButton();
+      updateChart();
+    });
+
+    document.getElementById("sort-partisanship").addEventListener("click", () => {
+      currentSort = "partisanship";
+      setActiveButton();
+      updateChart();
+    });
+
+    function setActiveButton() {
+      document.getElementById("sort-date").classList.toggle("active", currentSort === "date");
+      document.getElementById("sort-partisanship").classList.toggle("active", currentSort === "partisanship");
+    }
+
+    function getSortedData() {
+      const data = [...allData];
+
+      if (currentSort === "partisanship") {
+        data.sort((a, b) => {
+          const diffA = Math.abs(a.yeaVotes - a.noVotes);
+          const diffB = Math.abs(b.yeaVotes - b.noVotes);
+          return d3.ascending(diffA, diffB) || d3.ascending(a.voteYear, b.voteYear);
+        });
+      } else {
+        data.sort((a, b) => d3.ascending(a.voteYear, b.voteYear));
+      }
+
+      return data;
+    }
+
+    function updateChart() {
+      renderChart(getSortedData());
+    }
+
+    function renderChart(data) {
+      chartContainer.html("");
+
+      if (!data.length) {
+        chartContainer.append("p").text("No valid rows found.");
+        return;
+      }
+
+      const wrapWidth = chartContainer.node().clientWidth || 1200;
+
+      const rowHeight = 20;
+      const fontSizeName = 12;
+      const fontSizeYear = 12;
+      const fontSizeValue = 11;
+
+      const maxNameLength = d3.max(data, d => d.justiceName.length) || 10;
+      const leftLabelWidth = Math.max(180, Math.min(340, maxNameLength * 10));
+      const rightLabelWidth = 120;
+
+      const margin = {
+        top: 60,
+        right: rightLabelWidth,
+        bottom: 52,
+        left: leftLabelWidth
+      };
+
+      const width = Math.max(760, wrapWidth);
+      const height = margin.top + margin.bottom + data.length * rowHeight;
+
+      const maxValue = d3.max(data, d => Math.max(d.yeaVotes, d.noVotes));
+
+      const x = d3.scaleLinear()
+        .domain([-maxValue, maxValue])
+        .range([margin.left*1.2, width - margin.right]);
+
+      const y = d3.scaleBand()
+        .domain(data.map((d, i) => i))
+        .range([margin.top, height - margin.bottom])
+        .padding(0.18);
+
+      const svg = chartContainer
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    const xAxis = d3.axisTop(x)
+        .tickFormat(d => Math.abs(d));
+
+      svg.append("g")
+        .attr("class", "axis")
+        .attr("transform", `translate(0,${margin.top})`)
+        .call(xAxis);
+
+      svg.append("line")
+        .attr("class", "center-line")
+        .attr("x1", x(0))
+        .attr("x2", x(0))
+        .attr("y1", margin.top+10)
+        .attr("y2", height - margin.bottom);
+
+      svg.append("text")
+        .attr("class", "axis-title")
+        .attr("x", x(-maxValue / 2))
+        .attr("y", margin.top - 30)
+        .attr("text-anchor", "middle")
+        .text("Yea Votes");
+
+      svg.append("text")
+        .attr("class", "axis-title")
+        .attr("x", x(maxValue / 2))
+        .attr("y", margin.top - 30)
+        .attr("text-anchor", "middle")
+        .text("No Votes");
+
+      svg.selectAll(".name-label")
+        .data(data)
+        .join("text")
+        .attr("class", d => HIGHLIGHT_NAMES.has(d.justiceName) ? "name-label highlight" : "name-label")
+        .attr("x", margin.left - 14)
+        .attr("y", (_, i) => y(i) + y.bandwidth() / 2)
+        .attr("text-anchor", "end")
+        .style("font-size", `${fontSizeName}px`)
+        .text(d => d.justiceName);
+
+      svg.selectAll(".year-label")
+        .data(data)
+        .join("text")
+        .attr("class", "year-label")
+        .attr("x", width - margin.right + 12)
+        .attr("y", (_, i) => y(i) + y.bandwidth() / 2)
+        .attr("text-anchor", "start")
+        .style("font-size", `${fontSizeYear}px`)
+        .text(d => {
+            if (currentSort === "partisanship") {
+
+            return `${Math.abs(d.yeaVotes - d.noVotes)} votes (${Math.round(Math.abs(d.yeaVotes - d.noVotes)/(d.yeaVotes + d.noVotes)*100)}%)`;
+            }
+            return d.voteYear;
+        });
+
+      svg.selectAll(".bar-yea")
+        .data(data)
+        .join("rect")
+        .attr("class", d => HIGHLIGHT_NAMES.has(d.justiceName) ? "bar-yea highlight" : "bar-yea")
+        .attr("x", d => x(-d.yeaVotes))
+        .attr("y", (_, i) => y(i))
+        .attr("width", d => x(0) - x(-d.yeaVotes))
+        .attr("height", y.bandwidth())
+        .on("mousemove", (event, d) => showTooltip(event, d, "Yea Votes", d.yeaVotes))
+        .on("mouseleave", hideTooltip);
+
+      svg.selectAll(".bar-no")
+        .data(data)
+        .join("rect")
+        .attr("class", d => HIGHLIGHT_NAMES.has(d.justiceName) ? "bar-no highlight" : "bar-no")
+        .attr("x", x(0))
+        .attr("y", (_, i) => y(i))
+        .attr("width", d => x(d.noVotes) - x(0))
+        .attr("height", y.bandwidth())
+        .on("mousemove", (event, d) => showTooltip(event, d, "No Votes", d.noVotes))
+        .on("mouseleave", hideTooltip);
+
+      svg.selectAll(".yea-label")
+        .data(data)
+        .join("text")
+        .attr("class", "value-label")
+        .attr("x", d => x(-d.yeaVotes) - 6)
+        .attr("y", (_, i) => y(i) + y.bandwidth() / 2)
+        .attr("text-anchor", "end")
+        .style("font-size", `${fontSizeValue}px`)
+        .text(d => d.yeaVotes);
+
+      svg.selectAll(".no-label")
+        .data(data)
+        .join("text")
+        .attr("class", "value-label")
+        .attr("x", d => x(d.noVotes) + 6)
+        .attr("y", (_, i) => y(i) + y.bandwidth() / 2)
+        .attr("text-anchor", "start")
+        .style("font-size", `${fontSizeValue}px`)
+        .text(d => d.noVotes);
+    }
+
+    function showTooltip(event, d, label, value) {
+      tooltip
+        .style("opacity", 1)
+        .style("left", `${event.pageX}px`)
+        .style("top", `${event.pageY}px`)
+        .html(
+          `<strong>${d.justiceName}</strong><br>` +
+          `Vote Year: ${d.voteYear}<br>` +
+          `${label}: ${value}`
+        );
+    }
+
+    function hideTooltip() {
+      tooltip.style("opacity", 0);
+    }
+  </script>
+</body>
+</html>

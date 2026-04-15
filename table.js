@@ -61,6 +61,13 @@ const PARTY_COLS = [
   'Party of Appointing President (4)',
   'Party of Appointing President (5)'
 ];
+const AYES_NAYS_COLS = [
+  'Ayes/Nays (1)',
+  'Ayes/Nays (2)',
+  'Ayes/Nays (3)',
+  'Ayes/Nays (4)',
+  'Ayes/Nays (5)'
+];
 
 const SCOTUS_COURT_NAME = 'Supreme Court of the United States';
 
@@ -891,10 +898,11 @@ function processRows(rows) {
         const courtName = normalizeCourtName(getCell(row, COURT_NAME_COLS[i]));
         if (courtName !== normalizeCourtName(SCOTUS_COURT_NAME)) continue;
 
-        const confirmRaw = safe(getCell(row, CONFIRMATION_DATE_COLS[i]));
-        const seniorRaw = safe(getCell(row, SENIOR_STATUS_DATE_COLS[i]));
-        const terminationRaw = safe(getCell(row, TERMINATION_DATE_COLS[i]));
-        const partyRaw = safe(getCell(row, PARTY_COLS[i]));
+      const confirmRaw = safe(getCell(row, CONFIRMATION_DATE_COLS[i]));
+      const seniorRaw = safe(getCell(row, SENIOR_STATUS_DATE_COLS[i]));
+      const terminationRaw = safe(getCell(row, TERMINATION_DATE_COLS[i]));
+      const partyRaw = safe(getCell(row, PARTY_COLS[i]));
+      const ayesNaysRaw = safe(getCell(row, AYES_NAYS_COLS[i]));
 
         const confirmMs = parseDateValue(confirmRaw, birthYear);
         const seniorMs = parseDateValue(seniorRaw, birthYear);
@@ -906,6 +914,7 @@ function processRows(rows) {
           seniorRaw,
           terminationRaw,
           partyRaw,
+          ayesNaysRaw,
           confirmMs,
           seniorMs,
           terminationMs
@@ -974,6 +983,7 @@ if (validSeniorSlots.length) {
           : null;
 
       const scotusParty = earliestConfirm ? earliestConfirm.partyRaw : '';
+      const scotusAyesNays = earliestConfirm ? earliestConfirm.ayesNaysRaw : '';
 
       debugLog('[DEBUG SCOTUS term dates]', {
         name: formatName(row),
@@ -1011,6 +1021,7 @@ if (validSeniorSlots.length) {
         __termLengthYears: termLengthYears,
         __termLengthLabel: formatTermLength(confirmMs, termMs),
         __party: scotusParty,
+        __ayesNays: scotusAyesNays,
         __allScotusConfirmRaw: scotusSlots.map(slot => slot.confirmRaw).filter(Boolean),
         __allScotusSeniorRaw: scotusSlots.map(slot => slot.seniorRaw).filter(Boolean),
         __allScotusTerminationRaw: scotusSlots.map(slot => slot.terminationRaw).filter(Boolean),
@@ -1163,9 +1174,9 @@ function renderTable() {
 
     <div class="justice-stack-item">
       <span class="justice-stack-label">Ayes/Nays</span>
-      <div class="ayes-box">
-        ${escapeHtml(safe(getCell(row, COLS.ayesNays)) || '—')}
-      </div>
+        <div class="ayes-box">
+          ${escapeHtml(row.__ayesNays || '—')}
+        </div>
     </div>
   </div>
 `;
