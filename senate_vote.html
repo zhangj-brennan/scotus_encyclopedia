@@ -9,10 +9,11 @@
     :root {
       --bg: #ffffff;
       --panel: #ffffff;
-      --text: #000000;
+      --text: #111111;
       --muted: #666666;
       --border: #ffffff;
       --accent: #c8102e;
+      --accent-light: #f3a3b1;
       --max: 1200px;
       --gutter: 24px;
       --section-gap: 40px;
@@ -30,7 +31,6 @@
       color: var(--text);
       background: var(--bg);
       line-height: 1.45;
-      font-size:14px;
     }
 
     a { color: inherit; text-decoration: none; }
@@ -43,8 +43,7 @@
     }
 
     .hero {
-      padding: 56px 0 18px;
-
+      padding: 56px 0 28px;
     }
 
     .hero-kicker {
@@ -72,6 +71,7 @@
 
     .section {
       padding: 0;
+      border-top: 1px solid #000;
     }
 
     .panel {
@@ -87,16 +87,16 @@
       gap: 12px;
       flex-wrap: wrap;
       align-items: center;
-      margin-bottom: 18px;
+      margin-bottom: 14px;
     }
 
     button {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 26px;
-      padding: 0 10px;
-      border: 1px solid black;
+      min-height: 44px;
+      padding: 0 18px;
+      border: 2px solid black;
       background: var(--text);
       color: #fff;
       cursor: pointer;
@@ -118,6 +118,33 @@
       border-color: var(--accent);
     }
 
+    .legend {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-swatch {
+      width: 14px;
+      height: 14px;
+      border: 1px solid #000;
+      display: inline-block;
+      flex: 0 0 auto;
+    }
+
+    .legend-swatch.current {
+      background: var(--accent);
+    }
+
     .chart-wrap {
       width: 100%;
       overflow-x: hidden;
@@ -129,10 +156,7 @@
       background: #fff;
     }
 
-    .axis path {
-      stroke:none;
-      shape-rendering: crispEdges;
-    }
+    .axis path,
     .axis line {
       stroke: #999;
       shape-rendering: crispEdges;
@@ -156,7 +180,7 @@
     }
 
     .bar-no.highlight {
-      fill: #f3a3b1;
+      fill: var(--accent-light);
     }
 
     .name-label {
@@ -233,31 +257,6 @@
         font-size: 1rem;
       }
     }
-    .legend {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  margin-bottom: 10px;
-  font-size: 13px;
-  color: var(--muted);
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.legend-swatch {
-  width: 14px;
-  height: 14px;
-  border: 1px solid #000;
-  display: inline-block;
-}
-
-.legend-swatch.current {
-  background: var(--accent);
-}
   </style>
 </head>
 <body>
@@ -265,34 +264,35 @@
     <section class="hero">
       <div class="hero-kicker">Supreme Court</div>
       <h1>Senate Votes</h1>
-      <p class="subhed">
-      </p>
-  
+    
       <div class="panel">
-        <div class="controls">SORT BY: 
+        <div class="controls">
           <button id="sort-date" class="active" type="button">Date: Early to Late</button>
-          <button id="sort-partisanship" type="button">Close calls: Most to least</button>
-         
-</div>
+          <button id="sort-partisanship" type="button">Partisanship: Smallest to Largest</button>
+          <button id="view-counts" class="active" type="button">Show Counts</button>
+          <button id="view-percent" type="button">Show Percent</button>
         </div>
-        <div class="chart-wrap" id="chart"></div>
-         <div class="legend">
-  <span class="legend-item">
-    <span class="legend-swatch current"></span>
-    Current justices
-  </span>
-      </div>
-            Source: https://www.senate.gov/legislative/nominations/SupremeCourtNominations1789present.html
 
+        <div class="legend">
+          <span class="legend-item">
+            <span class="legend-swatch current"></span>
+            Current justices
+          </span>
+        </div>
+
+        <div class="chart-wrap" id="chart"></div>
+      </div>
     </section>
 
     <div class="tooltip" id="tooltip"></div>
 
-    
+    <p class="subhed">
+      Source: https://www.senate.gov/legislative/nominations/SupremeCourtNominations1789present.html
+    </p>
   </div>
 
   <script>
-    const csvPath = "senate_vote.csv";
+    const csvPath = "senate_vote_2.csv";
 
     const HIGHLIGHT_NAMES = new Set([
       "Barrett, Amy Coney",
@@ -310,14 +310,27 @@
     const tooltip = d3.select("#tooltip");
 
     let allData = [];
-    let currentSort = "date";
+    let currentSort = "partisanship";
+    let currentView = "percent";
 
-    d3.csv(csvPath, d => ({
-      voteYear: +String(d["Vote Year"] || "").trim(),
-      yeaVotes: +String(d["Yea Votes"] || "").replace(/,/g, "").trim(),
-      noVotes: +String(d["No Votes"] || "").replace(/,/g, "").trim(),
-      justiceName: String(d["Justice Full Name"] || "").trim()
-    }))
+    d3.csv(csvPath, d => {
+      const voteYear = +String(d["Vote Year"] || "").trim();
+      const yeaVotes = +String(d["Yea Votes"] || "").replace(/,/g, "").trim();
+      const noVotes = +String(d["No Votes"] || "").replace(/,/g, "").trim();
+      const justiceName = String(d["Justice Full Name"] || "").trim();
+      const totalVotes = yeaVotes + noVotes;
+
+      return {
+        voteYear,
+        yeaVotes,
+        noVotes,
+        justiceName,
+        totalVotes,
+        yeaPct: totalVotes ? (yeaVotes / totalVotes) * 100 : 0,
+        noPct: totalVotes ? (noVotes / totalVotes) * 100 : 0,
+        margin: Math.abs(yeaVotes - noVotes)
+      };
+    })
     .then(data => {
       allData = data.filter(d =>
         !isNaN(d.voteYear) &&
@@ -326,7 +339,10 @@
         d.justiceName
       );
 
+      setActiveButton();
       updateChart();
+
+      window.addEventListener("resize", updateChart);
     })
     .catch(error => {
       console.error(error);
@@ -345,23 +361,39 @@
       updateChart();
     });
 
+    document.getElementById("view-counts").addEventListener("click", () => {
+      currentView = "counts";
+      setActiveButton();
+      updateChart();
+    });
+
+    document.getElementById("view-percent").addEventListener("click", () => {
+      currentView = "percent";
+      setActiveButton();
+      updateChart();
+    });
+
     function setActiveButton() {
       document.getElementById("sort-date").classList.toggle("active", currentSort === "date");
       document.getElementById("sort-partisanship").classList.toggle("active", currentSort === "partisanship");
+      document.getElementById("view-counts").classList.toggle("active", currentView === "counts");
+      document.getElementById("view-percent").classList.toggle("active", currentView === "percent");
     }
 
     function getSortedData() {
       const data = [...allData];
 
-      if (currentSort === "partisanship") {
-        data.sort((a, b) => {
-          const diffA = Math.abs(a.yeaVotes - a.noVotes);
-          const diffB = Math.abs(b.yeaVotes - b.noVotes);
-          return d3.ascending(diffA, diffB) || d3.ascending(a.voteYear, b.voteYear);
-        });
-      } else {
-        data.sort((a, b) => d3.ascending(a.voteYear, b.voteYear));
-      }
+ if (currentSort === "partisanship") {
+  data.sort((a, b) => {
+    const diffA = Math.abs(a.yeaPct - a.noPct);
+    const diffB = Math.abs(b.yeaPct - b.noPct);
+
+    return d3.ascending(diffA, diffB) ||
+           d3.ascending(a.voteYear, b.voteYear);
+  });
+} else {
+  data.sort((a, b) => d3.ascending(a.voteYear, b.voteYear));
+}
 
       return data;
     }
@@ -386,20 +418,22 @@
       const fontSizeValue = 11;
 
       const maxNameLength = d3.max(data, d => d.justiceName.length) || 10;
-      const leftLabelWidth = Math.max(180, Math.min(340, maxNameLength * 10));
+      const leftLabelWidth = Math.max(180, Math.min(340, maxNameLength * 7.2));
       const rightLabelWidth = 120;
 
       const margin = {
-        top: 60,
+        top: 62,
         right: rightLabelWidth,
-        bottom: 52,
+        bottom: 28,
         left: leftLabelWidth
       };
 
       const width = Math.max(760, wrapWidth);
       const height = margin.top + margin.bottom + data.length * rowHeight;
 
-      const maxValue = d3.max(data, d => Math.max(d.yeaVotes, d.noVotes));
+      const maxValue = currentView === "percent"
+        ? 100
+        : d3.max(data, d => Math.max(d.yeaVotes, d.noVotes));
 
       const x = d3.scaleLinear()
         .domain([-maxValue, maxValue])
@@ -407,16 +441,19 @@
 
       const y = d3.scaleBand()
         .domain(data.map((d, i) => i))
-        .range([margin.top, height - margin.bottom])
-        .padding(0.18);
+        .range([margin.top + 18, height - margin.bottom])
+        .padding(0.30);
 
       const svg = chartContainer
         .append("svg")
         .attr("width", width)
         .attr("height", height);
 
-    const xAxis = d3.axisTop(x)
-        .tickFormat(d => Math.abs(d));
+      const xAxis = d3.axisTop(x)
+        .tickFormat(d => {
+          const v = Math.abs(d);
+          return currentView === "percent" ? `${v}%` : v;
+        });
 
       svg.append("g")
         .attr("class", "axis")
@@ -427,22 +464,22 @@
         .attr("class", "center-line")
         .attr("x1", x(0))
         .attr("x2", x(0))
-        .attr("y1", margin.top+10)
+        .attr("y1", margin.top + 18)
         .attr("y2", height - margin.bottom);
 
       svg.append("text")
         .attr("class", "axis-title")
         .attr("x", x(-maxValue / 2))
-        .attr("y", margin.top - 30)
+        .attr("y", margin.top - 18)
         .attr("text-anchor", "middle")
-        .text("Yea Votes");
+        .text(currentView === "percent" ? "Yea %" : "Yea Votes");
 
       svg.append("text")
         .attr("class", "axis-title")
         .attr("x", x(maxValue / 2))
-        .attr("y", margin.top - 30)
+        .attr("y", margin.top - 18)
         .attr("text-anchor", "middle")
-        .text("No Votes");
+        .text(currentView === "percent" ? "No %" : "No Votes");
 
       svg.selectAll(".name-label")
         .data(data)
@@ -462,23 +499,30 @@
         .attr("y", (_, i) => y(i) + y.bandwidth() / 2)
         .attr("text-anchor", "start")
         .style("font-size", `${fontSizeYear}px`)
-        .text(d => {
-            if (currentSort === "partisanship") {
-
-            return `${Math.abs(d.yeaVotes - d.noVotes)} votes (${Math.round(Math.abs(d.yeaVotes - d.noVotes)/(d.yeaVotes + d.noVotes)*100)}%)`;
-            }
-            return d.voteYear;
-        });
+        .text(d => `${d.voteYear} · ${d.margin}`);
 
       svg.selectAll(".bar-yea")
         .data(data)
         .join("rect")
         .attr("class", d => HIGHLIGHT_NAMES.has(d.justiceName) ? "bar-yea highlight" : "bar-yea")
-        .attr("x", d => x(-d.yeaVotes))
+        .attr("x", d => {
+          const value = currentView === "percent" ? d.yeaPct : d.yeaVotes;
+          return x(-value);
+        })
         .attr("y", (_, i) => y(i))
-        .attr("width", d => x(0) - x(-d.yeaVotes))
+        .attr("width", d => {
+          const value = currentView === "percent" ? d.yeaPct : d.yeaVotes;
+          return x(0) - x(-value);
+        })
         .attr("height", y.bandwidth())
-        .on("mousemove", (event, d) => showTooltip(event, d, "Yea Votes", d.yeaVotes))
+        .on("mousemove", (event, d) => {
+          showTooltip(
+            event,
+            d,
+            currentView === "percent" ? "Yea %" : "Yea Votes",
+            currentView === "percent" ? `${d.yeaPct.toFixed(1)}%` : d.yeaVotes
+          );
+        })
         .on("mouseleave", hideTooltip);
 
       svg.selectAll(".bar-no")
@@ -487,30 +531,46 @@
         .attr("class", d => HIGHLIGHT_NAMES.has(d.justiceName) ? "bar-no highlight" : "bar-no")
         .attr("x", x(0))
         .attr("y", (_, i) => y(i))
-        .attr("width", d => x(d.noVotes) - x(0))
+        .attr("width", d => {
+          const value = currentView === "percent" ? d.noPct : d.noVotes;
+          return x(value) - x(0);
+        })
         .attr("height", y.bandwidth())
-        .on("mousemove", (event, d) => showTooltip(event, d, "No Votes", d.noVotes))
+        .on("mousemove", (event, d) => {
+          showTooltip(
+            event,
+            d,
+            currentView === "percent" ? "No %" : "No Votes",
+            currentView === "percent" ? `${d.noPct.toFixed(1)}%` : d.noVotes
+          );
+        })
         .on("mouseleave", hideTooltip);
 
       svg.selectAll(".yea-label")
         .data(data)
         .join("text")
         .attr("class", "value-label")
-        .attr("x", d => x(-d.yeaVotes) - 6)
+        .attr("x", d => {
+          const value = currentView === "percent" ? d.yeaPct : d.yeaVotes;
+          return x(-value) - 6;
+        })
         .attr("y", (_, i) => y(i) + y.bandwidth() / 2)
         .attr("text-anchor", "end")
         .style("font-size", `${fontSizeValue}px`)
-        .text(d => d.yeaVotes);
+        .text(d => currentView === "percent" ? `${d.yeaPct.toFixed(1)}%` : d.yeaVotes);
 
       svg.selectAll(".no-label")
         .data(data)
         .join("text")
         .attr("class", "value-label")
-        .attr("x", d => x(d.noVotes) + 6)
+        .attr("x", d => {
+          const value = currentView === "percent" ? d.noPct : d.noVotes;
+          return x(value) + 6;
+        })
         .attr("y", (_, i) => y(i) + y.bandwidth() / 2)
         .attr("text-anchor", "start")
         .style("font-size", `${fontSizeValue}px`)
-        .text(d => d.noVotes);
+        .text(d => currentView === "percent" ? `${d.noPct.toFixed(1)}%` : d.noVotes);
     }
 
     function showTooltip(event, d, label, value) {
@@ -521,6 +581,7 @@
         .html(
           `<strong>${d.justiceName}</strong><br>` +
           `Vote Year: ${d.voteYear}<br>` +
+          `Margin: ${d.margin}<br>` +
           `${label}: ${value}`
         );
     }
