@@ -1,4 +1,3 @@
-
 const COLS = {
   lastName: 'Last Name',
   firstName: 'First Name',
@@ -13,16 +12,57 @@ const COLS = {
   president: 'Appointing President (1)',
   party: 'Party of Appointing President (1)',
   confirmationDate: 'Confirmation Date (1)',
-  terminationDate: 'Termination Date (1)',
+  // terminationDate: 'Termination Date (1)',
   professionalCareer: 'Professional Career',
   ayesNays: 'Ayes/Nays (1)'
 };
+let confirmHistogramBins = [];
 
 const SCHOOL_COLS = ['School (1)', 'School (2)', 'School (3)', 'School (4)', 'School (5)'];
 const DEGREE_COLS = ['Degree (1)', 'Degree (2)', 'Degree (3)', 'Degree (4)', 'Degree (5)'];
 const DEGREE_YEAR_COLS = ['Degree Year (1)', 'Degree Year (2)', 'Degree Year (3)', 'Degree Year (4)', 'Degree Year (5)'];
 const COURT_TYPE_COLS = ['Court Type (1)', 'Court Type (2)', 'Court Type (3)'];
 const DEFAULT_COURT_TYPE = 'Supreme Court';
+const COURT_NAME_COLS = [
+  'Court Name (1)',
+  'Court Name (2)',
+  'Court Name (3)',
+  'Court Name (4)',
+  'Court Name (5)'
+];
+
+const CONFIRMATION_DATE_COLS = [
+  'Confirmation Date (1)',
+  'Confirmation Date (2)',
+  'Confirmation Date (3)',
+  'Confirmation Date (4)',
+  'Confirmation Date (5)'
+];
+const TERMINATION_DATE_COLS = [
+   'Termination Date (1)',
+  'Termination Date (2)',
+  'Termination Date (3)',
+  'Termination Date (4)',
+  'Termination Date (5)'
+]
+
+const SENIOR_STATUS_DATE_COLS = [
+  'Senior Status Date (1)',
+  'Senior Status Date (2)',
+  'Senior Status Date (3)',
+  'Senior Status Date (4)',
+  'Senior Status Date (5)'
+];
+
+const PARTY_COLS = [
+  'Party of Appointing President (1)',
+  'Party of Appointing President (2)',
+  'Party of Appointing President (3)',
+  'Party of Appointing President (4)',
+  'Party of Appointing President (5)'
+];
+
+const SCOTUS_COURT_NAME = 'Supreme Court of the United States';
 
 const STATE_ABBR = {
   'Alabama':'AL','Alaska':'AK','Arizona':'AZ','Arkansas':'AR','California':'CA','Colorado':'CO','Connecticut':'CT','Delaware':'DE','Florida':'FL','Georgia':'GA','Hawaii':'HI','Idaho':'ID','Illinois':'IL','Indiana':'IN','Iowa':'IA','Kansas':'KS','Kentucky':'KY','Louisiana':'LA','Maine':'ME','Maryland':'MD','Massachusetts':'MA','Michigan':'MI','Minnesota':'MN','Mississippi':'MS','Missouri':'MO','Montana':'MT','Nebraska':'NE','Nevada':'NV','New Hampshire':'NH','New Jersey':'NJ','New Mexico':'NM','New York':'NY','North Carolina':'NC','North Dakota':'ND','Ohio':'OH','Oklahoma':'OK','Oregon':'OR','Pennsylvania':'PA','Rhode Island':'RI','South Carolina':'SC','South Dakota':'SD','Tennessee':'TN','Texas':'TX','Utah':'UT','Vermont':'VT','Virginia':'VA','Washington':'WA','West Virginia':'WV','Wisconsin':'WI','Wyoming':'WY',
@@ -37,7 +77,7 @@ const STATE_NAME_BY_ABBR = Object.fromEntries(
     .map(([name, abbr]) => [abbr, name])
 );
 
-const DEBUG = true;
+const DEBUG = false;
 
 function debugLog(...args) {
   if (DEBUG) console.log(...args);
@@ -48,6 +88,143 @@ function debugGroup(label, value) {
   console.group(label);
   console.log(value);
   console.groupEnd();
+}
+
+function normalizeCourtName(value) {
+  return safe(value).toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+function getCourtSlotIndex(row, targetCourtName) {
+  const target = normalizeCourtName(targetCourtName);
+
+  for (let i = 0; i < COURT_NAME_COLS.length; i++) {
+    const courtName = normalizeCourtName(getCell(row, COURT_NAME_COLS[i]));
+    if (courtName === target) return i;
+  }
+
+  return -1;
+}
+
+function getSlotMatchedValue(row, courtNameTarget, valueCols) {
+  const slotIndex = getCourtSlotIndex(row, courtNameTarget);
+  if (slotIndex === -1) return '';
+  return safe(getCell(row, valueCols[slotIndex]));
+}
+function getAllScotusSlots(row, birthYear) {
+  const slots = [];
+
+  for (let i = 0; i < COURT_NAME_COLS.length; i++) {
+    const courtName = normalizeCourtName(getCell(row, COURT_NAME_COLS[i]));
+    if (courtName !== normalizeCourtName(SCOTUS_COURT_NAME)) continue;
+
+    const confirmRaw = safe(getCell(row, CONFIRMATION_DATE_COLS[i]));
+    const seniorRaw = safe(getCell(row, SENIOR_STATUS_DATE_COLS[i]));
+    const terminationRaw = safe(getCell(row, TERMINATION_DATE_COLS[i]));
+    const partyRaw = safe(getCell(row, PARTY_COLS[i]));
+
+    const confirmMs = parseDateValue(confirmRaw, birthYear);
+    const seniorMs = parseDateValue(seniorRaw, birthYear);
+    const terminationMs = parseDateValue(terminationRaw, birthYear);
+
+    slots.push({
+      slot: i + 1,
+      confirmRaw,
+      seniorRaw,
+      terminationRaw,
+      partyRaw,
+      confirmMs,
+      seniorMs,
+      terminationMs
+    });
+  }
+
+  return slots;
+}
+
+function resolveScotusServiceDates(row, birthYear) {
+  const slots = getAllScotusSlots(row, birthYear);
+
+  const validConfirmSlots = slots.filter(s => s.confirmMs != null && !Number.isNaN(s.confirmMs));
+  const validSeniorSlots = slots.filter(s => s.seniorMs != null && !Number.isNaN(s.seniorMs));
+
+  const earliestConfirmSlot = validConfirmSlots.length
+    ? validConfirmSlots.reduce((min, slot) => slot.confirmMs < min.confirmMs ? slot : min)
+    : null;
+
+  let endSlot = null;
+let endRaw = '';
+let endDisplay = '';
+let termMs = null;
+
+if (validSeniorSlots.length) {
+  endSlot = validSeniorSlots.reduce((max, slot) => slot.seniorMs > max.seniorMs ? slot : max);
+  endRaw = endSlot.seniorRaw;
+  termMs = endSlot.seniorMs;
+  endDisplay = termMs ? formatDateLabel(termMs) : '';
+} else {
+  const latestConfirmSlot = validConfirmSlots.length
+    ? validConfirmSlots.reduce((best, slot) => {
+        if (!best) return slot;
+        return slot.confirmMs > best.confirmMs ? slot : best;
+      }, null)
+    : null;
+
+  const latestConfirmWithTermination = validConfirmSlots
+    .filter(slot => slot.terminationMs != null && !Number.isNaN(slot.terminationMs))
+    .reduce((best, slot) => {
+      if (!best) return slot;
+      return slot.confirmMs > best.confirmMs ? slot : best;
+    }, null);
+
+  if (latestConfirmWithTermination) {
+    endSlot = latestConfirmWithTermination;
+    endRaw = latestConfirmWithTermination.terminationRaw;
+    termMs = latestConfirmWithTermination.terminationMs;
+    endDisplay = termMs ? formatDateLabel(termMs) : '';
+  } else if (latestConfirmSlot) {
+    endSlot = latestConfirmSlot;
+    endRaw = 'Current';
+    termMs = Date.now();
+    endDisplay = formatDateLabel(termMs);
+  }
+}
+
+  const startMs = earliestConfirmSlot ? earliestConfirmSlot.confirmMs : null;
+  const startRaw = earliestConfirmSlot ? earliestConfirmSlot.confirmRaw : '';
+  const partyRaw = earliestConfirmSlot ? earliestConfirmSlot.partyRaw : '';
+
+  return {
+    slots,
+    startMs,
+    startRaw,
+    endMs,
+    endRaw,
+    partyRaw
+  };
+}
+function getDecadeStartFromMs(ms) {
+  if (ms == null || Number.isNaN(ms)) return null;
+  const year = new Date(ms).getFullYear();
+  return Math.floor(year / 10) * 10;
+}
+
+function buildConfirmHistogramBins(rows) {
+  const counts = new Map();
+
+  rows.forEach(row => {
+    if (row.__confirmMs == null) return;
+    const decade = getDecadeStartFromMs(row.__confirmMs);
+    if (decade == null) return;
+    counts.set(decade, (counts.get(decade) || 0) + 1);
+  });
+
+  return [...counts.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([decade, count]) => ({ decade, count }));
+}
+
+function formatDecadeLabel(decade) {
+  return `${decade}s`;
 }
 
 function parseTileGridFromScript(scriptId) {
@@ -94,30 +271,54 @@ const filters = {
   termMax: null,
   birthStates: new Set()
 };
+
 let currentSort = {
-  type: 'name',   // 'name' or 'confirm'
-  direction: 1    // 1 = asc, -1 = desc
+  type: 'name',
+  direction: 1
 };
+
 function sortRows(rows) {
-  if (currentSort.type === 'name') {
-    rows.sort((a, b) => {
-      const aLast = (safe(getCell(a, COLS.lastName)) || '').toLowerCase();
-      const bLast = (safe(getCell(b, COLS.lastName)) || '').toLowerCase();
+  rows.sort((a, b) => {
+    if (currentSort.type === 'name') {
+      const aLast = safe(getCell(a, COLS.lastName)).toLowerCase();
+      const bLast = safe(getCell(b, COLS.lastName)).toLowerCase();
 
       if (aLast < bLast) return -1 * currentSort.direction;
       if (aLast > bLast) return 1 * currentSort.direction;
-      return 0;
-    });
-  }
 
-  if (currentSort.type === 'confirm') {
-    rows.sort((a, b) => {
-      const aVal = a.__confirmMs || 0;
-      const bVal = b.__confirmMs || 0;
-      return (aVal - bVal) * currentSort.direction;
-    });
-  }
+      const aFirst = safe(getCell(a, COLS.firstName)).toLowerCase();
+      const bFirst = safe(getCell(b, COLS.firstName)).toLowerCase();
+
+      if (aFirst < bFirst) return -1 * currentSort.direction;
+      if (aFirst > bFirst) return 1 * currentSort.direction;
+
+      return 0;
+    }
+
+    if (currentSort.type === 'confirm') {
+      const aVal = a.__confirmMs ?? Number.POSITIVE_INFINITY;
+      const bVal = b.__confirmMs ?? Number.POSITIVE_INFINITY;
+
+      if (aVal < bVal) return -1 * currentSort.direction;
+      if (aVal > bVal) return 1 * currentSort.direction;
+
+      return 0;
+    }
+
+    if (currentSort.type === 'termLength') {
+      const aVal = a.__termLengthYears ?? Number.POSITIVE_INFINITY;
+      const bVal = b.__termLengthYears ?? Number.POSITIVE_INFINITY;
+
+      if (aVal < bVal) return -1 * currentSort.direction;
+      if (aVal > bVal) return 1 * currentSort.direction;
+
+      return 0;
+    }
+
+    return 0;
+  });
 }
+
 function createNullElement() {
   return {
     value: '',
@@ -530,6 +731,20 @@ function formatEducation(row) {
   });
 }
 
+function getAllSlotMatchedValues(row, courtNameTarget, valueCols) {
+  const target = normalizeCourtName(courtNameTarget);
+  const values = [];
+
+  for (let i = 0; i < COURT_NAME_COLS.length; i++) {
+    const courtName = normalizeCourtName(getCell(row, COURT_NAME_COLS[i]));
+    if (courtName === target) {
+      values.push(safe(getCell(row, valueCols[i])));
+    }
+  }
+
+  return values.filter(Boolean);
+}
+
 function choosePlausibleYear(year, birthYear, minAge = 25, maxAge = 90) {
   if (!birthYear || Number.isNaN(Number(birthYear))) return year;
 
@@ -544,7 +759,6 @@ function choosePlausibleYear(year, birthYear, minAge = 25, maxAge = 90) {
 
   if (preferred != null) return preferred;
 
-  // fallback: choose the candidate after birth with the smallest positive age
   if (candidates.length) {
     candidates.sort((a, b) => (a - birth) - (b - birth));
     return candidates[0];
@@ -557,7 +771,6 @@ function parseDateValue(value, birthYear = null) {
   const raw = safe(value);
   if (!raw) return null;
 
-  // YYYY-MM-DD
   const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (iso) {
     let year = Number(iso[1]);
@@ -570,7 +783,6 @@ function parseDateValue(value, birthYear = null) {
     if (!Number.isNaN(dt.getTime())) return dt.getTime();
   }
 
-  // MM/DD/YYYY or MM/DD/YY
   const mdy = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
   if (mdy) {
     const month = Number(mdy[1]) - 1;
@@ -578,7 +790,6 @@ function parseDateValue(value, birthYear = null) {
     let year = Number(mdy[3]);
 
     if (mdy[3].length === 2) {
-      // start with a neutral modern parse, then fix with birth year
       year = 2000 + year;
     }
 
@@ -588,7 +799,6 @@ function parseDateValue(value, birthYear = null) {
     if (!Number.isNaN(dt.getTime())) return dt.getTime();
   }
 
-  // YYYY
   if (/^\d{4}$/.test(raw)) {
     let year = Number(raw);
     year = choosePlausibleYear(year, birthYear);
@@ -597,7 +807,6 @@ function parseDateValue(value, birthYear = null) {
     if (!Number.isNaN(dt.getTime())) return dt.getTime();
   }
 
-  // fallback parse, then repair year if needed
   const d = new Date(raw);
   if (!Number.isNaN(d.getTime())) {
     let year = d.getFullYear();
@@ -618,6 +827,25 @@ function formatDateLabel(ms) {
   const day = `${d.getDate()}`.padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
+
+function formatTermLength(confirmMs, termMs) {
+  if (confirmMs == null || termMs == null || Number.isNaN(confirmMs) || Number.isNaN(termMs) || termMs < confirmMs) {
+    return '—';
+  }
+
+  const years = (termMs - confirmMs) / (1000 * 60 * 60 * 24 * 365.2425);
+
+  if (years < 1) {
+    return `${years.toFixed(1)} years`;
+  }
+
+  if (years < 10) {
+    return `${years.toFixed(1)} years`;
+  }
+
+  return `${years.toFixed(1)} years`;
+}
+
 function escapeHtml(str) {
   return safe(str)
     .replace(/&/g, '&amp;')
@@ -626,7 +854,6 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
-
 function processRows(rows) {
   debugGroup('[DEBUG processRows incoming]', {
     incomingRowCount: rows.length,
@@ -658,6 +885,114 @@ function processRows(rows) {
 
       const birthYear = safe(getCell(row, COLS.birthYear));
 
+      const scotusSlots = [];
+
+      for (let i = 0; i < COURT_NAME_COLS.length; i++) {
+        const courtName = normalizeCourtName(getCell(row, COURT_NAME_COLS[i]));
+        if (courtName !== normalizeCourtName(SCOTUS_COURT_NAME)) continue;
+
+        const confirmRaw = safe(getCell(row, CONFIRMATION_DATE_COLS[i]));
+        const seniorRaw = safe(getCell(row, SENIOR_STATUS_DATE_COLS[i]));
+        const terminationRaw = safe(getCell(row, TERMINATION_DATE_COLS[i]));
+        const partyRaw = safe(getCell(row, PARTY_COLS[i]));
+
+        const confirmMs = parseDateValue(confirmRaw, birthYear);
+        const seniorMs = parseDateValue(seniorRaw, birthYear);
+        const terminationMs = parseDateValue(terminationRaw, birthYear);
+
+        scotusSlots.push({
+          slot: i + 1,
+          confirmRaw,
+          seniorRaw,
+          terminationRaw,
+          partyRaw,
+          confirmMs,
+          seniorMs,
+          terminationMs
+        });
+      }
+
+      const validConfirmSlots = scotusSlots.filter(
+        slot => slot.confirmMs != null && !Number.isNaN(slot.confirmMs)
+      );
+
+      const validSeniorSlots = scotusSlots.filter(
+        slot => slot.seniorMs != null && !Number.isNaN(slot.seniorMs)
+      );
+
+      const earliestConfirm = validConfirmSlots.length
+        ? validConfirmSlots.reduce((min, slot) => slot.confirmMs < min.confirmMs ? slot : min)
+        : null;
+
+     let endSlot = null;
+let endRaw = '';
+let endDisplay = '';
+let termMs = null;
+
+if (validSeniorSlots.length) {
+  endSlot = validSeniorSlots.reduce((max, slot) => slot.seniorMs > max.seniorMs ? slot : max);
+  endRaw = endSlot.seniorRaw;
+  termMs = endSlot.seniorMs;
+  endDisplay = termMs ? formatDateLabel(termMs) : '';
+} else {
+  const latestConfirmSlot = validConfirmSlots.length
+    ? validConfirmSlots.reduce((best, slot) => {
+        if (!best) return slot;
+        return slot.confirmMs > best.confirmMs ? slot : best;
+      }, null)
+    : null;
+
+  const latestConfirmWithTermination = validConfirmSlots
+    .filter(slot => slot.terminationMs != null && !Number.isNaN(slot.terminationMs))
+    .reduce((best, slot) => {
+      if (!best) return slot;
+      return slot.confirmMs > best.confirmMs ? slot : best;
+    }, null);
+
+  if (latestConfirmWithTermination) {
+    endSlot = latestConfirmWithTermination;
+    endRaw = latestConfirmWithTermination.terminationRaw;
+    termMs = latestConfirmWithTermination.terminationMs;
+    endDisplay = termMs ? formatDateLabel(termMs) : '';
+  } else if (latestConfirmSlot) {
+    endSlot = latestConfirmSlot;
+    endRaw = 'Current';
+    termMs = Date.now();
+    endDisplay = formatDateLabel(termMs);
+  }
+}
+
+      const confirmMs = earliestConfirm ? earliestConfirm.confirmMs : null;
+
+      const termLengthYears =
+        confirmMs != null &&
+        termMs != null &&
+        !Number.isNaN(confirmMs) &&
+        !Number.isNaN(termMs) &&
+        termMs >= confirmMs
+          ? (termMs - confirmMs) / (1000 * 60 * 60 * 24 * 365.2425)
+          : null;
+
+      const scotusParty = earliestConfirm ? earliestConfirm.partyRaw : '';
+
+      debugLog('[DEBUG SCOTUS term dates]', {
+        name: formatName(row),
+        birthYear,
+        scotusSlots: scotusSlots.map(slot => ({
+          slot: slot.slot,
+          confirmRaw: slot.confirmRaw,
+          seniorRaw: slot.seniorRaw,
+          terminationRaw: slot.terminationRaw,
+          confirmLabel: slot.confirmMs ? formatDateLabel(slot.confirmMs) : null,
+          seniorLabel: slot.seniorMs ? formatDateLabel(slot.seniorMs) : null,
+          terminationLabel: slot.terminationMs ? formatDateLabel(slot.terminationMs) : null
+        })),
+        confirmMs,
+        confirmLabel: confirmMs ? formatDateLabel(confirmMs) : null,
+        termMs,
+        termLabel: termMs ? formatDateLabel(termMs) : null
+      });
+
       return {
         ...row,
         __name: formatName(row),
@@ -669,8 +1004,17 @@ function processRows(rows) {
         __lawSchoolValues: lawSchoolValues,
         __degreeValues: degreeValues,
         __courtTypes: courtTypes,
-        __confirmMs: parseDateValue(getCell(row, COLS.confirmationDate), birthYear),
-        __termMs: parseDateValue(getCell(row, COLS.terminationDate), birthYear)
+        __confirmRaw: earliestConfirm ? earliestConfirm.confirmRaw : '',
+        __termRaw: endRaw,
+        __confirmMs: confirmMs,
+        __termMs: termMs,
+        __termLengthYears: termLengthYears,
+        __termLengthLabel: formatTermLength(confirmMs, termMs),
+        __party: scotusParty,
+        __allScotusConfirmRaw: scotusSlots.map(slot => slot.confirmRaw).filter(Boolean),
+        __allScotusSeniorRaw: scotusSlots.map(slot => slot.seniorRaw).filter(Boolean),
+        __allScotusTerminationRaw: scotusSlots.map(slot => slot.terminationRaw).filter(Boolean),
+        __termDisplay: endDisplay
       };
     })
     .filter(row => row.__courtTypes.includes(DEFAULT_COURT_TYPE));
@@ -691,13 +1035,19 @@ function processRows(rows) {
     confirmDomainCount: confirmDomain.length,
     termDomainCount: termDomain.length,
     courtTypeSamples: rawRows.slice(0, 5).map(r => ({ name: r.__name, courtTypes: r.__courtTypes })),
-    schoolSamples: rawRows.slice(0, 5).map(r => ({ name: r.__name, schools: r.__schoolValues, lawSchools: r.__lawSchoolValues, degrees: r.__degreeValues }))
+    schoolSamples: rawRows.slice(0, 5).map(r => ({
+      name: r.__name,
+      schools: r.__schoolValues,
+      lawSchools: r.__lawSchoolValues,
+      degrees: r.__degreeValues
+    }))
   });
 
   buildAllFilterControls();
   applyFilters();
   initRangeBands();
 }
+
 function renderTable() {
   els.tbody.innerHTML = '';
 
@@ -741,8 +1091,6 @@ function renderTable() {
           .join('')
       : '<div class="empty">—</div>';
 
-    const ayesNaysValue = escapeHtml(safe(getCell(row, COLS.ayesNays)) || '—');
-
     const justiceStack = `
   <div class="justice-stack">
     <div class="justice-stack-item">
@@ -760,6 +1108,38 @@ function renderTable() {
             ? formatDateLabel(row.__confirmMs)
             : '<span class="empty">—</span>'
         }
+      </span>
+    </div>
+
+    <div class="justice-stack-item">
+      <span class="justice-stack-label">Senior Status</span>
+      <span class="justice-stack-value">
+        ${
+          row.__termMs
+            ? formatDateLabel(row.__termMs)
+            : '<span class="empty">—</span>'
+        }
+      </span>
+    </div>
+
+    <div class="justice-stack-item">
+      <span class="justice-stack-label">Term Length</span>
+      <span class="justice-stack-value">
+        ${escapeHtml(row.__termLengthLabel || '—')}
+      </span>
+    </div>
+
+    <div class="justice-stack-item">
+      <span class="justice-stack-label">Confirm Raw</span>
+      <span class="justice-stack-value">
+        ${escapeHtml(row.__confirmRaw || '—')}
+      </span>
+    </div>
+
+    <div class="justice-stack-item">
+      <span class="justice-stack-label">Term Raw</span>
+      <span class="justice-stack-value">
+        ${escapeHtml(row.__termRaw || '—')}
       </span>
     </div>
 
@@ -788,7 +1168,7 @@ function renderTable() {
       </div>
     </div>
   </div>
-    `;
+`;
 
     const eduCareerStack = `
       <div class="edu-career-stack">

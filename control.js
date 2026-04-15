@@ -1,12 +1,20 @@
 function getStateAbbr(value) {
   const raw = safe(value);
   if (!raw) return '';
+
   const upper = raw.toUpperCase();
   if (TILE_POSITIONS[upper]) return upper;
   if (STATE_ABBR[raw]) return STATE_ABBR[raw];
-  const title = raw.toLowerCase().split(' ').map(part => part ? part.charAt(0).toUpperCase() + part.slice(1) : '').join(' ');
+
+  const title = raw
+    .toLowerCase()
+    .split(' ')
+    .map(part => (part ? part.charAt(0).toUpperCase() + part.slice(1) : ''))
+    .join(' ');
+
   return STATE_ABBR[title] || '';
 }
+
 function getCartogramTileStyles(count, maxCount, isActive) {
   if (!count || maxCount <= 0) {
     return {
@@ -27,40 +35,18 @@ function getCartogramTileStyles(count, maxCount, isActive) {
     borderColor: isActive ? 'var(--text)' : 'var(--border)'
   };
 }
-function setButtonGroupActiveState(container, activeSet) {
-  if (!container) return;
 
+function setButtonGroupActiveState(container, activeSet) {
   const buttons = container.querySelectorAll('[data-filter-value]');
   buttons.forEach(btn => {
     const value = btn.dataset.filterValue || '';
-    const isActive = activeSet.has(value);
-
-    btn.classList.toggle('active', isActive);
-
-    if (btn.classList.contains('degree-histogram-row')) {
-      const bar = btn.querySelector('.degree-histogram-bar');
-      const label = btn.querySelector('.degree-histogram-label');
-      const count = btn.querySelector('.degree-histogram-count');
-
-      btn.style.background = isActive ? 'var(--accent-soft)' : '#fff';
-      btn.style.color = 'var(--text)';
-
-      if (bar) {
-        bar.style.background = isActive ? 'var(--accent)' : 'var(--accent-soft)';
-      }
-
-      if (label) {
-        label.style.color = isActive ? '#fff' : 'var(--text)';
-      }
-
-      if (count) {
-        count.style.color = isActive ? '#fff' : 'var(--text)';
-      }
-    }
+    btn.classList.toggle('active', activeSet.has(value));
   });
 }
+
 function buildDropdown(selectEl, values, currentValue) {
   selectEl.innerHTML = '';
+
   const defaultOpt = document.createElement('option');
   defaultOpt.value = '';
   defaultOpt.textContent = 'All presidents';
@@ -74,22 +60,7 @@ function buildDropdown(selectEl, values, currentValue) {
     selectEl.appendChild(opt);
   });
 }
-function buildToggleButtons(container, values, activeSet, onClick, countsMap = null) {
-  container.innerHTML = '';
 
-  values.forEach(value => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.dataset.filterValue = value;
-    btn.className = 'filter-btn' + (activeSet.has(value) ? ' active' : '');
-
-    const count = countsMap ? (countsMap.get(value) || 0) : null;
-    btn.textContent = count != null ? `${value} (${count})` : value;
-
-    btn.addEventListener('click', () => onClick(value));
-    container.appendChild(btn);
-  });
-}
 function buildHistogramList(container, items, activeSet, onClick, emptyLabel) {
   container.innerHTML = '';
 
@@ -112,11 +83,17 @@ function buildHistogramList(container, items, activeSet, onClick, emptyLabel) {
 
   items.forEach(([label, count]) => {
     const isActive = activeSet.has(label);
+    const isZero = count === 0;
 
     const rowBtn = document.createElement('button');
     rowBtn.type = 'button';
     rowBtn.dataset.filterValue = label;
-    rowBtn.className = 'degree-histogram-row';
+    rowBtn.dataset.count = String(count);
+    rowBtn.className =
+      'degree-histogram-row' +
+      (isActive ? ' active' : '') +
+      (isZero ? ' is-zero' : '');
+
     rowBtn.style.position = 'relative';
     rowBtn.style.display = 'grid';
     rowBtn.style.gridTemplateColumns = '1fr auto';
@@ -125,11 +102,17 @@ function buildHistogramList(container, items, activeSet, onClick, emptyLabel) {
     rowBtn.style.width = '100%';
     rowBtn.style.padding = '3px 8px';
     rowBtn.style.border = '1px solid var(--border)';
-    rowBtn.style.background = isActive ? 'var(--accent-soft)' : '#fff';
-    rowBtn.style.color = 'var(--text)';
-    rowBtn.style.cursor = 'pointer';
     rowBtn.style.textAlign = 'left';
     rowBtn.style.overflow = 'hidden';
+
+    if (isZero) {
+      rowBtn.disabled = true;
+      rowBtn.style.cursor = 'default';
+      rowBtn.setAttribute('aria-disabled', 'true');
+    } else {
+      rowBtn.style.cursor = 'pointer';
+      rowBtn.addEventListener('click', () => onClick(label));
+    }
 
     const bar = document.createElement('div');
     bar.className = 'degree-histogram-bar';
@@ -137,8 +120,7 @@ function buildHistogramList(container, items, activeSet, onClick, emptyLabel) {
     bar.style.left = '0';
     bar.style.top = '0';
     bar.style.bottom = '0';
-    bar.style.width = `${(count / maxCount) * 100}%`;
-    bar.style.background = isActive ? 'var(--accent)' : 'var(--accent-soft)';
+    bar.style.width = `${maxCount > 0 ? (count / maxCount) * 100 : 0}%`;
     bar.style.pointerEvents = 'none';
 
     const labelSpan = document.createElement('span');
@@ -152,7 +134,6 @@ function buildHistogramList(container, items, activeSet, onClick, emptyLabel) {
     labelSpan.style.whiteSpace = 'nowrap';
     labelSpan.style.overflow = 'hidden';
     labelSpan.style.textOverflow = 'ellipsis';
-    labelSpan.style.color = isActive ? '#fff' : 'var(--text)';
 
     const countSpan = document.createElement('span');
     countSpan.className = 'degree-histogram-count';
@@ -163,9 +144,6 @@ function buildHistogramList(container, items, activeSet, onClick, emptyLabel) {
     countSpan.style.fontWeight = '700';
     countSpan.style.lineHeight = '1';
     countSpan.style.whiteSpace = 'nowrap';
-    countSpan.style.color = isActive ? '#fff' : 'var(--text)';
-
-    rowBtn.addEventListener('click', () => onClick(label));
 
     rowBtn.appendChild(bar);
     rowBtn.appendChild(labelSpan);
@@ -257,6 +235,34 @@ function buildStateCartogramFilter(container, values, activeSet, onClick, counts
   container.appendChild(grid);
   container.appendChild(legend);
 }
+
+/* ---------- fixed histogram helpers ---------- */
+
+function getOrderedValuesFromCounts(countMap) {
+  return [...countMap.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([label]) => label);
+}
+
+function getAllUniqueValuesFromAccessor(rows, accessor) {
+  const seen = new Set();
+
+  rows.forEach(row => {
+    (accessor(row) || []).forEach(value => {
+      if (value) seen.add(value);
+    });
+  });
+
+  return [...seen].sort((a, b) => a.localeCompare(b));
+}
+
+function buildFixedHistogramItems(allLabels, filteredCounts, limit = null) {
+  const items = allLabels.map(label => [label, filteredCounts.get(label) || 0]);
+  return limit != null ? items.slice(0, limit) : items;
+}
+
+/* ---------- state syncing ---------- */
+
 function syncStaticControlStates() {
   setButtonGroupActiveState(els.courtTypeButtons, filters.courtTypes);
   setButtonGroupActiveState(els.partyButtons, filters.parties);
@@ -276,9 +282,13 @@ function syncStaticControlStates() {
 
   els.presidentSelect.value = filters.president;
 }
+
+/* ---------- range band helpers ---------- */
+
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
+
 function updateRangeBandPosition(which, minIndex, maxIndex, stackWidth, maxDomainIndex) {
   const band = rangeBands[which];
   if (!band) return;
@@ -290,6 +300,7 @@ function updateRangeBandPosition(which, minIndex, maxIndex, stackWidth, maxDomai
   band.style.left = `${startRatio * stackWidth}px`;
   band.style.width = `${Math.max(8, (endRatio - startRatio) * stackWidth)}px`;
 }
+
 function createRangeBand(which) {
   const stack = which === 'confirm'
     ? els.confirmMin.closest('.range-stack')
@@ -327,6 +338,7 @@ function createRangeBand(which) {
     if (dragState.rafPending) return;
 
     dragState.rafPending = true;
+
     requestAnimationFrame(() => {
       if (!dragState) return;
 
@@ -360,6 +372,7 @@ function createRangeBand(which) {
   const onPointerUp = () => {
     document.removeEventListener('pointermove', onPointerMove);
     document.removeEventListener('pointerup', onPointerUp);
+
     if (!dragState) return;
 
     if (dragState.rafPending) {
@@ -397,6 +410,7 @@ function createRangeBand(which) {
 
   return band;
 }
+
 function updateRangeBand(which) {
   const band = rangeBands[which];
   if (!band) return;
@@ -427,12 +441,14 @@ function updateRangeBand(which) {
   minInput.style.zIndex = '3';
   maxInput.style.zIndex = '3';
 }
+
 function initRangeBands() {
   if (!rangeBands.confirm) rangeBands.confirm = createRangeBand('confirm');
   if (!rangeBands.term) rangeBands.term = createRangeBand('term');
   updateRangeBand('confirm');
   updateRangeBand('term');
 }
+
 function setRangeDomain(which, values) {
   if (!values.length) {
     updateRangeBand(which);
@@ -464,41 +480,37 @@ function setRangeDomain(which, values) {
   updateRangeLabels();
   updateRangeBand(which);
 }
+
 function updateRangeLabels() {
   els.confirmMinLabel.textContent = confirmDomain.length
     ? formatDateLabel(confirmDomain[Number(filters.confirmMin)])
     : '—';
+
   els.confirmMaxLabel.textContent = confirmDomain.length
     ? formatDateLabel(confirmDomain[Number(filters.confirmMax)])
     : '—';
+
   els.termMinLabel.textContent = termDomain.length
     ? formatDateLabel(termDomain[Number(filters.termMin)])
     : '—';
+
   els.termMaxLabel.textContent = termDomain.length
     ? formatDateLabel(termDomain[Number(filters.termMax)])
     : '—';
 }
-function buildAllFilterControls() {
-  const otherCourtTypes = uniqueSortedCourtTypes(rawRows);
-  const courtTypeCounts = countCourtTypes(rawRows);
-  const presidents = uniqueSortedValues(rawRows, COLS.president);
-  const parties = uniqueSortedValues(rawRows, COLS.party);
-  const birthStates = uniqueSortedValues(rawRows, COLS.birthState);
 
-  debugGroup('[DEBUG buildAllFilterControls]', {
-    otherCourtTypes,
-    courtTypeCounts: [...courtTypeCounts.entries()],
-    topSchoolCountsFromRawRows: getTopSchoolCounts(rawRows, 10),
-    topLawSchoolCountsFromRawRows: getTopLawSchoolCounts(rawRows, 10),
-    topDegreeCountsFromRawRows: getTopDegreeCounts(rawRows, 10),
-    presidents,
-    parties,
-    birthStatesCount: birthStates.length
-  });
+/* ---------- control builders ---------- */
+
+function rebuildCourtTypeHistogram() {
+  const allCounts = countCourtTypes(rawRows);
+  const allLabels = getOrderedValuesFromCounts(allCounts);
+
+  const filteredCounts = countCourtTypes(filteredRows);
+  const items = buildFixedHistogramItems(allLabels, filteredCounts);
 
   buildHistogramList(
     els.courtTypeButtons,
-    [...courtTypeCounts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])),
+    items,
     filters.courtTypes,
     value => {
       if (filters.courtTypes.has(value)) filters.courtTypes.delete(value);
@@ -508,12 +520,18 @@ function buildAllFilterControls() {
     },
     'No court type values available.'
   );
+}
 
-  buildDropdown(els.presidentSelect, presidents, filters.president);
+function rebuildPartyHistogram() {
+  const allCounts = countValuesFromAccessor(rawRows, row => [row.__party].filter(Boolean));
+  const allLabels = getOrderedValuesFromCounts(allCounts);
+
+  const filteredCounts = countValuesFromAccessor(filteredRows, row => [row.__party].filter(Boolean));
+  const items = buildFixedHistogramItems(allLabels, filteredCounts);
 
   buildHistogramList(
     els.partyButtons,
-    [...countValues(rawRows, COLS.party).entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])),
+    items,
     filters.parties,
     value => {
       if (filters.parties.has(value)) filters.parties.delete(value);
@@ -523,10 +541,12 @@ function buildAllFilterControls() {
     },
     'No party values available.'
   );
+}
 
+function rebuildBirthStateFilter() {
   buildStateCartogramFilter(
     els.birthStateButtons,
-    birthStates,
+    uniqueSortedValues(rawRows, COLS.birthState),
     filters.birthStates,
     value => {
       if (filters.birthStates.has(value)) filters.birthStates.delete(value);
@@ -537,6 +557,26 @@ function buildAllFilterControls() {
     },
     countValues(filteredRows.length ? filteredRows : rawRows, COLS.birthState)
   );
+}
+
+function buildAllFilterControls() {
+  const otherCourtTypes = uniqueSortedCourtTypes(rawRows);
+  const presidents = uniqueSortedValues(rawRows, COLS.president);
+  const parties = [...new Set(rawRows.map(row => safe(row.__party)).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b));
+  const birthStates = uniqueSortedValues(rawRows, COLS.birthState);
+
+  debugGroup('[DEBUG buildAllFilterControls]', {
+    otherCourtTypes,
+    presidents,
+    parties,
+    birthStatesCount: birthStates.length
+  });
+
+  rebuildCourtTypeHistogram();
+  buildDropdown(els.presidentSelect, presidents, filters.president);
+  rebuildPartyHistogram();
+  rebuildBirthStateFilter();
 
   setRangeDomain('confirm', confirmDomain);
   setRangeDomain('term', termDomain);
@@ -544,12 +584,16 @@ function buildAllFilterControls() {
   if (els.courtTypesCount) {
     els.courtTypesCount.textContent = otherCourtTypes.length.toLocaleString();
   }
+
   if (els.presidentsCount) {
     els.presidentsCount.textContent = presidents.length;
   }
 
   syncStaticControlStates();
 }
+
+/* ---------- filtering ---------- */
+
 function rowMatches(row) {
   if (filters.name) {
     const q = normalizeKey(filters.name);
@@ -581,7 +625,7 @@ function rowMatches(row) {
   }
 
   if (filters.parties.size) {
-    if (!filters.parties.has(safe(getCell(row, COLS.party)))) return false;
+    if (!filters.parties.has(safe(row.__party))) return false;
   }
 
   if (filters.birthStates.size) {
@@ -602,8 +646,10 @@ function rowMatches(row) {
 
   return true;
 }
+
 function applyFilters() {
   filteredRows = rawRows.filter(rowMatches);
+  sortRows(filteredRows);
 
   debugGroup('[DEBUG applyFilters]', {
     totalRows: rawRows.length,
@@ -621,16 +667,16 @@ function applyFilters() {
       confirmMax: filters.confirmMax,
       termMin: filters.termMin,
       termMax: filters.termMax
-    },
-    topSchoolCountsFiltered: getTopSchoolCounts(filteredRows, 10),
-    topLawSchoolCountsFiltered: getTopLawSchoolCounts(filteredRows, 10),
-    topDegreeCountsFiltered: getTopDegreeCounts(filteredRows, 10)
+    }
   });
 
   renderSummary();
   renderTopLists();
-  sortRows(filteredRows);
   renderTable();
+
+  rebuildCourtTypeHistogram();
+  rebuildPartyHistogram();
+
   buildStateCartogramFilter(
     els.birthStateButtons,
     uniqueSortedValues(rawRows, COLS.birthState),
@@ -644,15 +690,20 @@ function applyFilters() {
     },
     countValues(filteredRows, COLS.birthState)
   );
+
   syncStaticControlStates();
   updateRangeLabels();
   updateRangeBand('confirm');
   updateRangeBand('term');
 }
+
 function renderSummary() {
   els.totalRows.textContent = rawRows.length.toLocaleString();
   els.filteredRows.textContent = filteredRows.length.toLocaleString();
 }
+
+/* ---------- top lists ---------- */
+
 function ensureTopFiltersGrid() {
   let grid = document.getElementById('topFiltersGrid');
   if (grid) return grid;
@@ -705,6 +756,7 @@ function ensureTopFiltersGrid() {
 
   return gridEl;
 }
+
 function ensureLawSchoolContainer() {
   let lawContainer = document.getElementById('topLawSchools');
   if (lawContainer) return lawContainer;
@@ -720,13 +772,26 @@ function ensureLawSchoolContainer() {
 
   return lawContainer;
 }
+
 function renderTopLists() {
   ensureTopFiltersGrid();
   const lawContainer = ensureLawSchoolContainer();
 
-  const topSchools = getTopSchoolCounts(filteredRows, 10);
-  const topLawSchools = getTopLawSchoolCounts(filteredRows, 10);
-  const topDegrees = getTopDegreeCounts(filteredRows, 10);
+  const allSchoolCounts = countValuesFromAccessor(rawRows, row => row.__schoolValues);
+  const allLawSchoolCounts = countValuesFromAccessor(rawRows, row => row.__lawSchoolValues);
+  const allDegreeCounts = countValuesFromAccessor(rawRows, row => row.__degreeValues);
+
+  const allSchools = getOrderedValuesFromCounts(allSchoolCounts);
+  const allLawSchools = getOrderedValuesFromCounts(allLawSchoolCounts);
+  const allDegrees = getOrderedValuesFromCounts(allDegreeCounts);
+
+  const filteredSchoolCounts = countValuesFromAccessor(filteredRows, row => row.__schoolValues);
+  const filteredLawSchoolCounts = countValuesFromAccessor(filteredRows, row => row.__lawSchoolValues);
+  const filteredDegreeCounts = countValuesFromAccessor(filteredRows, row => row.__degreeValues);
+
+  const topSchools = buildFixedHistogramItems(allSchools, filteredSchoolCounts, 10);
+  const topLawSchools = buildFixedHistogramItems(allLawSchools, filteredLawSchoolCounts, 10);
+  const topDegrees = buildFixedHistogramItems(allDegrees, filteredDegreeCounts, 10);
 
   debugGroup('[DEBUG renderTopLists]', {
     topSchools,
@@ -776,6 +841,9 @@ function renderTopLists() {
     'No degree values available.'
   );
 }
+
+/* ---------- actions ---------- */
+
 function clearFilters() {
   filters.name = '';
   filters.courtTypes = new Set();
@@ -807,10 +875,12 @@ function clearFilters() {
   debugLog('[DEBUG clearFilters]');
   applyFilters();
 }
+
 function downloadFilteredCsv() {
   if (!filteredRows.length) return;
 
   const exportRows = filteredRows.map(row => ({ ...row }));
+
   exportRows.forEach(row => {
     delete row.__name;
     delete row.__birthDate;
@@ -823,20 +893,29 @@ function downloadFilteredCsv() {
     delete row.__courtTypes;
     delete row.__confirmMs;
     delete row.__termMs;
+    delete row.__confirmRaw;
+    delete row.__termRaw;
+    delete row.__party;
   });
 
   const csv = Papa.unparse(exportRows);
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
+
   a.href = url;
   a.download = 'filtered_judicial_table.csv';
   document.body.appendChild(a);
   a.click();
   a.remove();
+
   URL.revokeObjectURL(url);
 }
-const CSV_URL = "data.csv";
+
+/* ---------- CSV load ---------- */
+
+const CSV_URL = 'data.csv';
+
 function loadCsvFromUrl(url, label = 'CSV loaded') {
   fetch(url)
     .then(response => {
@@ -883,6 +962,9 @@ function loadCsvFromUrl(url, label = 'CSV loaded') {
       alert(`Could not load CSV: ${err.message}`);
     });
 }
+
+/* ---------- listeners ---------- */
+
 els.downloadBtn.addEventListener('click', downloadFilteredCsv);
 els.clearBtn.addEventListener('click', clearFilters);
 
@@ -940,6 +1022,7 @@ els.termMax.addEventListener('input', e => {
 
 const sortNameBtn = document.getElementById('sortNameBtn');
 const sortConfirmBtn = document.getElementById('sortConfirmBtn');
+const sortTermBtn = document.getElementById('sortTermBtn');
 
 if (sortNameBtn) {
   sortNameBtn.addEventListener('click', () => {
@@ -964,10 +1047,22 @@ if (sortConfirmBtn) {
     applyFilters();
   });
 }
-
+if (sortTermBtn) {
+  sortTermBtn.addEventListener('click', () => {
+    if (currentSort.type === 'termLength') {
+      currentSort.direction *= -1;
+    } else {
+      currentSort.type = 'termLength';
+      currentSort.direction = 1;
+    }
+    applyFilters();
+  });
+}
 window.addEventListener('resize', () => {
   updateRangeBand('confirm');
   updateRangeBand('term');
 });
+
+/* ---------- boot ---------- */
 
 loadCsvFromUrl(CSV_URL, 'Hardwired CSV');

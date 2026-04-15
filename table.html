@@ -12,8 +12,8 @@
   <div class="page-layout">
     <aside class="sidebar">
       <div class="topbar">
-        <h1>SCOTUS education, jobs, birth etc.</h1>
-
+        <h1>SCOTUS Basics</h1>
+       <p> Data source: www.fjc.gov </p>
         <!-- <div class="upload-row">
           <div class="panel">
             <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
@@ -35,14 +35,14 @@
           <div class="panel span-12">
               <div>
                 <div>
-                <h2>Appointing President (1)</h2>
+                <h2>Appointing President</h2>
                 <select id="presidentSelect">
                   <option value="">All presidents</option>
                 </select>
               </div>
 
-              <div>
-                <h2>Party of Appointing President (1)</h2>
+              <div><br>
+                <h2>Party of Appointing President</h2>
                 <div id="partyButtons" class="top-list"></div>
               </div>
             </div>
@@ -51,20 +51,21 @@
           <div class="panel span-12">
             <div style="display:grid; gap:12px;">
               <div>
-                <h2>Confirmation Date (1)</h2>
-                <div class="range-wrap">
-                  <div class="range-values">
-                    <span id="confirmMinLabel">—</span>
-                    <span id="confirmMaxLabel">—</span>
-                  </div>
-                  <div class="range-stack">
-                    <div id="confirmFill" class="range-fill"></div>
-                    <div id="confirmBand" class="range-band" aria-hidden="true"></div>
-                    <input id="confirmMin" type="range" />
-                    <input id="confirmMax" type="range" />
-                  </div>
+              <h2>Confirmation Date</h2>
+              <div class="range-wrap histogram-wrap">
+                <div class="range-values">
+                  <span id="confirmMinLabel">—</span>
+                  <span id="confirmMaxLabel">—</span>
+                </div>
+
+                <div id="confirmHistogram" class="confirm-histogram" aria-label="Confirmation date histogram"></div>
+
+                <div class="range-stack histogram-range-stack">
+                  <input id="confirmMin" type="range" />
+                  <input id="confirmMax" type="range" />
                 </div>
               </div>
+            </div>
             </div>
           </div>
 
@@ -79,7 +80,7 @@
             <div id="topDegrees" class="top-list"></div>
           </div>
 
-          <div class="panel span-12">
+          <!-- <div class="panel span-12">
             <div style="display:grid; gap:10px;">
               <div>
                 <h2>Court Type (1)</h2>
@@ -87,7 +88,7 @@
               </div>
 
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
     </aside>
@@ -105,7 +106,9 @@
     <button class="action-btn" id="sortConfirmBtn" type="button">
       Sort: Confirmation Date
     </button>
-
+<button class="action-btn" id="sortTermBtn" type="button">
+  Sort: Term Length
+</button>
     <button class="action-btn" id="clearBtn" type="button">Clear Filters</button>
     <button class="action-btn" id="downloadBtn" type="button">Download Filtered CSV</button>
   </div>
