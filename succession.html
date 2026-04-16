@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Supreme Court Succession Timeline</title>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #fff;
+      color: #111;
+    }
+
+    .wrap {
+      max-width: 1500px;
+      margin: 24px auto;
+      padding: 0 16px;
+      position: relative;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 8px 0;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 16px;
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      overflow: visible;
+    }
+
+    .axis path,
+    .axis line {
+      stroke: #000;
+      shape-rendering: crispEdges;
+    }
+
+    .axis text {
+      font-size: 8px;
+      fill: #000;
+    }
+
+    .lane-bg {
+      fill: #fff;
+    }
+
+    .lane-divider {
+      stroke: #d0d0d0;
+      stroke-width: 0;
+    }
+
+    .lane-midline {
+      stroke: #000000;
+      stroke-width: 1;
+    }
+
+    .lane-label {
+      font-size: 12px;
+      font-weight: 700;
+      fill: #000;
+    }
+
+    .lane-sub {
+      font-size: 11px;
+      fill: #000;
+    }
+
+    .term {
+      fill: #000;
+      stroke:#fff;
+      opacity: 1;
+      cursor: pointer;
+    }
+
+   .term:hover {
+  opacity: 1;
+  fill: #c00;
+}
+
+    .term-label {
+      font-size: 10px;
+      fill: #fff;
+      pointer-events: none;
+    }
+
+    .tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(255,255,255,0.97);
+      border: 1px solid #111;
+      padding: 8px 10px;
+      font-size: 12px;
+      line-height: 1.35;
+      color: #111;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      opacity: 0;
+      transition: opacity 0.08s linear;
+      white-space: nowrap;
+      z-index: 10;
+    }
+
+    .tooltip .tt-name {
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .tooltip .tt-years {
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Supreme Court Seat Succession Timeline</h1>
+    <!-- <div class="subtitle">One lane per succession column; each bar is a justice’s tenure.</div> -->
+    <svg id="chart"></svg>
+    <div id="tooltip" class="tooltip"></div>
+  </div>
+
+  <script>
+    const raw = `"September 24, 1789
+1 Stat. 73
+Chief Justice"	"September 24, 1789
+1 Stat. 73"	"September 24, 1789
+1 Stat. 73"	"September 24, 1789
+1 Stat. 73"	"September 24, 1789
+1 Stat. 73"	"September 24, 1789
+1 Stat. 73"	"February 24, 1807
+2 Stat. 420"	"March 3, 1837
+5 Stat. 176"	"March 3, 1837
+5 Stat. 176"	"March 3, 1863
+12 Stat. 794"	"April 10, 1869
+16 Stat. 44"
+"Jay, John
+1789-1795"	"Rutledge, John
+1789-1791"	"Cushing, William
+1789-1810"	"Wilson, James
+1789-1798"	"Blair, John, Jr.
+1789-1795"	"Iredell, James
+1790-1799"	"Todd, Thomas
+1807-1826"	"Catron, John1
+1837-1865"	"McKinley, John
+1837-1852"	"Field, Stephen J.
+1863-1897"	"Bradley, Joseph P.
+1870-1892"
+"Rutledge, John
+1795"	"Johnson, Thomas
+1791-1793"	"Story, Joseph
+1811-1845"	"Washington, Bushrod
+1798-1829"	"Chase, Samuel
+1796-1811"	"Moore, Alfred
+1799-1804"	"Trimble, Robert
+1826-1828"		"Campbell, John A.
+1853-1861"	"McKenna, Joseph
+1898-1925"	"Shiras, George, Jr.
+1892-1903"
+"Ellsworth, Oliver
+1796-1800"	"Paterson, William
+1793-1806"	"Woodbury, Levi
+1845-1851"	"Baldwin, Henry
+1830-1844"	"Duvall, Gabriel
+1811-1835"	"Johnson, William, Jr.
+1804-1834"	"McLean, John
+1829-1861"		"Davis, David
+1862-1877"	"Stone, Harlan F.
+1925-1941"	"Day, William R.
+1903-1922"
+"Marshall, John
+1801-1835"	"Livingston, H. Brockholst
+1806-1823"	"Curtis, Benjamin R.
+1851-1857"	"Grier, Robert C.
+1846-1870"	"Barbour, Philip P.
+1836-1841"	"Wayne, James M.1
+1835-1867"	"Swayne, Noah H.
+1862-1881"		"Harlan, John Marshall
+1877-1911"	"Jackson, Robert H.
+1941-1954"	"Butler, Pierce
+1922-1939"
+"Taney, Roger B.
+1836-1864"	"Thompson, Smith
+1823-1843"	"Clifford, Nathan
+1858-1881"	"Strong, William
+1870-1880"	"Daniel, Peter V.
+1841-1860"		"Matthews, Stanley
+1881-1889"		"Pitney, Mahlon
+1912-1922"	"Harlan, John Marshall (II)
+1955-1971"	"Murphy, Frank
+1940-1949"
+"Chase, Salmon P.
+1864-1873"	"Nelson, Samuel
+1845-1872"	"Gray, Horace
+1881-1902"	"Woods, William B.
+1880-1887"	"Miller, Samuel F.
+1862-1890"		"Brewer, David J.
+1889-1910"		"Sanford, Edward T.
+1923-1930"	"Rehnquist, William H.
+1971-1986"	"Clark, Tom C.
+1949-1967"
+"Waite, Morrison R.
+1874-1888"	"Hunt, Ward
+1872-1882"	"Holmes, Oliver W., Jr.
+1902-1932"	"Lamar, Lucius Q. C.
+1888-1893"	"Brown, Henry B.
+1890-1906"		"Hughes, Charles E.
+1910-1916"		"Roberts, Owen J.
+1930-1945"	"Scalia, Antonin
+1986-2016"	"Marshall, Thurgood
+1967-1991"
+"Fuller, Melville W.
+1888-1910"	"Blatchford, Samuel M.
+1882-1893"	"Cardozo, Benjamin N.
+1932-1938"	"Jackson, Howell E.
+1893-1895"	"Moody, William H.
+1906-1910"		"Clarke, John H.
+1916-1922"		"Burton, Harold H.
+1945-1958"	"Gorsuch, Neil M.
+2017-"	"Thomas, Clarence
+1991-"
+"White, Edward D.
+1910-1921"	"White, Edward D.
+1894-1910"	"Frankfurter, Felix
+1939-1962"	"Peckham, Rufus W.
+1895-1909"	"Lamar, Joseph R.
+1910-1916"		"Sutherland, George
+1922-1938"		"Stewart, Potter
+1958-1981"		
+"Taft, William H.
+1921-1930"	"Van Devanter, Willis
+1910-1937"	"Goldberg, Arthur J.
+1962-1965"	"Lurton, Horace H.
+1909-1914"	"Brandeis, Louis D.
+1916-1939"		"Reed, Stanley F.
+1938-1957"		"O'Connor, Sandra Day
+1981-2006"		
+"Hughes, Charles E.
+1930-1941"	"Black, Hugo L.
+1937-1971"	"Fortas, Abe
+1965-1969"	"McReynolds, James C.
+1914-1941"	"Douglas, William O.
+1939-1975"		"Whittaker, Charles E.
+1957-1962"		"Alito, Samuel A., Jr.
+2006-"		
+"Stone, Harlan F.
+1941-1946"	"Powell, Lewis F., Jr.
+1971-1987"	"Blackmun, Harry A.
+1970-1994"	"Byrnes, James F.
+1941-1942"	"Stevens, John Paul
+1975-2010"		"White, Byron R.
+1962-1993"				
+"Vinson, Frederick M.
+1946-1953"	"Kennedy, Anthony M.
+1988-2018"	"Breyer, Stephen G.
+1994-2022"	"Rutledge, Wiley B.
+1943-1949"	"Kagan, Elena
+2010-"		"Ginsburg, Ruth Bader
+1993-2020"				
+"Warren, Earl
+1953-1969"	"Kavanaugh, Brett M.
+2018-"	"Jackson, Ketanji B.
+2022-"	"Minton, Sherman
+1949-1956"			"Barrett, Amy C.
+2020-"				
+"Burger, Warren E.
+1969-1986"			"Brennan, William J., Jr.
+1956-1990"							
+"Rehnquist, William H.
+1986-2005"			"Souter, David H.
+1990-2009"							
+"Roberts, John G., Jr.
+2005-"			"Sotomayor, Sonia
+2009-"							`;
+
+    const currentYear = new Date().getFullYear();
+
+    function cleanName(name) {
+      return (name || "")
+        .replace(/\d+$/, "")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function parseCell(cell) {
+      if (!cell || !cell.trim()) return null;
+
+      const parts = cell
+        .split("\n")
+        .map(d => d.trim())
+        .filter(Boolean);
+
+      if (parts.length < 2) return null;
+
+      const yearsText = parts[parts.length - 1];
+      const name = cleanName(parts.slice(0, -1).join(" "));
+
+      let start = null;
+      let end = null;
+      let displayYears = yearsText;
+
+      if (/^\d{4}-\d{4}$/.test(yearsText)) {
+        const [s, e] = yearsText.split("-");
+        start = +s;
+        end = +e;
+      } else if (/^\d{4}-$/.test(yearsText)) {
+        start = +yearsText.slice(0, 4);
+        end = currentYear;
+      } else if (/^\d{4}$/.test(yearsText)) {
+        start = +yearsText;
+        end = +yearsText;
+      } else {
+        return null;
+      }
+
+      return { name, start, end, label: displayYears };
+    }
+
+    function parseHeader(cell, i) {
+      const parts = (cell || "")
+        .split("\n")
+        .map(d => d.trim())
+        .filter(Boolean);
+
+      const title = parts.length >= 3 ? parts[parts.length - 1] : `Seat ${i + 1}`;
+      const created = parts[0] || "";
+
+      return {
+        lane: i,
+        title: title || `Seat ${i + 1}`,
+        created
+      };
+    }
+
+    const rows = d3.tsvParseRows(raw);
+    const headerRow = rows[0];
+    const bodyRows = rows.slice(1);
+
+    const lanes = headerRow.map((cell, i) => parseHeader(cell, i));
+    const data = [];
+
+    bodyRows.forEach(row => {
+      row.forEach((cell, i) => {
+        const parsed = parseCell(cell);
+        if (parsed) {
+          data.push({
+            lane: i,
+            laneTitle: lanes[i].title,
+            laneCreated: lanes[i].created,
+            ...parsed
+          });
+        }
+      });
+    });
+
+    const minYear = d3.min(data, d => d.start);
+    const maxYear = d3.max(data, d => d.end);
+
+    const margin = { top: 40, right: 30, bottom: 40, left: 220 };
+    const laneHeight = 40;
+    const barHeight = 20;
+    const width = 1450;
+    const height = margin.top + margin.bottom + lanes.length * laneHeight;
+
+    const svg = d3.select("#chart")
+      .attr("viewBox", [0, 0, width, height]);
+
+    const tooltip = d3.select("#tooltip");
+
+    const x = d3.scaleLinear()
+      .domain([minYear, maxYear + 1])
+      .range([margin.left, width - margin.right]);
+
+    const y = d3.scaleBand()
+      .domain(lanes.map(d => d.lane))
+      .range([margin.top, height - margin.bottom])
+      .paddingInner(0.18);
+
+    const axis = d3.axisTop(x)
+      .tickValues(d3.range(Math.ceil(minYear / 10) * 10, maxYear + 1, 10))
+      .tickFormat(d3.format("d"));
+
+    svg.append("g")
+      .attr("class", "axis")
+      .attr("transform", `translate(0,${margin.top - 14})`)
+      .call(axis);
+
+    svg.selectAll(".lane-bg")
+      .data(lanes)
+      .join("rect")
+      .attr("class", "lane-bg")
+      .attr("x", margin.left)
+      .attr("y", d => y(d.lane))
+      .attr("width", width - margin.left - margin.right)
+      .attr("height", y.bandwidth());
+
+    svg.selectAll(".lane-divider.top")
+      .data(lanes)
+      .join("line")
+      .attr("class", "lane-divider")
+      .attr("x1", margin.left)
+      .attr("x2", width - margin.right)
+      .attr("y1", d => y(d.lane))
+      .attr("y2", d => y(d.lane));
+
+    svg.append("line")
+      .attr("class", "lane-divider")
+      .attr("x1", margin.left)
+      .attr("x2", width - margin.right)
+      .attr("y1", height - margin.bottom)
+      .attr("y2", height - margin.bottom);
+
+    svg.selectAll(".lane-midline")
+      .data(lanes)
+      .join("line")
+      .attr("class", "lane-midline")
+      .attr("x1", margin.left)
+      .attr("x2", width - margin.right)
+      .attr("y1", d => y(d.lane) + y.bandwidth() / 2)
+      .attr("y2", d => y(d.lane) + y.bandwidth() / 2);
+
+    const laneLabels = svg.selectAll(".lane-label-group")
+      .data(lanes)
+      .join("g")
+      .attr("transform", d => `translate(${margin.left - 12},${y(d.lane) + y.bandwidth() / 2})`);
+
+    laneLabels.append("text")
+      .attr("class", "lane-label")
+      .attr("text-anchor", "end")
+      .attr("dy", "-0.2em")
+      .text((d, i) => i === 0 ? d.title : `Seat ${i + 1}`);
+
+    laneLabels.append("text")
+      .attr("class", "lane-sub")
+      .attr("text-anchor", "end")
+      .attr("dy", "1.1em")
+      .text(d => d.created);
+
+    const terms = svg.selectAll(".term-group")
+      .data(data)
+      .join("g")
+      .attr("class", "term-group");
+
+    terms.append("rect")
+      .attr("class", "term")
+      .attr("x", d => x(d.start))
+      .attr("y", d => y(d.lane) + (y.bandwidth() - barHeight) / 2)
+      .attr("width", d => Math.max(3, x(d.end + 1) - x(d.start)))
+      .attr("height", barHeight)
+      .on("mouseenter", function(event, d) {
+        tooltip
+          .style("opacity", 1)
+          .html(`
+            <div class="tt-name">${d.name}</div>
+            <div class="tt-years">${d.label}</div>
+          `);
+      })
+      .on("mousemove", function(event) {
+        const wrapRect = document.querySelector(".wrap").getBoundingClientRect();
+        const tooltipNode = tooltip.node();
+        const tooltipWidth = tooltipNode.offsetWidth;
+        const tooltipHeight = tooltipNode.offsetHeight;
+
+        let left = event.clientX - wrapRect.left + 12;
+        let top = event.clientY - wrapRect.top - tooltipHeight - 10;
+
+        if (left + tooltipWidth > wrapRect.width - 8) {
+          left = event.clientX - wrapRect.left - tooltipWidth - 12;
+        }
+
+        if (top < 0) {
+          top = event.clientY - wrapRect.top + 12;
+        }
+
+        tooltip
+          .style("left", `${left}px`)
+          .style("top", `${top}px`);
+      })
+      .on("mouseleave", function() {
+        tooltip.style("opacity", 0);
+      });
+
+    terms.append("text")
+      .attr("class", "term-label")
+      .attr("x", d => x(d.start) + 4)
+      .attr("y", d => y(d.lane) + y.bandwidth() / 2 + 3.5)
+      .text(d => d.name)
+      .each(function(d) {
+        const barWidth = Math.max(3, x(d.end + 1) - x(d.start));
+        if (this.getComputedTextLength() > barWidth - 8) {
+          d3.select(this).remove();
+        }
+      });
+  </script>
+</body>
+</html>
