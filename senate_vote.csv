@@ -1,23 +1,54 @@
-Justice Full Name,Last Name,First Name,Nominated Date,Vote Count ,Yea Votes,No Votes,Vote Year
-"Jackson, Ketanji Brown",Jackson,Kentaji Brown,"Feb 28, 2022",53-47 No. 134,53,47,2022
-"Barrett, Amy Coney",Barrett,Amy Coney,"Sep 29, 2020",52-48 No. 224,52,48,2020
-"Kavanaugh, Brett",Kavanaugh,Brett,"Jul 10, 2018",50-48 No. 223,50,48,2018
-"Gorsuch, Neil M.",Gorsuch,Neil M. ,"Feb 1, 2017",54-45 No. 111,54,45,2017
-"Kagan, Elena",Kagan,Elena,"May 10, 2010",63-37 No. 229,63,37,2010
-"Sotomayor, Sonia",Sotomayor,Sonia,"Jun 1, 2009",68-31 No. 262,68,31,2009
-"Alito, Samuel A., Jr.",Alito,Samuel A.,"Nov 10, 2005",58-42 No. 2,58,42,2006
-"Roberts, John G., Jr.",Roberts,John G. ,"Sep 6, 2005",78-22 No. 245,78,22,2005
-"Breyer, Stephen G.",Breyer,Stephen G.,"May 17, 1994",87-9 No. 242,87,9,1994
-"Ginsburg, Ruth Bader",Ginsburg,Ruth Bader,"Jun 22, 1993",96-3 No. 232,96,3,1993
-"Thomas, Clarence",Thomas,Clarence,"Jul 8, 1991",52-48 No. 220,52,48,1991
-"Souter, David H.",Souter,David H.,"Jul 25, 1990",90-9 No. 259,90,9,1990
-"Kennedy, Anthony M.",Kennedy,Anthony M.,"Nov 30, 1987",97-0 No. 16,97,0,1988
-"Scalia, Antonin",Scalia,Antonin,"Jun 24, 1986",98-0 No. 267,98,0,1986
-"Rehnquist, William H",Rehnquist,William H.,"Jun 20, 1986",65-33 No. 266,65,33,1986
-"O'Connor, Sandra Day",O'Connor,Sandra Day,"Aug 19, 1981",99-0 No. 274,99,0,1981
-"Stevens, John Paul",Stevens,John Paul,"Nov 28, 1975",98-0 No. 603,98,0,1975
-"Rehnquist, William H.",Rehnquist,William H.,"Oct 22, 1971",68-26 No. 450,68,26,1971
-"Powell, Lewis F., Jr.",Powell,Lewis F.,"Oct 22, 1971",89-1 No. 439,89,1,1971
-"Blackmun, Harry",Blackmun,Harry,"Apr 15, 1970",94-0 No. 143,94,0,1970
-"Burger, Warren",Burger,Warren,"May 23, 1969",74-3 No. 35,74,3,1969
-"Marshall, Thurgood",Marshall,Thurgood,"Jun 13, 1967",69-11 No. 240,69,11,1967
+President,Justice Full Name,To Replace,Nominated,Vote,Result,Vote Year,V,Yea Votes,No Votes,Voice
+"Washington, George","Ellsworth, Oliver",Jay,"Mar 3, 1796",21-1,C,1796,21-1,21,1,F
+"Garfield, James",Stanley Matthews,Swayne,"Mar 14, 1881",24-23,C,1881,24-23,24,23,F
+"Van Buren, Martin","Daniel, Peter",Barbour,"Feb 26, 1841",25-5,C,1841,25-5,25,5,F
+"Buchanan, James","Clifford, Nathan",Curtis,"Dec 9, 1857",26-23,C,1858,26-23,26,23,F
+"Adams, John Quincy","Trimble, Robert",Todd,"Apr 11, 1826",27-5,C,1826,27-5,27,5,F
+"Jackson, Andrew","Catron, John",(new seat),"Mar 3, 1837",28-15,C,1837,28-15,28,15,F
+"Jackson, Andrew","Taney, Roger",Marshall,"Dec 28, 1835",29-15,C,1836,29-15,29,15,F
+"Jackson, Andrew","Barbour, Philip",Duvall,"Dec 28, 1835",30-11,C,1836,30-11,30,11,F
+"Cleveland, Grover","Lamar, Lucius",Woods,"Dec 6, 1887",32-28,C,1888,32-28,32,28,F
+"Lincoln, Abraham","Swayne, Noah",McLean,"Jan 21, 1862",38-1,C,1862,38-1,38,1,F
+"Hayes, Rutherford","Woods, William",Strong,"Dec 15, 1880",39-8,C,1880,39-8,39,8,F
+"Jackson, Andrew","Baldwin, Henry",Washington,"Jan 4, 1830",41-2,C,1830,41-2,41,2,F
+"Cleveland, Grover","Fuller, Melville",Waite,"Apr 30, 1888",41-20,C,1888,41-20,41,20,F
+"Wilson, Woodrow","McReynolds, James",Lurton,19-Aug-14,44-6,C,1914,44-6,44,6,F
+"Grant, Ulysses","Stanton, Edwin",Grier,"Dec 20, 1869",46-11,C,1869,46-11,46,11,F
+"Grant, Ulysses","Bradley, Joseph",(new seat),"Feb 7, 1870",46-9,C,1870,46-9,46,9,F
+"Wilson, Woodrow","Brandeis, Louis",Lamar,28-Jan-16,47-22,C,1916,47-22,47,22,F
+"Truman, Harry","Minton, Sherman",Rutledge,15-Sep-49,48-16,C,1949,48-16,48,16,F
+"Taft, William","Pitney, Mahlon",Harlan,19-Feb-12,50-26,C,1912,50-26,50,26,F
+"Trump, Donald","Kavanaugh, Brett",Kennedy,10-Jul-18,50-48 No. 223,C,2018,50-48,50,48,F
+"Arthur, Chester","Gray, Horace",Clifford,"Dec 19, 1881",51-5,C,1881,51-5,51,5,F
+"Hoover, Herbert","Hughes, Charles",Taft,3-Feb-30,52-26,C,1930,52-26,52,26,F
+"Trump, Donald","Barrett, Amy Coney",Ginsburg,29-Sep-20,52-48 No. 224,C,2020,52-48,52,48,F
+"Bush, George H.W.","Thomas, Clarence",Marshall,8-Jul-91,52-48 No. 220,C,1991,52-48,52,48,F
+"Harrison, Benjamin","Brewer, David",Matthews,"Dec 4, 1889",53-11,C,1889,53-11,53,11,F
+"Biden, Joseph R., Jr.","Jackson, Ketanji Brown",Breyer,28-Feb-22,53-47 No. 134,C,2022,53-47,53,47,F
+"Trump, Donald","Gorsuch, Neil M.",Scalia,1-Feb-17,54-45 No. 111,C,2017,54-45,54,45,F
+"Bush, George W.","Alito, Samuel A., Jr.",O'Connor,10-Nov-05,58-42 No. 2,C,2006,58-42,58,42,F
+"Harding, Warren","Taft, William 9",White,30-Jun-21,60-4,C,1921,60-4,60,4,F
+"Harding, Warren","Butler, Pierce",Day,5-Dec-22,61-8,C,1922,61-8,61,8,F
+"Roosevelt, Franklin","Douglas, William",Brandeis,20-Mar-39,62-4,C,1939,62-4,62,4,F
+"Grant, Ulysses","Waite, Morrison12",Chase,"Jan 19, 1874",63-0,C,1874,63-0,63,0,F
+"Roosevelt, Franklin","Black, Hugo",Van Devanter,12-Aug-37,63-16,C,1937,63-16,63,16,F
+"Obama, Barack","Kagan, Elena",Stevens,10-May-10,63-37 No. 229,C,2010,63-37,63,37,F
+"Reagan, Ronald","Rehnquist, William H. 2",Burger,20-Jun-86,65-33 No. 266,C,1986,65-33,65,33,F
+"Nixon, Richard","Rehnquist, William H.",Harlan,22-Oct-71,68-26 No. 450,C,1971,68-26,68,26,F
+"Obama, Barack","Sotomayor, Sonia",Souter,1-Jun-09,68-31 No. 262,C,2009,68-31,68,31,F
+"Johnson, Lyndon","Marshall, Thurgood",Clark,13-Jun-67,69-11 No. 240,C,1967,69-11,69,11,F
+"Eisenhower, Dwight","Stewart, Potter",Burton,17-Jan-59,70-17,C,1959,70-17,70,17,F
+"Eisenhower, Dwight","Harlan, John",Jackson,10-Jan-55,71-11,C,1955,71-11,71,11,F
+"Coolidge, Calvin","Stone, Harlan",McKenna,5-Jan-25,71-6,C,1925,71-6,71,6,F
+"Truman, Harry","Clark, Tom",Murphy,2-Aug-49,73-8,C,1949,73-8,73,8,F
+"Nixon, Richard","Burger, Warren",Warren,23-May-69,74-3 No. 35,C,1969,74-3,74,3,F
+"Bush, George W.","Roberts, John G., Jr.1",Rehnquist,6-Sep-05,78-22 No. 245,C,2005,78-22,78,22,F
+"Clinton, Bill","Breyer, Stephen G.",Blackmun,17-May-94,87-9 No. 242,C,1994,87-9,87,9,F
+"Nixon, Richard","Powell, Lewis F., Jr.",Black,22-Oct-71,89-1 No. 439,C,1971,89-1,89,1,F
+"Bush, George H.W.","Souter, David H.",Brennan,25-Jul-90,90-9 No. 259,C,1990,90-9,90,9,F
+"Nixon, Richard","Blackmun, Harry",Fortas,15-Apr-70,94-0 No. 143,C,1970,94-0,94,0,F
+"Clinton, Bill","Ginsburg, Ruth Bader",White,22-Jun-93,96-3 No. 232,C,1993,96-3,96,3,F
+"Reagan, Ronald","Kennedy, Anthony M.",Powell,30-Nov-87,97-0 No. 16,C,1988,97-0,97,0,F
+"Reagan, Ronald","Scalia, Antonin",Rehnquist,24-Jun-86,98-0 No. 267,C,1986,98-0,98,0,F
+"Ford, Gerald","Stevens, John Paul",Douglas,28-Nov-75,98-0 No. 603,C,1975,98-0,98,0,F
+"Reagan, Ronald","O'Connor, Sandra Day",Stewart,19-Aug-81,99-0 No. 274,C,1981,99-0,99,0,F
