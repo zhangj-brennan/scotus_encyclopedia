@@ -1,16 +1,16 @@
 @font-face {
   font-family: "Benton";
-  src: url("Benton Sans/Benton Sans Book.otf");
+  src: url("../Benton Sans/Benton Sans Book.otf");
 }
 
 @font-face {
   font-family: "BentonStrong";
-  src: url("Benton Sans/Benton Sans Bold.otf");
+  src: url("../Benton Sans/Benton Sans Bold.otf");
 }
 
 @font-face {
   font-family: "BentonMedium";
-  src: url("Benton Sans/Benton Sans Medium.otf");
+  src: url("../Benton Sans/Benton Sans Medium.otf");
 }
 
 :root {
