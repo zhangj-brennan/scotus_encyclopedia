@@ -1,0 +1,144 @@
+@font-face {
+  font-family: "Benton";
+  src: url("Benton Sans/Benton Sans Book.otf");
+}
+
+@font-face {
+  font-family: "BentonStrong";
+  src: url("Benton Sans/Benton Sans Bold.otf");
+}
+
+@font-face {
+  font-family: "BentonMedium";
+  src: url("Benton Sans/Benton Sans Medium.otf");
+}
+:root {
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --text: #000000;
+      --muted: #000000;
+      --border: #ffffff;
+      --accent: #c8102e;
+      --max: 1200px;
+      --gutter: 24px;
+      --section-gap: 40px;
+      --card-gap: 24px;
+      --radius: 0;
+      --shadow: none;
+      --font-sans: "Benton", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+
+    .tooltip {
+      position: absolute;
+      pointer-events: none;
+      background:#fff;
+      color: #000;
+      border:1px solid black;
+      padding: 10px 12px;
+      border-radius: 0;
+      font-size: 13px;
+      line-height: 1.4;
+      max-width: 320px;
+      opacity: 0;
+      transform: translate(-50%, calc(-100% - 12px));
+      transition: opacity 120ms ease;
+      white-space: normal;
+      z-index: 5;
+    }
+
+    @media (max-width: 980px) {
+      .hero {
+        padding: 40px 0 24px;
+      }
+
+      .section {
+        padding: 4px 0;
+      }
+    }
+
+    @media (max-width: 700px) {
+      #map { min-height: 520px; }
+      button { width: 100%; justify-content: center; }
+      .controls { flex-direction: column; align-items: stretch; }
+    }
+
+  /* Symbol chart additions */
+
+
+  .row-label {
+    font-size: 12px;
+    dominant-baseline: middle;
+    fill: var(--text);
+  }
+
+  .row-total {
+    font-size: 12px;
+    dominant-baseline: middle;
+    fill: var(--muted);
+    font-family:"BentonMedium";
+  }
+
+  .legend text {
+    font-size: 12px;
+    dominant-baseline: middle;
+    fill: var(--text);
+  }
+
+  .square {
+    stroke: var(--text);
+    stroke-width: 1;
+  }
+
+  @media (max-width: 700px) {
+    #chart { overflow-x: auto; }
+    /* #chart svg { width: 700px; } */
+  }
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: var(--font-sans);
+  font-weight:800;
+}
+#container{
+  margin:20px;
+}
+#title{
+  max-width:550px;
+  border-top:2px solid black;
+
+}
+h1 {
+  margin: 0 0 6px;
+  font-size: 20px;
+  line-height: 1.6;
+  font-family:"BentonStrong";
+}
+#subtitle{
+    font-family:"Benton";
+  font-size:14px;
+    line-height: 19px;
+
+}
+h3 {
+  margin: 0 0 0px;
+  font-size:12px;
+  line-height: 1;
+  font-family:"BentonStrong";
+}
+.footnote{
+  font-size:10px;
+  width:500px;
+}
+#toggle-zero-terms{
+  font-size:12px;
+  background:#fff;
+  border-radius:0px;
+  border:1px solid black;
+}

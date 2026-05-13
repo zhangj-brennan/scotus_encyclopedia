@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Presidential Justice Appointments Symbol Chart</title>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+    <div id="container">
+<div id="title"><h1>Number of Justices Appointed by President</h1></div>
+<div id="subtitle">In chronological order</div>
+<div id="chart"></div>
+</div>
+<script>
+const CSV_PATH = "scotus data prep - appointments by president.csv";
+
+const COLS = {
+  president: "president",
+  appointments: "appointments",
+  elevations: "elevations",
+  recess: "recess"
+};
+
+const squareSize = 10;
+const squareGap = 4;
+const rowGap = 18;
+const labelWidth = 130;
+const totalOffset = 10;
+
+const margin = {
+  top: 45,
+  right: 10,
+  bottom: 20,
+  left: 20
+};
+
+d3.csv(CSV_PATH, d => ({
+  president: d[COLS.president],
+  appointments: +d[COLS.appointments] || 0,
+  elevations: +d[COLS.elevations] || 0,
+  recess: +d[COLS.recess] || 0
+})).then(data => {
+
+  data.forEach(d => {
+
+    d.symbols = [
+      ...Array(d.appointments).fill("appointment"),
+      ...Array(d.elevations).fill("elevation"),
+      ...Array(d.recess).fill("recess")
+    ];
+
+    d.total = d.symbols.length;
+
+    const parts = [];
+
+    if (d.elevations > 0) {
+      parts.push(
+        `${d.elevations} elevation${d.elevations === 1 ? "" : "s"}`
+      );
+    }
+
+    if (d.recess > 0) {
+      parts.push(
+        `${d.recess} recess${d.recess === 1 ? "" : " appointments"}`
+      );
+    }
+
+    d.totalLabel = `${d.total}`;
+    // if (parts.length > 0) {
+    //   d.totalLabel = `${d.total} including ${parts.join(" and ")}`;
+    // } else {
+    //   d.totalLabel = `${d.total}`;
+    // }
+  });
+
+  const maxSymbols = d3.max(data, d => d.total) || 0;
+
+  const width =
+    margin.left +
+    labelWidth +
+    maxSymbols * (squareSize + squareGap) +
+    260 +
+    margin.right;
+
+  const height =
+    margin.top +
+    data.length * rowGap +
+    margin.bottom;
+
+  const svg = d3.select("#chart")
+    .append("svg")
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    // .attr("width", "100%")
+    .attr("height", height);
+
+  const defs = svg.append("defs");
+  const stripes = 4
+  const stripePattern = defs.append("pattern")
+    .attr("id", "diagonal-stripes")
+    .attr("patternUnits", "userSpaceOnUse")
+    .attr("width", stripes)
+    .attr("height", stripes)
+    .attr("patternTransform", "rotate(45)");
+
+  stripePattern.append("rect")
+    .attr("width", stripes)
+    .attr("height", stripes)
+    .attr("fill", "#fff");
+
+  stripePattern.append("line")
+    .attr("x1", 0)
+    .attr("y1", 0)
+    .attr("x2", 0)
+    .attr("y2", stripes)
+    .attr("stroke", "#111")
+    .attr("stroke-width", 2);
+
+  const legend = svg.append("g")
+    .attr("class", "legend")
+    .attr("transform", `translate(2, 12)`);
+
+  drawSymbol(legend, 0, 0, "appointment");
+  legend.append("text")
+    .attr("x", 22)
+    .attr("y", 7)
+    .text("Appointment");
+
+  drawSymbol(legend, 125, 0, "elevation");
+  legend.append("text")
+    .attr("x", 147)
+    .attr("y", 7)
+    .text("Elevation");
+
+  drawSymbol(legend, 235, 0, "recess");
+  legend.append("text")
+    .attr("x", 257)
+    .attr("y", 7)
+    .text("Recess");
+
+  const rows = svg.selectAll(".president-row")
+    .data(data)
+    .join("g")
+    .attr("class", "president-row")
+    .attr(
+      "transform",
+      (d, i) => `translate(${margin.left}, ${margin.top + i * rowGap})`
+    );
+
+  rows.append("text")
+    .attr("class", "row-label")
+    .attr("x", 0)
+    .attr("y", squareSize / 2)
+    .text(d => d.president);
+
+  rows.each(function(d) {
+
+    const row = d3.select(this);
+
+    d.symbols.forEach((type, i) => {
+
+      drawSymbol(
+        row,
+        labelWidth + i * (squareSize + squareGap),
+        0,
+        type
+      );
+
+    });
+
+    row.append("text")
+      .attr("class", "row-total")
+      .attr(
+        "x",
+        labelWidth +
+        d.total * (squareSize + squareGap) 
+      )
+      .attr("y", squareSize / 2+1)
+      .text(d => d.totalLabel);
+
+  });
+
+  function drawSymbol(parent, x, y, type) {
+
+    const g = parent.append("g")
+      .attr("transform", `translate(${x}, ${y})`);
+
+    if (type === "appointment") {
+
+      g.append("rect")
+        .attr("class", "square")
+        .attr("width", squareSize)
+        .attr("height", squareSize)
+        .attr("fill", "#111");
+
+    }
+
+    if (type === "elevation") {
+
+  // white background
+  g.append("rect")
+    .attr("width", squareSize)
+    .attr("height", squareSize)
+    .attr("fill", "#fff");
+
+  // black diagonal triangle
+  g.append("polygon")
+    .attr(
+      "points",
+      `
+      0,0
+      ${squareSize},0
+      0,${squareSize}
+      `
+    )
+    .attr("fill", "#111");
+
+  // border
+  g.append("rect")
+    .attr("class", "square")
+    .attr("width", squareSize)
+    .attr("height", squareSize)
+    .attr("fill", "none");
+
+}
+
+    if (type === "recess") {
+
+      g.append("rect")
+        .attr("class", "square")
+        .attr("width", squareSize)
+        .attr("height", squareSize)
+        .attr("fill", "url(#diagonal-stripes)");
+
+    }
+  }
+
+});
+</script>
+
+</body>
+</html>
