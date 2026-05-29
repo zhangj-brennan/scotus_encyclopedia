@@ -14,16 +14,18 @@
       <h1>Senate Votes on SCOTUS Confirmations</h1>
 
       <div class="panel">
-        <div class="panelSectionLabel">SORT:</div>
+        <div class="panelSectionLabel">SORT BY CONFIRMATION YEAR:</div>
         <div class="controls">
           <button id="sort-date" class="active" type="button">Earliest to Most Recent</button>
            <button id="sort-date-desc" type="button">Most Recent to Earliest</button>
-          </div>
+        </div>
+                <div class="panelSectionLabel">SORT BY % MARGIN:</div>
 
-          <div class="controls">
+ <div class="controls">
           <button id="sort-partisanship" type="button">Largest to Smallest</button>
-          <button id="sort-partisanship" type="button">Smallest to Largest</button>
-          </div>
+<button id="sort-partisanship-asc" type="button">
+  Smallest to Largest
+</button>          </div>
 
 <div class="panelSectionLabel"> VIEW:</div>
      <div class="controls">
@@ -34,12 +36,12 @@
      <div class="controls">
         <div class="controls filters-checkboxes">
   <label>
-    <input type="checkbox" id="filter-confirmed">
+    <input type="checkbox" id="filter-confirmed" checked>
     Confirmed Only
   </label>
 
   <label>
-    <input type="checkbox" id="filter-voice">
+    <input type="checkbox" id="filter-voice" checked>
     Hide Voice Votes
   </label>
 
@@ -64,9 +66,12 @@
 
     <div class="tooltip" id="tooltip"></div>
 
-    <p class="subhed">
-      Source: https://www.senate.gov/legislative/nominations/SupremeCourtNominations1789present.html
-    </p>
+    <div class="subhed">
+      Source: https://www.senate.gov
+      <br>
+      Additional notes can go here. 
+      <!-- /legislative/nominations/SupremeCourtNominations1789present.html -->
+    </div>
   </div>
 
   <script>
@@ -100,8 +105,8 @@
     let currentSort = "partisanship";
     let currentView = "percent";
 
-    let confirmedOnly = false;
-    let hideVoiceVotes = false;
+    let confirmedOnly = true;
+    let hideVoiceVotes = true;
     let hideOlder = true;
 
     d3.csv(csvPath, d => {
@@ -164,6 +169,12 @@
       setActiveButton();
       updateChart();
     });
+document.getElementById("sort-partisanship-asc").addEventListener("click", () => {
+  currentSort = "partisanship-asc";
+  setActiveButton();
+  updateChart();
+});
+    
 
     document.getElementById("view-counts").addEventListener("click", () => {
       currentView = "counts";
@@ -201,6 +212,8 @@ document.getElementById("filter-modern").addEventListener("change", e => {
 
       document.getElementById("sort-partisanship")
         .classList.toggle("active", currentSort === "partisanship");
+        document.getElementById("sort-partisanship-asc")
+  .classList.toggle("active", currentSort === "partisanship-asc");
 
       document.getElementById("view-counts")
         .classList.toggle("active", currentView === "counts");
@@ -241,15 +254,25 @@ document.getElementById("filter-modern").addEventListener("change", e => {
 
       if (currentSort === "partisanship") {
 
-        data.sort((a, b) => {
-          const diffA = Math.abs(a.yeaPct - a.noPct);
-          const diffB = Math.abs(b.yeaPct - b.noPct);
+  data.sort((a, b) => {
+    const diffA = Math.abs(a.yeaPct - a.noPct);
+    const diffB = Math.abs(b.yeaPct - b.noPct);
 
-          return d3.descending(diffA, diffB) ||
-                 d3.ascending(a.voteYear, b.voteYear);
-        });
+    return d3.descending(diffA, diffB) ||
+           d3.ascending(a.voteYear, b.voteYear);
+  });
 
-      } else if (currentSort === "date-desc") {
+} else if (currentSort === "partisanship-asc") {
+
+  data.sort((a, b) => {
+    const diffA = Math.abs(a.yeaPct - a.noPct);
+    const diffB = Math.abs(b.yeaPct - b.noPct);
+
+    return d3.ascending(diffA, diffB) ||
+           d3.ascending(a.voteYear, b.voteYear);
+  });
+
+} else if (currentSort === "date-desc") {
 
         data.sort((a, b) =>
           d3.descending(a.voteYear, b.voteYear)
@@ -266,281 +289,542 @@ document.getElementById("filter-modern").addEventListener("change", e => {
       return data;
     }
 
+    function showTooltip(event, d, label, value) {
+
+  tooltip
+    .style("opacity", 1)
+    .style("left", `${event.pageX + 10}px`)
+    .style("top", `${event.pageY - 10}px`)
+    // .html(console.log(d))
+    .html(`
+      <strong>${d.justiceName}</strong><br>
+      Vote Year: ${d.voteYear}<br>
+      Yea Votes: ${d.yeaVotes} (${Math.round(d.yeaPct)}%)<br>
+      No Votes: ${d.noVotes} (${Math.round(d.noPct)}%)<br>
+      Total Votes: ${d.totalVotes}<br>
+    `);
+}
+
+function hideTooltip() {
+  tooltip.style("opacity", 0);
+}
     function updateChart() {
       renderChart(getSortedData());
     }
 
+
+
     function renderChart(data) {
-      chartContainer.html("");
+  chartContainer.html("");
 
-      if (!data.length) {
-        chartContainer.append("p").text("No valid rows found.");
-        return;
-      }
+  if (!data.length) {
+    chartContainer.append("p").text("No valid rows found.");
+    return;
+  }
 
-      const wrapWidth = chartContainer.node().clientWidth || 1200;
+  const isMobile = window.matchMedia("(max-width: 700px)").matches;
 
-      const rowHeight = 20;
-      const fontSizeName = 12;
-      const fontSizeYear = 12;
-      const fontSizeValue = 11;
+  if (isMobile) {
+    const wrapWidth = chartContainer.node().clientWidth || 1200;
 
-      const maxNameLength =
-        d3.max(data, d => d.justiceName.length) || 10;
+    const rowHeight = 40;
+    const barHeight = 16;
+    const labelOffset = 10;
+    const barOffset = 20;
 
-      const leftLabelWidth =
-        Math.max(180, Math.min(340, maxNameLength * 7.2));
+    const fontSizeName = 12;
+    const fontSizeYear = 12;
+    const fontSizeValue = 11;
 
-      const rightLabelWidth = 120;
+    const margin = {
+      top: 40,
+      right: 12,
+      bottom: 28,
+      left: 50
+    };
 
-      const margin = {
-        top: 40,
-        right: rightLabelWidth,
-        bottom: 28,
-        left: leftLabelWidth
-      };
+    const width = Math.max(360, wrapWidth);
 
-      const width = Math.max(760, wrapWidth);
+    const height =
+      margin.top +
+      margin.bottom +
+      data.length * rowHeight;
 
-      const height =
-        margin.top +
-        margin.bottom +
-        data.length * rowHeight;
+    const maxValue =
+      currentView === "percent"
+        ? 100
+        : d3.max(data, d => Math.max(d.yeaVotes, d.noVotes));
 
-      const maxValue =
+    const x = d3.scaleLinear()
+      .domain([-maxValue, maxValue])
+      .range([margin.left, width - margin.right]);
+
+    const y = d3.scaleBand()
+      .domain(data.map((d, i) => i))
+      .range([margin.top + 18, height - margin.bottom])
+      .padding(0.30);
+
+    const svg = chartContainer
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+    const xAxis = d3.axisTop(x)
+      .tickFormat(d => {
+        const v = Math.abs(d);
+        return currentView === "percent"
+          ? `${v}%`
+          : v;
+      });
+
+    svg.append("g")
+      .attr("class", "axis")
+      .attr("transform", `translate(0,${margin.top})`)
+      .call(xAxis);
+
+    svg.append("line")
+      .attr("class", "center-line")
+      .attr("x1", x(0))
+      .attr("x2", x(0))
+      .attr("y1", margin.top + 18)
+      .attr("y2", height - margin.bottom);
+
+    svg.append("text")
+      .attr("class", "axis-title")
+      .attr("x", x(-maxValue / 2))
+      .attr("y", margin.top - 22)
+      .attr("text-anchor", "middle")
+      .text(
         currentView === "percent"
-          ? 100
-          : d3.max(data, d => Math.max(d.yeaVotes, d.noVotes));
+          ? "Yea %"
+          : "Yea Votes"
+      );
 
-      const x = d3.scaleLinear()
-        .domain([-maxValue, maxValue])
-        .range([margin.left * 1.2, width - margin.right]);
+    svg.append("text")
+      .attr("class", "axis-title")
+      .attr("x", x(maxValue / 2))
+      .attr("y", margin.top - 22)
+      .attr("text-anchor", "middle")
+      .text(
+        currentView === "percent"
+          ? "No %"
+          : "No Votes"
+      );
 
-      const y = d3.scaleBand()
-        .domain(data.map((d, i) => i))
-        .range([margin.top + 18, height - margin.bottom])
-        .padding(0.30);
+    svg.selectAll(".name-label")
+      .data(data)
+      .join("text")
+      .attr(
+        "class",
+        d =>
+          HIGHLIGHT_NAMES.has(d.justiceName)
+            ? "name-label highlight"
+            : "name-label"
+      )
+      .attr("x", margin.left)
+      .attr("y", (_, i) => y(i) + labelOffset)
+      .attr("text-anchor", "start")
+      .style("font-size", `${fontSizeName}px`)
+      .text(d => `${d.justiceName} (${d.voteYear})`);
 
-      const svg = chartContainer
-        .append("svg")
-        .attr("width", width)
-        .attr("height", height);
+    // svg.selectAll(".year-label")
+    //   .data(data)
+    //   .join("text")
+    //   .attr("class", "year-label")
+    //   .attr("x", width - margin.right)
+    //   .attr("y", (_, i) => y(i) + labelOffset)
+    //   .attr("text-anchor", "end")
+    //   .style("font-size", `${fontSizeYear}px`)
+    //   .text(d => `${d.justiceName} ${d.voteYear}`);
 
-      const xAxis = d3.axisTop(x)
-        .tickFormat(d => {
-          const v = Math.abs(d);
-          return currentView === "percent"
-            ? `${v}%`
-            : v;
-        });
+    svg.selectAll(".bar-yea")
+      .data(data.filter(d => !d.voice && !d.statusText))
+      .join("rect")
+      .attr(
+        "class",
+        d =>
+          HIGHLIGHT_NAMES.has(d.justiceName)
+            ? "bar-yea highlight"
+            : "bar-yea"
+      )
+      .attr("x", d => {
+        const value =
+          currentView === "percent"
+            ? d.yeaPct
+            : d.yeaVotes;
 
-      svg.append("g")
-        .attr("class", "axis")
-        .attr("transform", `translate(0,${margin.top})`)
-        .call(xAxis);
+        return x(-value);
+      })
+      .attr("y", d => y(data.indexOf(d)) + barOffset)
+      .attr("width", d => {
+        const value =
+          currentView === "percent"
+            ? d.yeaPct
+            : d.yeaVotes;
 
-      svg.append("line")
-        .attr("class", "center-line")
-        .attr("x1", x(0))
-        .attr("x2", x(0))
-        .attr("y1", margin.top + 18)
-        .attr("y2", height - margin.bottom);
-
-      svg.append("text")
-        .attr("class", "axis-title")
-        .attr("x", x(-maxValue / 2))
-        .attr("y", margin.top - 20)
-        .attr("text-anchor", "middle")
-        .text(
+        return x(0) - x(-value);
+      })
+      .attr("height", barHeight)
+      .on("mousemove", (event, d) => {
+        showTooltip(
+          event,
+          d,
           currentView === "percent"
             ? "Yea %"
-            : "Yea Votes"
-        );
-
-      svg.append("text")
-        .attr("class", "axis-title")
-        .attr("x", x(maxValue / 2))
-        .attr("y", margin.top - 18)
-        .attr("text-anchor", "middle")
-        .text(
+            : "Yea Votes",
           currentView === "percent"
-            ? "No %"
-            : "No Votes"
-        );
-
-      svg.selectAll(".name-label")
-        .data(data)
-        .join("text")
-        .attr(
-          "class",
-          d =>
-            HIGHLIGHT_NAMES.has(d.justiceName)
-              ? "name-label highlight"
-              : "name-label"
-        )
-        .attr("x", margin.left - 14)
-        .attr("y", (_, i) => y(i) + y.bandwidth() / 2)
-        .attr("text-anchor", "end")
-        .style("font-size", `${fontSizeName}px`)
-        .text(d => d.justiceName);
-
-      svg.selectAll(".year-label")
-        .data(data)
-        .join("text")
-        .attr("class", "year-label")
-        .attr("x", width - margin.right + 12)
-        .attr("y", (_, i) => y(i) + y.bandwidth() / 2)
-        .attr("text-anchor", "start")
-        .style("font-size", `${fontSizeYear}px`)
-        .text(d => `${d.voteYear}`);
-
-      svg.selectAll(".bar-yea")
-        .data(data.filter(d => !d.voice && !d.statusText))
-        .join("rect")
-        .attr(
-          "class",
-          d =>
-            HIGHLIGHT_NAMES.has(d.justiceName)
-              ? "bar-yea highlight"
-              : "bar-yea"
-        )
-        .attr("x", d => {
-          const value =
-            currentView === "percent"
-              ? d.yeaPct
-              : d.yeaVotes;
-
-          return x(-value);
-        })
-        .attr("y", d => y(data.indexOf(d)))
-        .attr("width", d => {
-          const value =
-            currentView === "percent"
-              ? d.yeaPct
-              : d.yeaVotes;
-
-          return x(0) - x(-value);
-        })
-        .attr("height", y.bandwidth())
-        .on("mousemove", (event, d) => {
-          showTooltip(
-            event,
-            d,
-            currentView === "percent"
-              ? "Yea %"
-              : "Yea Votes",
-            currentView === "percent"
-              ? `${d.yeaPct.toFixed(1)}%`
-              : d.yeaVotes
-          );
-        })
-        .on("mouseleave", hideTooltip);
-
-      svg.selectAll(".bar-no")
-        .data(data.filter(d => !d.voice && !d.statusText))
-        .join("rect")
-        .attr(
-          "class",
-          d =>
-            HIGHLIGHT_NAMES.has(d.justiceName)
-              ? "bar-no highlight"
-              : "bar-no"
-        )
-        .attr("x", x(0))
-        .attr("y", d => y(data.indexOf(d)))
-        .attr("width", d => {
-          const value =
-            currentView === "percent"
-              ? d.noPct
-              : d.noVotes;
-
-          return x(value) - x(0);
-        })
-        .attr("height", y.bandwidth())
-        .on("mousemove", (event, d) => {
-          showTooltip(
-            event,
-            d,
-            currentView === "percent"
-              ? "No %"
-              : "No Votes",
-            currentView === "percent"
-              ? `${d.noPct.toFixed(1)}%`
-              : d.noVotes
-          );
-        })
-        .on("mouseleave", hideTooltip);
-
-      svg.selectAll(".yea-label")
-        .data(data.filter(d => !d.voice && !d.statusText))
-        .join("text")
-        .attr("class", "value-label")
-        .attr("x", d => {
-          const value =
-            currentView === "percent"
-              ? d.yeaPct
-              : d.yeaVotes;
-
-          return x(-value) - 6;
-        })
-        .attr("y", d => y(data.indexOf(d)) + y.bandwidth() / 2)
-        .attr("text-anchor", "end")
-        .style("font-size", `${fontSizeValue}px`)
-        .text(d =>
-          currentView === "percent"
-            ? `${d.yeaPct.toFixed(1)}%`
+            ? `${d.yeaPct.toFixed(0)}%`
             : d.yeaVotes
         );
+      })
+      .on("mouseleave", hideTooltip);
 
-      svg.selectAll(".no-label")
-        .data(data.filter(d => !d.voice && !d.statusText))
-        .join("text")
-        .attr("class", "value-label")
-        .attr("x", d => {
-          const value =
-            currentView === "percent"
-              ? d.noPct
-              : d.noVotes;
-
-          return x(value) + 6;
-        })
-        .attr("y", d => y(data.indexOf(d)) + y.bandwidth() / 2)
-        .attr("text-anchor", "start")
-        .style("font-size", `${fontSizeValue}px`)
-        .text(d =>
+    svg.selectAll(".bar-no")
+      .data(data.filter(d => !d.voice && !d.statusText))
+      .join("rect")
+      .attr(
+        "class",
+        d =>
+          HIGHLIGHT_NAMES.has(d.justiceName)
+            ? "bar-no highlight"
+            : "bar-no"
+      )
+      .attr("x", x(0))
+      .attr("y", d => y(data.indexOf(d)) + barOffset)
+      .attr("width", d => {
+        const value =
           currentView === "percent"
-            ? `${d.noPct.toFixed(1)}%`
+            ? d.noPct
+            : d.noVotes;
+
+        return x(value) - x(0);
+      })
+      .attr("height", barHeight)
+      .on("mousemove", (event, d) => {
+        showTooltip(
+          event,
+          d,
+          currentView === "percent"
+            ? "No %"
+            : "No Votes",
+          currentView === "percent"
+            ? `${d.noPct.toFixed(0)}%`
             : d.noVotes
         );
+      })
+      .on("mouseleave", hideTooltip);
 
-      svg.selectAll(".voice-label")
-        .data(data.filter(d => d.voice || d.statusText))
-        .join("text")
-        .attr("class", "voice-label")
-        .attr("x", x(0) - 10)
-        .attr("y", d => y(data.indexOf(d)) + y.bandwidth() / 2)
-        .attr("text-anchor", "end")
-        .style("font-size", `${fontSizeValue + 1}px`)
-        .style("font-weight", "600")
-        .text(d =>
-          d.voice
-            ? "Voice"
-            : d.statusText
-        );
-    }
+    svg.selectAll(".yea-label")
+      .data(data.filter(d => !d.voice && !d.statusText))
+      .join("text")
+      .attr("class", "value-label")
+      .attr("x", d => {
+        const value =
+          currentView === "percent"
+            ? d.yeaPct
+            : d.yeaVotes;
 
-    function showTooltip(event, d, label, value) {
-      tooltip
-        .style("opacity", 1)
-        .style("left", `${event.pageX}px`)
-        .style("top", `${event.pageY}px`)
-        .html(
-          `<strong>${d.justiceName}</strong><br>` +
-          `Vote Year: ${d.voteYear}<br>` +
-          `Margin: ${d.margin}<br>` +
-          `${label}: ${value}`
-        );
-    }
+        return x(-value) - 6;
+      })
+      .attr("y", d => y(data.indexOf(d)) + barOffset + barHeight / 2)
+      .attr("text-anchor", "end")
+      .style("font-size", `${fontSizeValue}px`)
+      .text(d =>
+        currentView === "percent"
+          ? `${d.yeaPct.toFixed(0)}%`
+          : d.yeaVotes
+      );
+
+    svg.selectAll(".no-label")
+      .data(data.filter(d => !d.voice && !d.statusText))
+      .join("text")
+      .attr("class", "value-label")
+      .attr("x", d => {
+        const value =
+          currentView === "percent"
+            ? d.noPct
+            : d.noVotes;
+
+        return x(value) + 6;
+      })
+      .attr("y", d => y(data.indexOf(d)) + barOffset + barHeight / 2)
+      .attr("text-anchor", "start")
+      .style("font-size", `${fontSizeValue}px`)
+      .text(d =>
+        currentView === "percent"
+          ? `${d.noPct.toFixed(0)}%`
+          : d.noVotes
+      );
+
+    svg.selectAll(".voice-label")
+      .data(data.filter(d => d.voice || d.statusText))
+      .join("text")
+      .attr("class", "voice-label")
+      .attr("x", x(0) - 10)
+      .attr("y", d => y(data.indexOf(d)) + barOffset + barHeight / 2)
+      .attr("text-anchor", "end")
+      .style("font-size", `${fontSizeValue + 1}px`)
+      .style("font-weight", "600")
+      .text(d =>
+        d.voice
+          ? "Voice"
+          : d.statusText
+      );
+
+    return;
+  }
+
+  const wrapWidth = chartContainer.node().clientWidth || 1200;
+
+  const rowHeight = 20;
+  const fontSizeName = 12;
+  const fontSizeYear = 12;
+  const fontSizeValue = 11;
+
+  const maxNameLength =
+    d3.max(data, d => d.justiceName.length) || 10;
+
+  const leftLabelWidth =
+    Math.max(180, Math.min(340, maxNameLength * 7.2));
+
+  const rightLabelWidth = 120;
+
+  const margin = {
+    top: 40,
+    right: rightLabelWidth,
+    bottom: 28,
+    left: leftLabelWidth
+  };
+
+  const width = Math.max(760, wrapWidth);
+
+  const height =
+    margin.top +
+    margin.bottom +
+    data.length * rowHeight;
+
+  const maxValue =
+    currentView === "percent"
+      ? 100
+      : d3.max(data, d => Math.max(d.yeaVotes, d.noVotes));
+
+  const x = d3.scaleLinear()
+    .domain([-maxValue, maxValue])
+    .range([margin.left * 1.2, width - margin.right]);
+
+  const y = d3.scaleBand()
+    .domain(data.map((d, i) => i))
+    .range([margin.top + 18, height - margin.bottom])
+    .padding(0.30);
+
+  const svg = chartContainer
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+  const xAxis = d3.axisTop(x)
+    .tickFormat(d => {
+      const v = Math.abs(d);
+      return currentView === "percent"
+        ? `${v}%`
+        : v;
+    });
+
+  svg.append("g")
+    .attr("class", "axis")
+    .attr("transform", `translate(0,${margin.top})`)
+    .call(xAxis);
+
+  svg.append("line")
+    .attr("class", "center-line")
+    .attr("x1", x(0))
+    .attr("x2", x(0))
+    .attr("y1", margin.top + 18)
+    .attr("y2", height - margin.bottom);
+
+  svg.append("text")
+    .attr("class", "axis-title")
+    .attr("x", x(-maxValue / 2))
+    .attr("y", margin.top - 22)
+    .attr("text-anchor", "middle")
+    .text(
+      currentView === "percent"
+        ? "Yea %"
+        : "Yea Votes"
+    );
+
+  svg.append("text")
+    .attr("class", "axis-title")
+    .attr("x", x(maxValue / 2))
+    .attr("y", margin.top - 22)
+    .attr("text-anchor", "middle")
+    .text(
+      currentView === "percent"
+        ? "No %"
+        : "No Votes"
+    );
+
+  svg.selectAll(".name-label")
+    .data(data)
+    .join("text")
+    .attr(
+      "class",
+      d =>
+        HIGHLIGHT_NAMES.has(d.justiceName)
+          ? "name-label highlight"
+          : "name-label"
+    )
+    .attr("x", margin.left - 14)
+    .attr("y", (_, i) => y(i) + y.bandwidth() / 2)
+    .attr("text-anchor", "end")
+    .style("font-size", `${fontSizeName}px`)
+    .text(d => d.justiceName);
+
+  svg.selectAll(".year-label")
+    .data(data)
+    .join("text")
+    .attr("class", "year-label")
+    .attr("x", width - margin.right + 12)
+    .attr("y", (_, i) => y(i) + y.bandwidth() / 2)
+    .attr("text-anchor", "start")
+    .style("font-size", `${fontSizeYear}px`)
+    .text(d => `${d.voteYear}`);
+
+  svg.selectAll(".bar-yea")
+    .data(data.filter(d => !d.voice && !d.statusText))
+    .join("rect")
+    .attr(
+      "class",
+      d =>
+        HIGHLIGHT_NAMES.has(d.justiceName)
+          ? "bar-yea highlight"
+          : "bar-yea"
+    )
+    .attr("x", d => {
+      const value =
+        currentView === "percent"
+          ? d.yeaPct
+          : d.yeaVotes;
+
+      return x(-value);
+    })
+    .attr("y", d => y(data.indexOf(d)))
+    .attr("width", d => {
+      const value =
+        currentView === "percent"
+          ? d.yeaPct
+          : d.yeaVotes;
+
+      return x(0) - x(-value);
+    })
+    .attr("height", y.bandwidth())
+    .on("mousemove", (event, d) => {
+      showTooltip(
+        event,
+        d,
+        currentView === "percent"
+          ? "Yea %"
+          : "Yea Votes",
+        currentView === "percent"
+          ? `${d.yeaPct.toFixed(0)}%`
+          : d.yeaVotes
+      );
+    })
+    .on("mouseleave", hideTooltip);
+
+  svg.selectAll(".bar-no")
+    .data(data.filter(d => !d.voice && !d.statusText))
+    .join("rect")
+    .attr(
+      "class",
+      d =>
+        HIGHLIGHT_NAMES.has(d.justiceName)
+          ? "bar-no highlight"
+          : "bar-no"
+    )
+    .attr("x", x(0))
+    .attr("y", d => y(data.indexOf(d)))
+    .attr("width", d => {
+      const value =
+        currentView === "percent"
+          ? d.noPct
+          : d.noVotes;
+
+      return x(value) - x(0);
+    })
+    .attr("height", y.bandwidth())
+    .on("mousemove", (event, d) => {
+      showTooltip(
+        event,
+        d,
+        currentView === "percent"
+          ? "No %"
+          : "No Votes",
+        currentView === "percent"
+          ? `${d.noPct.toFixed(0)}%`
+          : d.noVotes
+      );
+    })
+    .on("mouseleave", hideTooltip);
+
+  svg.selectAll(".yea-label")
+    .data(data.filter(d => !d.voice && !d.statusText))
+    .join("text")
+    .attr("class", "value-label")
+    .attr("x", d => {
+      const value =
+        currentView === "percent"
+          ? d.yeaPct
+          : d.yeaVotes;
+
+      return x(-value) - 6;
+    })
+    .attr("y", d => y(data.indexOf(d)) + y.bandwidth() / 2)
+    .attr("text-anchor", "end")
+    .style("font-size", `${fontSizeValue}px`)
+    .text(d =>
+      currentView === "percent"
+        ? `${d.yeaPct.toFixed(0)}%`
+        : d.yeaVotes
+    );
+
+  svg.selectAll(".no-label")
+    .data(data.filter(d => !d.voice && !d.statusText))
+    .join("text")
+    .attr("class", "value-label")
+    .attr("x", d => {
+      const value =
+        currentView === "percent"
+          ? d.noPct
+          : d.noVotes;
+
+      return x(value) + 6;
+    })
+    .attr("y", d => y(data.indexOf(d)) + y.bandwidth() / 2)
+    .attr("text-anchor", "start")
+    .style("font-size", `${fontSizeValue}px`)
+    .text(d =>
+      currentView === "percent"
+        ? `${d.noPct.toFixed(0)}%`
+        : d.noVotes
+    );
+
+  svg.selectAll(".voice-label")
+    .data(data.filter(d => d.voice || d.statusText))
+    .join("text")
+    .attr("class", "voice-label")
+    .attr("x", x(0) - 10)
+    .attr("y", d => y(data.indexOf(d)) + y.bandwidth() / 2)
+    .attr("text-anchor", "end")
+    .style("font-size", `${fontSizeValue + 1}px`)
+    .style("font-weight", "600")
+    .text(d =>
+      d.voice
+        ? "Voice"
+        : d.statusText
+    );
+}
+  
 
     function hideTooltip() {
       tooltip.style("opacity", 0);
