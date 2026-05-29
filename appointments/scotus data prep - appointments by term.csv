@@ -1,23 +1,23 @@
 term years,presidents,appointments,elevations,recess,recess appointment note
-1789-1793,GEORGE WASHINGTON (first term),7,,1,One- Thomas Johnson was appointed in August 1791 and ultimatley confirmed in Nov 1791
+1789-1793,GEORGE WASHINGTON (first term),6,,1,One- Thomas Johnson was appointed in August 1791 and ultimatley confirmed in Nov 1791
 1793-1797,GEORGE WASHINGTON (second term),3,,,
-1797-1801,JOHN ADAMS,3,,2,Two- Bushrod Washington was appointed in Sep 1798 and ultimatley confirmed in Dec 1798; and Alfred Moore appointed Oct 1799 and confirmed Dec 1799
+1797-1801,JOHN ADAMS,1,,2,Two- Bushrod Washington was appointed in Sep 1798 and ultimatley confirmed in Dec 1798; and Alfred Moore appointed Oct 1799 and confirmed Dec 1799
 1801-1805,THOMAS JEFFERSON (first term),1,,,
-1805-1809,THOMAS JEFFERSON (second term),2,,1,One- Henry B. Livingston was appointed in Nov 1806 and ultimatley confirmed in Dec 1806
+1805-1809,THOMAS JEFFERSON (second term),1,,1,One- Henry B. Livingston was appointed in Nov 1806 and ultimatley confirmed in Dec 1806
 1809-1813,JAMES MADISON (first term),2,,,
 1813-1817,JAMES MADISON (second term),0,,,
 1817-1821,JAMES MONROE (first term),0,,,
-1821-1825,JAMES MONROE (second term),1,,1,One- Smith Thompson was appointed in Sept 1823 and ultimatley confirmed in Dec 1823
+1821-1825,JAMES MONROE (second term),0,,1,One- Smith Thompson was appointed in Sept 1823 and ultimatley confirmed in Dec 1823
 1825-1829,JOHN QUINCY ADAMS,1,,,
 1829-1833,ANDREW JACKSON (first term),2,,,
 1833-1837,ANDREW JACKSON (second term),4,,,
-1837-1841,MARTIN VAN BUREN,2,,1,One- John McKinley was appointed in April 1837 and ultimatley confirmed in Sept 1837
+1837-1841,MARTIN VAN BUREN,1,,1,One- John McKinley was appointed in April 1837 and ultimatley confirmed in Sept 1837
 1841-1845,WILLIAM HENRY HARRISON/JOHN TYLER,1,,,
-1845-1849,JAMES K. POLK,2,,1,One- Levi Woodbury was appointed in Sept 1845 and ultimatley confirmed in Jan 1846
-1849-1853,ZACHARY TAYLOR/MILLARD FILLMORE,1,,1,One- Benjamin Curtis was appointed in Sept 1851 and ultimatley confirmed in Dec 1851
+1845-1849,JAMES K. POLK,1,,1,One- Levi Woodbury was appointed in Sept 1845 and ultimatley confirmed in Jan 1846
+1849-1853,ZACHARY TAYLOR/MILLARD FILLMORE,0,,1,One- Benjamin Curtis was appointed in Sept 1851 and ultimatley confirmed in Dec 1851
 1853-1857,FRANKLIN PIERCE,1,,,
 1857-1861,JAMES BUCHANAN,1,,,
-1861-1865,ABRAHAM LINCOLN,5,,1,One- David Davis was appointed in Oct 1862 and ultimatley confirmed in Dec 1862.
+1861-1865,ABRAHAM LINCOLN,4,,1,One- David Davis was appointed in Oct 1862 and ultimatley confirmed in Dec 1862.
 1865-1869,ANDREW JOHNSON,0,,,
 1869-1873,ULYSSES S. GRANT (first term),3,,,
 1873-1877,ULYSSES S. GRANT (second term),1,,,
@@ -27,7 +27,7 @@ term years,presidents,appointments,elevations,recess,recess appointment note
 1889-1893,BENJAMIN HARRISON,4,,,
 1893-1897,GROVER CLEVELAND,2,,,
 1897-1901,WILLIAM MCKINLEY,1,,,
-1901-1905,WILLIAM MCKINLEY/THEODORE ROOSEVELT,2,,1,One- Oliver Wendell Holmes was appointed in Aug 1902 and ultimatley confirmed in Dec 1902 [appointed by Roosevelt]
+1901-1905,WILLIAM MCKINLEY/THEODORE ROOSEVELT,1,,1,One- Oliver Wendell Holmes was appointed in Aug 1902 and ultimatley confirmed in Dec 1902 [appointed by Roosevelt]
 1905-1909,THEODORE ROOSEVELT (first FULL term),1,,,
 1909-1913,WILLIAM HOWARD TAFT,5,1,,
 1913-1917,WOODROW WILSON (first term),3,,,
@@ -40,8 +40,8 @@ term years,presidents,appointments,elevations,recess,recess appointment note
 1941-1945,FRANKLIN D. ROOSEVELT (third term),3,,,
 1945-1949,FDR/Truman,2,,,
 1949-1953,HARRY S. TRUMAN,2,,,
-1953-1957,DWIGHT D. EISENHOWER (first term),3,,2,Two- Earl Warren was appointed in Oct 1953 and ultimatley confirmed in March 1954; and William Brennan was appointed in Oct 1956 and ultimatley confirmed in March 1957
-1957-1961,DWIGHT D. EISENHOWER (second term),2,,1,One- Potter Stewart was appointed in Oct 1958 and ultimatley confirmed in May 1959
+1953-1957,DWIGHT D. EISENHOWER (first term),1,,2,Two- Earl Warren was appointed in Oct 1953 and ultimatley confirmed in March 1954; and William Brennan was appointed in Oct 1956 and ultimatley confirmed in March 1957
+1957-1961,DWIGHT D. EISENHOWER (second term),1,,1,One- Potter Stewart was appointed in Oct 1958 and ultimatley confirmed in May 1959
 1961-1965,JOHN F. KENNEDY/LYNDON B. JOHNSON,2,,,
 1965-1969,LYNDON B. JOHNSON,2,,,
 1969-1973,RICHARD M. NIXON,4,,,

@@ -107,7 +107,7 @@ body {
   font-weight:800;
 }
 #container{
-  margin:20px;
+  margin:10px;
 }
 #title{
   max-width:550px;
@@ -141,4 +141,16 @@ h3 {
   background:#fff;
   border-radius:0px;
   border:1px solid black;
+}
+.toggle-btn{
+font-family:"BentonStrong";
+margin:10px;
+width:30%;
+border:1px solid black;
+border-radius: 0px;
+background-color:white;
+}
+.toggle-btn.active {
+  background-color: black;
+  color: white;
 }

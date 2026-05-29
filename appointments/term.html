@@ -21,10 +21,10 @@
   <div id="subtitle">
     In chronological order
   </div>
-
+<!-- 
   <button id="toggle-zero-terms" type="button">
     Show terms with no nominations
-  </button>
+  </button> -->
 
   <div id="chart"></div>
 
@@ -97,7 +97,7 @@ d3.csv(CSV_PATH, d => ({
   recess: +d[COLS.recess] || 0
 })).then(rawData => {
 
-  let showZeroTerms = false;
+  let showZeroTerms = true;
 
   function render() {
 
