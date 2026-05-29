@@ -11,22 +11,43 @@
 <body>
   <div class="wrap">
     <section class="hero">
-      <h1>Senate Votes</h1>
+      <h1>Senate Votes on SCOTUS Confirmations</h1>
 
       <div class="panel">
+        <div class="panelSectionLabel">SORT:</div>
         <div class="controls">
-          <button id="sort-date" class="active" type="button">Date: Early to Late</button>
-          <button id="sort-date-desc" type="button">Date: Late to Early</button>
-          <button id="sort-partisanship" type="button">Vote Margin: Largest to Smallest</button>
- </div>
+          <button id="sort-date" class="active" type="button">Earliest to Most Recent</button>
+           <button id="sort-date-desc" type="button">Most Recent to Earliest</button>
+          </div>
+
+          <div class="controls">
+          <button id="sort-partisanship" type="button">Largest to Smallest</button>
+          <button id="sort-partisanship" type="button">Smallest to Largest</button>
+          </div>
+
+<div class="panelSectionLabel"> VIEW:</div>
      <div class="controls">
           <button id="view-counts" class="active" type="button">Show Counts</button>
           <button id="view-percent" type="button">Show Percent</button>
      </div>
+    <div class="panelSectionLabel">FILTER:</div> 
      <div class="controls">
-           <button id="filter-confirmed" type="button">Confirmed Only</button>
-          <button id="filter-voice" type="button">Hide Voice Votes</button>
-          <button id="filter-modern" type="button">Hide Pre-1967</button>
+        <div class="controls filters-checkboxes">
+  <label>
+    <input type="checkbox" id="filter-confirmed">
+    Confirmed Only
+  </label>
+
+  <label>
+    <input type="checkbox" id="filter-voice">
+    Hide Voice Votes
+  </label>
+
+  <label>
+    <input type="checkbox" id="filter-modern" checked>
+  Last 50 years
+  </label>
+</div>
         </div>
 
         <div class="legend">
@@ -37,6 +58,7 @@
         </div>
 
         <div class="chart-wrap" id="chart"></div>
+
       </div>
     </section>
 
@@ -80,7 +102,7 @@
 
     let confirmedOnly = false;
     let hideVoiceVotes = false;
-    let hidePre1967 = true;
+    let hideOlder = true;
 
     d3.csv(csvPath, d => {
       const voteYear = +String(d["Vote Year"] || "").trim();
@@ -155,23 +177,20 @@
       updateChart();
     });
 
-    document.getElementById("filter-confirmed").addEventListener("click", () => {
-      confirmedOnly = !confirmedOnly;
-      setActiveButton();
-      updateChart();
-    });
+    document.getElementById("filter-confirmed").addEventListener("change", e => {
+  confirmedOnly = e.target.checked;
+  updateChart();
+});
 
-    document.getElementById("filter-voice").addEventListener("click", () => {
-      hideVoiceVotes = !hideVoiceVotes;
-      setActiveButton();
-      updateChart();
-    });
+document.getElementById("filter-voice").addEventListener("change", e => {
+  hideVoiceVotes = e.target.checked;
+  updateChart();
+});
 
-    document.getElementById("filter-modern").addEventListener("click", () => {
-      hidePre1967 = !hidePre1967;
-      setActiveButton();
-      updateChart();
-    });
+document.getElementById("filter-modern").addEventListener("change", e => {
+  hideOlder = e.target.checked;
+  updateChart();
+});
 
     function setActiveButton() {
       document.getElementById("sort-date")
@@ -199,10 +218,10 @@
         hideVoiceVotes ? "Show Voice Votes" : "Hide Voice Votes";
 
       document.getElementById("filter-modern")
-        .classList.toggle("active", hidePre1967);
+        .classList.toggle("active", hideOlder);
 
       document.getElementById("filter-modern").textContent =
-        hidePre1967 ? "Show Pre-1967" : "Hide Pre-1967";
+        hideOlder ? "Show all years" : "Last 50 years";
     }
 
     function getSortedData() {
@@ -216,8 +235,8 @@
         data = data.filter(d => !d.voice);
       }
 
-      if (hidePre1967) {
-        data = data.filter(d => d.voteYear >= 1967);
+      if (hideOlder) {
+        data = data.filter(d => d.voteYear >= 1971);
       }
 
       if (currentSort === "partisanship") {
@@ -275,7 +294,7 @@
       const rightLabelWidth = 120;
 
       const margin = {
-        top: 62,
+        top: 40,
         right: rightLabelWidth,
         bottom: 28,
         left: leftLabelWidth
@@ -330,7 +349,7 @@
       svg.append("text")
         .attr("class", "axis-title")
         .attr("x", x(-maxValue / 2))
-        .attr("y", margin.top - 18)
+        .attr("y", margin.top - 20)
         .attr("text-anchor", "middle")
         .text(
           currentView === "percent"

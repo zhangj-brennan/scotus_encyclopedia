@@ -50,6 +50,8 @@ body {
 
 .hero {
   padding: 0;
+    border-top: 2px solid black;
+
 }
 
 .hero-kicker {
@@ -65,13 +67,12 @@ h1 {
   font-size: 20px;
   line-height: 1.6;
   font-family: "BentonStrong";
-  border-top: 2px solid black;
   max-width: 550px;
 }
 
 .subhed {
-  max-width: 550px;
-  margin: 16px 0 0;
+  width:100%;
+  margin: 16px;
   font-size: 10px;
   line-height: 1.4;
   color: var(--muted);
@@ -119,27 +120,22 @@ button:not(.active) {
 button:hover {
   border-color: var(--accent);
 }
-
 .legend {
+  margin-top:20px;
   display: flex;
-  gap: 16px;
-  align-items: center;
-  margin-bottom: 12px;
-  font-size: 12px;
-  color: var(--text);
-  font-family: "Benton";
+  justify-content: flex-start;
+  font-size:12px;
 }
 
 .legend-item {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  align-items: left;
+  gap: 2px;
 }
 
 .legend-swatch {
-  width: 14px;
-  height: 14px;
-  border: 1px solid #000;
+  width: 12px;
+  height: 12px;
   display: inline-block;
   flex: 0 0 auto;
 }
@@ -255,21 +251,51 @@ svg {
 .tooltip strong {
   font-family: "BentonStrong";
 }
+.panelSectionLabel{
+  font-familY:"BentonStrong";
+  font-size:12px;
+  padding-top:10px;
+}
+.filters-checkboxes {
+  gap: 10px;
+}
+
+.filters-checkboxes label {
+  font-family:"BentonStrong";
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: "Benton";
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.filters-checkboxes input[type="checkbox"] {
+  margin: 0;
+}
+.filters-checkboxes {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 12px;
+  align-items: center;
+}
 
 @media (max-width: 980px) {
   .hero {
     padding: 0;
+    width:100%;
+    border-top:2px solid black;
   }
 }
 
 @media (max-width: 700px) {
   .controls {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    flex-wrap: nowrap;
   }
 
   button {
-    width: 100%;
+    width: 50%;
     justify-content: center;
   }
 
@@ -277,7 +303,9 @@ svg {
     overflow-x: auto;
   }
 
-  .subhed {
-    font-size: 10px;
+    .filters-checkboxes {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
   }
 }
