@@ -38,18 +38,17 @@
   <label>
     <input type="checkbox" id="filter-confirmed" checked>
     Confirmed Only
-  </label> 
-   <label>
-    <input type="checkbox" id="filter-modern" checked>
-  Last 50 years
   </label>
 
-  <label id="voice-filter-wrapper">
+  <label>
     <input type="checkbox" id="filter-voice" checked>
     Hide Voice Votes
   </label>
 
-
+  <label>
+    <input type="checkbox" id="filter-modern" checked>
+  Last 50 years
+  </label>
 </div>
         </div>
 
@@ -144,7 +143,6 @@
       );
 
       setActiveButton();
-      updateFilterVisibility();
       updateChart();
 
       window.addEventListener("resize", updateChart);
@@ -157,21 +155,18 @@
     document.getElementById("sort-date").addEventListener("click", () => {
       currentSort = "date-asc";
       setActiveButton();
-      updateFilterVisibility();
       updateChart();
     });
 
     document.getElementById("sort-date-desc").addEventListener("click", () => {
       currentSort = "date-desc";
       setActiveButton();
-      updateFilterVisibility();
       updateChart();
     });
 
     document.getElementById("sort-partisanship").addEventListener("click", () => {
       currentSort = "partisanship";
       setActiveButton();
-      updateFilterVisibility();
       updateChart();
     });
 document.getElementById("sort-partisanship-asc").addEventListener("click", () => {
@@ -184,14 +179,12 @@ document.getElementById("sort-partisanship-asc").addEventListener("click", () =>
     document.getElementById("view-counts").addEventListener("click", () => {
       currentView = "counts";
       setActiveButton();
-      updateFilterVisibility();
       updateChart();
     });
 
     document.getElementById("view-percent").addEventListener("click", () => {
       currentView = "percent";
       setActiveButton();
-      updateFilterVisibility();
       updateChart();
     });
 
@@ -207,7 +200,6 @@ document.getElementById("filter-voice").addEventListener("change", e => {
 
 document.getElementById("filter-modern").addEventListener("change", e => {
   hideOlder = e.target.checked;
-  updateFilterVisibility();
   updateChart();
 });
 
@@ -235,19 +227,14 @@ document.getElementById("filter-modern").addEventListener("change", e => {
       document.getElementById("filter-voice")
         .classList.toggle("active", hideVoiceVotes);
 
+      document.getElementById("filter-voice").textContent =
+        hideVoiceVotes ? "Show Voice Votes" : "Hide Voice Votes";
+
       document.getElementById("filter-modern")
         .classList.toggle("active", hideOlder);
-    }
 
-
-    function updateFilterVisibility() {
-      const voiceWrapper = document.getElementById("voice-filter-wrapper");
-
-      if (hideOlder) {
-        voiceWrapper.style.display = "none";
-      } else {
-        voiceWrapper.style.display = "";
-      }
+      document.getElementById("filter-modern").textContent =
+        hideOlder ? "Show all years" : "Last 50 years";
     }
 
     function getSortedData() {
