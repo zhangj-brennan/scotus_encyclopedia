@@ -17,7 +17,7 @@ President,Nominee,To Replace,Nominated*,Vote,Results,Date,notes,Yea,Nay,Vote No.
 "Reagan, Ronald","Kennedy, Anthony M.",Powell,30-Nov-87,97-0 No. 16,C,3-Feb-88,,97,0,16,FALSE,1988
 "Reagan, Ronald","Bork, Robert H.",Powell,7-Jul-87,42-58 No. 348,R,23-Oct-87,,42,58,348,FALSE,1987
 "Reagan, Ronald","Scalia, Antonin",Rehnquist,24-Jun-86,98-0 No. 267,C,17-Sep-86,,98,0,267,FALSE,1986
-"Reagan, Ronald","Rehnquist, William H.",Burger,20-Jun-86,65-33 No. 266,C,17-Sep-86,Sitting justice elevated to chief justice.,65,33,266,FALSE,1986
+"Reagan, Ronald","Rehnquist, William H.*",Burger,20-Jun-86,65-33 No. 266,C,17-Sep-86,Sitting justice elevated to chief justice.,65,33,266,FALSE,1986
 "Reagan, Ronald","O'Connor, Sandra Day",Stewart,19-Aug-81,99-0 No. 274,C,21-Sep-81,,99,0,274,FALSE,1981
 "Ford, Gerald","Stevens, John Paul",Douglas,28-Nov-75,98-0 No. 603,C,17-Dec-75,,98,0,603,FALSE,1975
 "Nixon, Richard","Rehnquist, William H.",Harlan,22-Oct-71,68-26 No. 450,C,10-Dec-71,,68,26,450,FALSE,1971
@@ -45,7 +45,7 @@ President,Nominee,To Replace,Nominated*,Vote,Results,Date,notes,Yea,Nay,Vote No.
 "Roosevelt, Franklin","Rutledge, Wiley",Byrnes,11-Jan-43,V,C,8-Feb-43,,,,,TRUE,1943
 "Roosevelt, Franklin","Jackson, Robert",Stone,12-Jun-41,V,C,7-Jul-41,,,,,TRUE,1941
 "Roosevelt, Franklin","Byrnes, James",McReynolds,12-Jun-41,V,C,12-Jun-41,,,,,TRUE,1941
-"Roosevelt, Franklin","Stone, Harlan",Hughes,12-Jun-41,V,C,27-Jun-41,Sitting justice elevated to chief justice.,,,,TRUE,1941
+"Roosevelt, Franklin","Stone, Harlan*",Hughes,12-Jun-41,V,C,27-Jun-41,Sitting justice elevated to chief justice.,,,,TRUE,1941
 "Roosevelt, Franklin","Murphy, Frank",Butler,4-Jan-40,V,C,16-Jan-40,,,,,TRUE,1940
 "Roosevelt, Franklin","Douglas, William",Brandeis,20-Mar-39,62-4,C,4-Apr-39,,62,4,,FALSE,1939
 "Roosevelt, Franklin","Frankfurter, Felix",Cardozo,5-Jan-39,V,C,17-Jan-39,,,,,TRUE,1939
@@ -67,7 +67,7 @@ President,Nominee,To Replace,Nominated*,Vote,Results,Date,notes,Yea,Nay,Vote No.
 "Taft, William","Pitney, Mahlon",Harlan,19-Feb-12,50-26,C,13-Mar-12,,50,26,,FALSE,1912
 "Taft, William","Lamar, Joseph",Moody,12-Dec-10,V,C,15-Dec-10,,,,,TRUE,1910
 "Taft, William","Devanter, Willis Van",White,12-Dec-10,V,C,15-Dec-10,,,,,TRUE,1910
-"Taft, William","White, Edward",Fuller,12-Dec-10,V,C,12-Dec-10,Sitting justice elevated to chief justice.,,,,TRUE,1910
+"Taft, William","White, Edward*",Fuller,12-Dec-10,V,C,12-Dec-10,Sitting justice elevated to chief justice.,,,,TRUE,1910
 "Taft, William","Hughes, Charles",Brewer,25-Apr-10,V,C,2-May-10,,,,,TRUE,1910
 "Taft, William","Lurton, Horace",Peckham,13-Dec-09,V,C,20-Dec-09,,,,,TRUE,1909
 "Roosevelt, Theodore","Moody, William",Brown,3-Dec-06,V,C,12-Dec-06,,,,,TRUE,1906

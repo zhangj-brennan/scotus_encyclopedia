@@ -41,7 +41,7 @@
   </label> 
    <label>
     <input type="checkbox" id="filter-modern" checked>
-  Last 50 years
+  Show only 1975 to present
   </label>
 
   <label id="voice-filter-wrapper">
@@ -63,7 +63,9 @@
         <div class="chart-wrap" id="chart"></div>
 
       </div>
-    </section>
+      <div id="footnote">*The confirmation of these justices was for their elevations to the position of Chief Justice from Associate Justice
+    </div>
+      </section>
 
     <div class="tooltip" id="tooltip"></div>
 <!-- 
@@ -103,7 +105,7 @@
     const tooltip = d3.select("#tooltip");
 
     let allData = [];
-    let currentSort = "partisanship";
+    let currentSort = "date";
     let currentView = "percent";
 
     let confirmedOnly = true;
@@ -262,7 +264,7 @@ document.getElementById("filter-modern").addEventListener("change", e => {
       }
 
       if (hideOlder) {
-        data = data.filter(d => d.voteYear >= 1971);
+        data = data.filter(d => d.voteYear >= 1975);
       }
 
       if (currentSort === "partisanship") {
