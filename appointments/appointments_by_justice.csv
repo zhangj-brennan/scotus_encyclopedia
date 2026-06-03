@@ -94,7 +94,7 @@ President Last First,President,Nominee,To Replace,Nominated*,result,date,recess,
 "Roosevelt, Theodore",THEODORE ROOSEVELT,"Day, William",Shiras,"Thursday, February 19, 1903",C,"Monday, February 23, 1903",FALSE,,1903,1901-1905,WILLIAM MCKINLEY/THEODORE ROOSEVELT
 "Roosevelt, Theodore",THEODORE ROOSEVELT ,"Moody, William",Brown,"Monday, December 3, 1906",C,"Wednesday, December 12, 1906",FALSE,,1906,1905-1909,THEODORE ROOSEVELT (first FULL term)
 "Taft, William",WILLIAM HOWARD TAFT,"Lurton, Horace",Peckham,"Monday, December 13, 1909",C,"Monday, December 20, 1909",FALSE,,1909,1909-1913,WILLIAM HOWARD TAFT
-"Taft, William",WILLIAM HOWARD TAFT,"White, Edward10",Fuller,"Monday, December 12, 1910",C,"Monday, December 12, 1910",FALSE,,1910,1909-1913,WILLIAM HOWARD TAFT
+"Taft, William",WILLIAM HOWARD TAFT,"White, Edward",Fuller,"Monday, December 12, 1910",C,"Monday, December 12, 1910",FALSE,TRUE,1910,1909-1913,WILLIAM HOWARD TAFT
 "Taft, William",WILLIAM HOWARD TAFT,"Lamar, Joseph",Moody,"Monday, December 12, 1910",C,"Thursday, December 15, 1910",FALSE,,1910,1909-1913,WILLIAM HOWARD TAFT
 "Taft, William",WILLIAM HOWARD TAFT,"Devanter, Willis Van",White,"Monday, December 12, 1910",C,"Thursday, December 15, 1910",FALSE,,1910,1909-1913,WILLIAM HOWARD TAFT
 "Taft, William",WILLIAM HOWARD TAFT,"Hughes, Charles",Brewer,"Monday, April 25, 1910",C,"Monday, May 2, 1910",FALSE,,1910,1909-1913,WILLIAM HOWARD TAFT
@@ -118,7 +118,7 @@ President Last First,President,Nominee,To Replace,Nominated*,result,date,recess,
 "Roosevelt, Franklin",FRANKLIN D. ROOSEVELT ,"Douglas, William",Brandeis,"Monday, March 20, 1939",C,"Tuesday, April 4, 1939",FALSE,,1939,1937-1941,FRANKLIN D. ROOSEVELT (second term)
 "Roosevelt, Franklin",FRANKLIN D. ROOSEVELT ,"Murphy, Frank",Butler,"Thursday, January 4, 1940",C,"Tuesday, January 16, 1940",FALSE,,1940,1937-1941,FRANKLIN D. ROOSEVELT (second term)
 "Roosevelt, Franklin",FRANKLIN D. ROOSEVELT ,"Byrnes, James",McReynolds,"Thursday, June 12, 1941",C,"Thursday, June 12, 1941",FALSE,,1941,1941-1945,FRANKLIN D. ROOSEVELT (third term)
-"Roosevelt, Franklin",FRANKLIN D. ROOSEVELT ,"Stone, Harlan",Hughes,"Thursday, June 12, 1941",C,"Friday, June 27, 1941",FALSE,,1941,1941-1945,FRANKLIN D. ROOSEVELT (third term)
+"Roosevelt, Franklin",FRANKLIN D. ROOSEVELT ,"Stone, Harlan",Hughes,"Thursday, June 12, 1941",C,"Friday, June 27, 1941",FALSE,TRUE,1941,1941-1945,FRANKLIN D. ROOSEVELT (third term)
 "Roosevelt, Franklin",FRANKLIN D. ROOSEVELT ,"Jackson, Robert",Stone,"Thursday, June 12, 1941",C,"Monday, July 7, 1941",FALSE,,1941,1941-1945,FRANKLIN D. ROOSEVELT (third term)
 "Roosevelt, Franklin",FRANKLIN D. ROOSEVELT ,"Rutledge, Wiley",Byrnes,"Monday, January 11, 1943",C,"Monday, February 8, 1943",TRUE,,1943,1941-1945,FRANKLIN D. ROOSEVELT (third term)
 "Truman, Harry",HARRY S. TRUMAN,"Burton, Harold",Roberts,"Tuesday, September 18, 1945",C,"Wednesday, September 19, 1945",FALSE,,1945,1945-1949,FDR/Truman
@@ -146,7 +146,7 @@ President Last First,President,Nominee,To Replace,Nominated*,result,date,recess,
 "Ford, Gerald",GERALD R. FORD,"Stevens, John Paul",Douglas,"Friday, November 28, 1975",C,"Wednesday, December 17, 1975",FALSE,,1975,1973-1977,RICHARD M. NIXON/GERALD R. FORD
 "Reagan, Ronald",RONALD REAGAN ,"O'Connor, Sandra Day",Stewart,"Wednesday, August 19, 1981",C,"Monday, September 21, 1981",FALSE,,1981,1981-1985,RONALD REAGAN (first term)
 "Reagan, Ronald",RONALD REAGAN ,"Scalia, Antonin",Rehnquist,"Tuesday, June 24, 1986",C,"Wednesday, September 17, 1986",FALSE,,1986,1985-1989,RONALD REAGAN (second term)
-"Reagan, Ronald",RONALD REAGAN ,"Rehnquist, William H.",Burger,"Friday, June 20, 1986",C,"Wednesday, September 17, 1986",FALSE,,1986,1985-1989,RONALD REAGAN (second term)
+"Reagan, Ronald",RONALD REAGAN ,"Rehnquist, William H.",Burger,"Friday, June 20, 1986",C,"Wednesday, September 17, 1986",FALSE,TRUE,1986,1985-1989,RONALD REAGAN (second term)
 "Reagan, Ronald",RONALD REAGAN ,"Kennedy, Anthony M.",Powell,"Monday, November 30, 1987",C,"Wednesday, February 3, 1988",FALSE,,1987,1985-1989,RONALD REAGAN (second term)
 "Reagan, Ronald",RONALD REAGAN ,"Bork, Robert H.",Powell,"Tuesday, July 7, 1987",R,"Friday, October 23, 1987",FALSE,,1987,1985-1989,RONALD REAGAN (second term)
 "Bush, George H.W.",GEORGE H.W. BUSH,"Souter, David H.",Brennan,"Wednesday, July 25, 1990",C,"Tuesday, October 2, 1990",FALSE,,1990,1989-1993,GEORGE H.W. BUSH
