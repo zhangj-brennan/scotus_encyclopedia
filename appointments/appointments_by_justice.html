@@ -373,11 +373,9 @@ function splitTermPresidents(value) {
     .map(d => d.trim())
     .filter(Boolean);
 }
-
 function presidentNameKey(value) {
   let s = String(value || "")
     .replace(/\s*\([^)]*\)/g, "")
-    .replace(/[.,]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 
@@ -388,19 +386,22 @@ function presidentNameKey(value) {
     s = `${rest} ${last}`;
   }
 
-  const words = s.split(/\s+/).filter(Boolean);
+  const words = s
+    .replace(/[.]/g, "")
+    .split(/\s+/)
+    .filter(Boolean);
 
   if (words.length === 0) return "";
 
-  const first = words[0].toLowerCase();
-  const last = words[words.length - 1].toLowerCase();
+  const first = words[0].toLowerCase().replace(/[^a-z]/g, "");
+  const last = words[words.length - 1].toLowerCase().replace(/[^a-z]/g, "");
 
   const middle = words.slice(1, -1)
     .map(d => d.toLowerCase().replace(/[^a-z]/g, ""))
-    .filter(d => d.length > 1)
+    .filter(Boolean)
     .join("");
 
-  return `${first}${middle}${last}`.replace(/[^a-z]/g, "");
+  return `${first}${middle}${last}`;
 }
 
 function presidentLastNameKey(value) {
@@ -409,12 +410,11 @@ function presidentLastNameKey(value) {
     .replace(/[.,]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
-
   if (s.includes(",")) {
     return s.split(",")[0].toLowerCase().replace(/[^a-z]/g, "");
   }
-
   const words = s.split(/\s+/).filter(Boolean);
+return words.join("_")
   return words.length ? words[words.length - 1].toLowerCase().replace(/[^a-z]/g, "") : "";
 }
 
@@ -512,6 +512,7 @@ function prepareGroups(view) {
       splitTermPresidents(termRow.presidents).forEach(name => {
         const key = presidentNameKey(name);
         const lastKey = presidentLastNameKey(name);
+              const exactKey = presidentNameKey(name);
 
         if (!keyToGroup.has(key)) {
           const group = {
