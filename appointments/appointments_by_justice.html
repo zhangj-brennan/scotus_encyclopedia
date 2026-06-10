@@ -177,7 +177,7 @@ h1 {
 
 .footnote {
   font-size: 12px;
-  max-width: 650px;
+  max-width: 500px;
   line-height: 1.35;
 }
 
@@ -214,7 +214,14 @@ h1 {
   <div id="chart"></div>
 
   <div id="footnote" class="footnote">
-For terms with two presidents listed, that indicates that a president died or left office and the vice president finished out the remainder of the term.  </div>
+For terms with two presidents listed, that indicates that a president died or left office and the vice president finished out the remainder of the term. 
+<br>
+Elevation: Three Supreme Court justices were elevated from their position as Associate Justice to the position of Chief Justice.  
+<br>
+Recess: Recess Appointments occurred when the Senate was on recess and unable to provide the requisite “advice and consent.”  
+<br>
+<b>Source:</b>
+U.S. Senate, Supreme Court Nominations (1789-Present), https://www.senate.gov/legislative/nominations/SupremeCourtNominations1789present.htm; John S. Castellano, A New Look at Recess Appointments to the Federal Judiciary - United States v. Allocco, 12 Cath. U. L. Rev. 29 (1963). 
 </div>
 
 <div id="tooltip" class="tooltip"></div>
@@ -782,9 +789,8 @@ function showTooltip(event, d) {
 <div class="tooltip-row"><strong>President:</strong> ${cleanTermPresident(d.President)}</div>
       <div class="tooltip-row"><strong>To replace:</strong> ${cleanText(d["To Replace"]) || "—"}</div>
       <div class="tooltip-row"><strong>Nominated:</strong> ${cleanText(d["Nominated*"]) || "—"}</div>
-      <div class="tooltip-row"><strong>Nomination year:</strong> ${d["Nomination Year"] || "—"}</div>
       <div class="tooltip-row"><strong>Result:</strong> ${getResultLabel(d)}${d.date ? " — " + cleanText(d.date) : ""}</div>
-      <div class="tooltip-row"><strong>Term:</strong> ${cleanText(d["Term Years"]) || "—"}${d["Term President"] ? " / " + cleanTermPresident(d["Term President"]) : ""}</div>
+      <div class="tooltip-row"><strong>Term:</strong> ${cleanText(d["Term Years"]) }</div>
       <div class="tooltip-row"><strong>Type:</strong> ${typeLabel}</div>
     `)
     .style("opacity", 1);

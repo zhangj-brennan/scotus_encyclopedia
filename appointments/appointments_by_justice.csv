@@ -3,22 +3,22 @@ President Last First,President,Nominee,To Replace,Nominated*,result,date,recess,
 "Washington, George",GEORGE WASHINGTON ,"Wilson, James",,"Sep 24, 1789",C,"Sep 26, 1789",FALSE,,1789,1789-1793,GEORGE WASHINGTON (first term)
 "Washington, George",GEORGE WASHINGTON ,"Harrison, Robert",,"Sep 24, 1789",D,"Sep 26, 1789",FALSE,,1789,1789-1793,GEORGE WASHINGTON (first term)
 "Washington, George",GEORGE WASHINGTON ,"Cushing, William",,"Sep 24, 1789",C,"Sep 26, 1789",FALSE,,1789,1789-1793,GEORGE WASHINGTON (first term)
-"Washington, George",GEORGE WASHINGTON ,"Rutledge, John",,"Sep 24, 1789",C,"Sep 26, 1789",TRUE,,1789,1789-1793,GEORGE WASHINGTON (first term)
+"Washington, George",GEORGE WASHINGTON ,"Rutledge, John",,"Sep 24, 1789",C,"Sep 26, 1789",FALSE,,1789,1789-1793,GEORGE WASHINGTON (first term)
 "Washington, George",GEORGE WASHINGTON ,"Jay, John",,"Sep 24, 1789",C,"Sep 26, 1789",FALSE,,1789,1789-1793,GEORGE WASHINGTON (first term)
 "Washington, George",GEORGE WASHINGTON ,"Iredell, James",Harrison,"Feb 8, 1790",C,"Feb 10, 1790",FALSE,,1790,1789-1793,GEORGE WASHINGTON (first term)
 "Washington, George",GEORGE WASHINGTON ,"Johnson, Thomas",Rutledge,"Oct 31, 1791",C,"Nov 7, 1791",TRUE,,1791,1789-1793,GEORGE WASHINGTON (first term)
 "Washington, George",GEORGE WASHINGTON ,"Paterson, William",Johnson,"Mar 4, 1793",C,"Mar 4, 1793",FALSE,,1793,1793-1797,GEORGE WASHINGTON (second term)
 "Washington, George",GEORGE WASHINGTON ,"Paterson, William",Johnson,"Feb 27, 1793",W,"Feb 28, 1793",FALSE,,1793,1793-1797,GEORGE WASHINGTON (second term)
 "Washington, George",GEORGE WASHINGTON ,"Rutledge, John",Jay,"Dec 10, 1795",R,"Dec 15, 1795",TRUE,,1795,1793-1797,GEORGE WASHINGTON (second term)
-"Washington, George",GEORGE WASHINGTON ,"Ellsworth, Oliver21",Jay,"Mar 3, 1796",C,"Mar 4, 1796",FALSE,,1796,1793-1797,GEORGE WASHINGTON (second term)
+"Washington, George",GEORGE WASHINGTON ,"Ellsworth, Oliver",Jay,"Mar 3, 1796",C,"Mar 4, 1796",FALSE,,1796,1793-1797,GEORGE WASHINGTON (second term)
 "Washington, George",GEORGE WASHINGTON ,"Chase, Samuel",Blair,"Jan 26, 1796",C,"Jan 27, 1796",FALSE,,1796,1793-1797,GEORGE WASHINGTON (second term)
 "Washington, George",GEORGE WASHINGTON ,"Cushing, William",Jay,"Jan 26, 1796",D,"Jan 27, 1796",FALSE,,1796,1793-1797,GEORGE WASHINGTON (second term)
 "Adams, John",JOHN ADAMS,"Washington, Bushrod",Wilson,"Dec 19, 1798",C,"Dec 20, 1798",TRUE,,1798,1797-1801,JOHN ADAMS
 "Adams, John",JOHN ADAMS,"Moore, Alfred",Iredell,"Dec 4, 1799",C,"Dec 10, 1799",TRUE,,1799,1797-1801,JOHN ADAMS
 "Adams, John",JOHN ADAMS,"Jay, John",Ellsworth,"Dec 18, 1800",D,"Dec 19, 1800",FALSE,,1800,1797-1801,JOHN ADAMS
 "Adams, John",JOHN ADAMS,"Marshall, John",Ellsworth,"Jan 20, 1801",C,"Jan 27, 1801",FALSE,,1801,1797-1801,JOHN ADAMS
-"Jefferson, Thomas",THOMAS JEFFERSON ,"Johnson, William",Moore,"Mar 22, 1804",C,"Mar 24, 1804",TRUE,,1804,1801-1805,THOMAS JEFFERSON (first term)
-"Jefferson, Thomas",THOMAS JEFFERSON ,"Livingston, H. Brockholst",Paterson,"Dec 13, 1806",C,"Dec 17, 1806",TRUE,,1806,1805-1809,THOMAS JEFFERSON (second term)
+"Jefferson, Thomas",THOMAS JEFFERSON ,"Johnson, William",Moore,"Mar 22, 1804",C,"Mar 24, 1804",FALSE,,1804,1801-1805,THOMAS JEFFERSON (first term)
+"Jefferson, Thomas",THOMAS JEFFERSON ,"Livingston, Henry B.",Paterson,"Dec 13, 1806",C,"Dec 17, 1806",TRUE,,1806,1805-1809,THOMAS JEFFERSON (second term)
 "Jefferson, Thomas",THOMAS JEFFERSON ,"Todd, Thomas",(new seat),"Feb 28, 1807",C,"Mar 2, 1807",FALSE,,1807,1805-1809,THOMAS JEFFERSON (second term)
 "Madison, James",JAMES MADISON ,"Adams, John Quincy",Cushing,"Feb 21, 1811",D,"Feb 22, 1811",FALSE,,1811,1809-1813,JAMES MADISON (first term)
 "Madison, James",JAMES MADISON ,"Lincoln, Levi",Cushing,"Jan 2, 1811",D,"Jan 3, 1811",FALSE,,1811,1809-1813,JAMES MADISON (first term)
@@ -33,7 +33,7 @@ President Last First,President,Nominee,To Replace,Nominated*,result,date,recess,
 "Jackson, Andrew",ANDREW JACKSON ,"Wayne, James",Johnson,"Jan 6, 1835",C,"Jan 9, 1835",FALSE,,1835,1833-1837,ANDREW JACKSON (second term)
 "Jackson, Andrew",ANDREW JACKSON ,"Taney, Roger",Duvall,"Jan 15, 1835",P,"Mar 3, 1835",FALSE,,1835,1833-1837,ANDREW JACKSON (second term)
 "Jackson, Andrew",ANDREW JACKSON ,"Barbour, Philip",Duvall,"Dec 28, 1835",C,"Mar 15, 1836",FALSE,,1835,1833-1837,ANDREW JACKSON (second term)
-"Jackson, Andrew",ANDREW JACKSON ,"Taney, Roger18",Marshall,"Dec 28, 1835",C,"Mar 15, 1836",FALSE,,1835,1833-1837,ANDREW JACKSON (second term)
+"Jackson, Andrew",ANDREW JACKSON ,"Taney, Roger",Marshall,"Dec 28, 1835",C,"Mar 15, 1836",FALSE,,1835,1833-1837,ANDREW JACKSON (second term)
 "Jackson, Andrew",ANDREW JACKSON ,"Catron, John",(new seat),"Mar 3, 1837",C,"Mar 8, 1837",FALSE,,1837,1833-1837,ANDREW JACKSON (second term)
 "Jackson, Andrew",ANDREW JACKSON ,"Smith, William",(new seat),"Mar 3, 1837",D,"Mar 8, 1837",FALSE,,1837,1833-1837,ANDREW JACKSON (second term)
 "Van Buren, Martin",MARTIN VAN BUREN,"McKinley, John",(new seat),"Sep 18, 1837",C,"Sep 25, 1837",TRUE,,1837,1837-1841,MARTIN VAN BUREN
@@ -63,14 +63,14 @@ President Last First,President,Nominee,To Replace,Nominated*,result,date,recess,
 "Lincoln, Abraham",ABRAHAM LINCOLN,"Field, Stephen",(new seat),"Mar 6, 1863",C,"Mar 10, 1863",FALSE,,1863,1861-1865,ABRAHAM LINCOLN
 "Lincoln, Abraham",ABRAHAM LINCOLN,"Chase, Salmon",Taney,"Dec 6, 1864",C,"Dec 6, 1864",FALSE,,1864,1861-1865,ABRAHAM LINCOLN
 "Johnson, Andrew",ANDREW JOHNSON,"Stanbery, Henry",Catron,"Apr 16, 1866",N,,FALSE,,1866,1865-1869,ANDREW JOHNSON
-"Grant, Ulysses",ULYSSES S. GRANT ,"Stanton, Edwin15",Grier,"Dec 20, 1869",C,"Dec 20, 1869",FALSE,,1869,1869-1873,ULYSSES S. GRANT (first term)
+"Grant, Ulysses",ULYSSES S. GRANT ,"Stanton, Edwin",Grier,"Dec 20, 1869",C,"Dec 20, 1869",FALSE,,1869,1869-1873,ULYSSES S. GRANT (first term)
 "Grant, Ulysses",ULYSSES S. GRANT ,"Hoar, Ebenezer",(new seat),"Dec 14, 1869",R,"Feb 3, 1870",FALSE,,1869,1869-1873,ULYSSES S. GRANT (first term)
 "Grant, Ulysses",ULYSSES S. GRANT ,"Strong, William",Grier,"Feb 7, 1870",C,"Feb 18, 1870",FALSE,,1870,1869-1873,ULYSSES S. GRANT (first term)
 "Grant, Ulysses",ULYSSES S. GRANT ,"Bradley, Joseph",(new seat),"Feb 7, 1870",C,"Mar 21, 1870",FALSE,,1870,1869-1873,ULYSSES S. GRANT (first term)
 "Grant, Ulysses",ULYSSES S. GRANT ,"Hunt, Ward",Nelson,"Dec 3, 1872",C,"Dec 11, 1872",FALSE,,1872,1869-1873,ULYSSES S. GRANT (first term)
 "Grant, Ulysses",ULYSSES S. GRANT ,"Williams, George",Chase,"Dec 1, 1873",W,"Jan 8, 1874",FALSE,,1873,1873-1877,ULYSSES S. GRANT (second term)
-"Grant, Ulysses",ULYSSES S. GRANT ,"Waite, Morrison12",Chase,"Jan 19, 1874",C,"Jan 21, 1874",FALSE,,1874,1873-1877,ULYSSES S. GRANT (second term)
-"Grant, Ulysses",ULYSSES S. GRANT ,"Cushing, Caleb13",Chase,"Jan 9, 1874",W,"Jan 13, 1874",FALSE,,1874,1873-1877,ULYSSES S. GRANT (second term)
+"Grant, Ulysses",ULYSSES S. GRANT ,"Waite, Morrison",Chase,"Jan 19, 1874",C,"Jan 21, 1874",FALSE,,1874,1873-1877,ULYSSES S. GRANT (second term)
+"Grant, Ulysses",ULYSSES S. GRANT ,"Cushing, Caleb",Chase,"Jan 9, 1874",W,"Jan 13, 1874",FALSE,,1874,1873-1877,ULYSSES S. GRANT (second term)
 "Hayes, Rutherford",RUTHERFORD B. HAYES,"Harlan, John",Davis,"Oct 16, 1877",C,"Nov 29, 1877",FALSE,,1877,1877-1881,RUTHERFORD B. HAYES
 "Hayes, Rutherford",RUTHERFORD B. HAYES,"Woods, William",Strong,"Dec 15, 1880",C,"Dec 21, 1880",FALSE,,1880,1877-1881,RUTHERFORD B. HAYES
 "Arthur, Chester",CHESTER A. ARTHUR,"Gray, Horace",Clifford,"Dec 19, 1881",C,"Dec 20, 1881",FALSE,,1881,1881-1885,JAMES A. GARFIELD/CHESTER A. ARTHUR
@@ -83,14 +83,14 @@ President Last First,President,Nominee,To Replace,Nominated*,result,date,recess,
 "Harrison, Benjamin",BENJAMIN HARRISON,"Brewer, David",Matthews,"Dec 4, 1889",C,"Dec 18, 1889",FALSE,,1889,1889-1893,BENJAMIN HARRISON
 "Harrison, Benjamin",BENJAMIN HARRISON,"Brown, Henry",Miller,"Dec 23, 1890",C,"Dec 29, 1890",FALSE,,1890,1889-1893,BENJAMIN HARRISON
 "Harrison, Benjamin",BENJAMIN HARRISON,"Shiras, George, Jr.",Bradley,"Jul 19, 1892",C,"Jul 26, 1892",FALSE,,1892,1889-1893,BENJAMIN HARRISON
+"Harrison, Benjamin",BENJAMIN HARRISON,"Jackson, Howell",Lamar,"Feb 2, 1893",C,"Feb 18, 1893",FALSE,,1893,1893-1897,GROVER CLEVELAND
 "Cleveland, Grover",GROVER CLEVELAND,"Hornblower, William",Blatchford,"Dec 5, 1893",R,"Jan 15, 1894",FALSE,,1893,1893-1897,GROVER CLEVELAND
 "Cleveland, Grover",GROVER CLEVELAND,"Hornblower, William",Blatchford,"Sep 19, 1893",N,,FALSE,,1893,1893-1897,GROVER CLEVELAND
-"Harrison, Benjamin",GROVER CLEVELAND,"Jackson, Howell",Lamar,"Feb 2, 1893",C,"Feb 18, 1893",FALSE,,1893,1893-1897,GROVER CLEVELAND
 "Cleveland, Grover",GROVER CLEVELAND,"White, Edward",Blatchford,"Feb 19, 1894",C,"Feb 19, 1894",FALSE,,1894,1893-1897,GROVER CLEVELAND
 "Cleveland, Grover",GROVER CLEVELAND,"Peckham, Wheeler",Blatchford,"Jan 22, 1894",R,"Feb 16, 1894",FALSE,,1894,1893-1897,GROVER CLEVELAND
 "Cleveland, Grover",GROVER CLEVELAND,"Peckham, Rufus",Jackson,"Dec 3, 1895",C,"Dec 9, 1895",FALSE,,1895,1893-1897,GROVER CLEVELAND
 "McKinley, William",WILLIAM MCKINLEY,"McKenna, Joseph",Field,"Dec 16, 1897",C,"Jan 21, 1898",FALSE,,1897,1897-1901,WILLIAM MCKINLEY
-"Roosevelt, Theodore",THEODORE ROOSEVELT,"Holmes, Oliver",Gray,"Tuesday, December 2, 1902",C,"Thursday, December 4, 1902",TRUE,,1902,1901-1905,WILLIAM MCKINLEY/THEODORE ROOSEVELT
+"Roosevelt, Theodore",THEODORE ROOSEVELT,"Holmes, Oliver Wendell",Gray,"Tuesday, December 2, 1902",C,"Thursday, December 4, 1902",TRUE,,1902,1901-1905,WILLIAM MCKINLEY/THEODORE ROOSEVELT
 "Roosevelt, Theodore",THEODORE ROOSEVELT,"Day, William",Shiras,"Thursday, February 19, 1903",C,"Monday, February 23, 1903",FALSE,,1903,1901-1905,WILLIAM MCKINLEY/THEODORE ROOSEVELT
 "Roosevelt, Theodore",THEODORE ROOSEVELT ,"Moody, William",Brown,"Monday, December 3, 1906",C,"Wednesday, December 12, 1906",FALSE,,1906,1905-1909,THEODORE ROOSEVELT (first FULL term)
 "Taft, William",WILLIAM HOWARD TAFT,"Lurton, Horace",Peckham,"Monday, December 13, 1909",C,"Monday, December 20, 1909",FALSE,,1909,1909-1913,WILLIAM HOWARD TAFT
@@ -120,7 +120,7 @@ President Last First,President,Nominee,To Replace,Nominated*,result,date,recess,
 "Roosevelt, Franklin",FRANKLIN D. ROOSEVELT ,"Byrnes, James",McReynolds,"Thursday, June 12, 1941",C,"Thursday, June 12, 1941",FALSE,,1941,1941-1945,FRANKLIN D. ROOSEVELT (third term)
 "Roosevelt, Franklin",FRANKLIN D. ROOSEVELT ,"Stone, Harlan",Hughes,"Thursday, June 12, 1941",C,"Friday, June 27, 1941",FALSE,TRUE,1941,1941-1945,FRANKLIN D. ROOSEVELT (third term)
 "Roosevelt, Franklin",FRANKLIN D. ROOSEVELT ,"Jackson, Robert",Stone,"Thursday, June 12, 1941",C,"Monday, July 7, 1941",FALSE,,1941,1941-1945,FRANKLIN D. ROOSEVELT (third term)
-"Roosevelt, Franklin",FRANKLIN D. ROOSEVELT ,"Rutledge, Wiley",Byrnes,"Monday, January 11, 1943",C,"Monday, February 8, 1943",TRUE,,1943,1941-1945,FRANKLIN D. ROOSEVELT (third term)
+"Roosevelt, Franklin",FRANKLIN D. ROOSEVELT ,"Rutledge, Wiley",Byrnes,"Monday, January 11, 1943",C,"Monday, February 8, 1943",FALSE,,1943,1941-1945,FRANKLIN D. ROOSEVELT (third term)
 "Truman, Harry",HARRY S. TRUMAN,"Burton, Harold",Roberts,"Tuesday, September 18, 1945",C,"Wednesday, September 19, 1945",FALSE,,1945,1945-1949,FDR/Truman
 "Truman, Harry",HARRY S. TRUMAN,"Vinson, Fred",Stone,"Thursday, June 6, 1946",C,"Thursday, June 20, 1946",FALSE,,1946,1945-1949,FDR/Truman
 "Truman, Harry",HARRY S. TRUMAN,"Clark, Tom",Murphy,"Tuesday, August 2, 1949",C,"Thursday, August 18, 1949",FALSE,,1949,1949-1953,HARRY S. TRUMAN
@@ -154,7 +154,7 @@ President Last First,President,Nominee,To Replace,Nominated*,result,date,recess,
 "Clinton, Bill",BILL CLINTON ,"Ginsburg, Ruth Bader",White,"Tuesday, June 22, 1993",C,"Tuesday, August 3, 1993",FALSE,,1993,1993-1997,BILL CLINTON (first term)
 "Clinton, Bill",BILL CLINTON ,"Breyer, Stephen G.",Blackmun,"Tuesday, May 17, 1994",C,"Friday, July 29, 1994",FALSE,,1994,1993-1997,BILL CLINTON (first term)
 "Bush, George W.",GEORGE W. BUSH ,"Miers, Harriet",O'Connor,"Friday, October 7, 2005",W,"Friday, October 28, 2005",FALSE,,2005,2005-2009,GEORGE W. BUSH (second term)
-"Bush, George W.",GEORGE W. BUSH ,"Roberts, John G., Jr.1",Rehnquist,"Tuesday, September 6, 2005",C,"Thursday, September 29, 2005",FALSE,,2005,2005-2009,GEORGE W. BUSH (second term)
+"Bush, George W.",GEORGE W. BUSH ,"Roberts, John G., Jr.",Rehnquist,"Tuesday, September 6, 2005",C,"Thursday, September 29, 2005",FALSE,,2005,2005-2009,GEORGE W. BUSH (second term)
 "Bush, George W.",GEORGE W. BUSH ,"Roberts, John G., Jr.",O'Connor,"Friday, July 29, 2005",W,"Tuesday, September 6, 2005",FALSE,,2005,2005-2009,GEORGE W. BUSH (second term)
 "Bush, George W.",GEORGE W. BUSH ,"Alito, Samuel A., Jr.",O'Connor,"Thursday, November 10, 2005",C,"Tuesday, January 31, 2006",FALSE,,2005,2005-2009,GEORGE W. BUSH (second term)
 "Obama, Barack",BARACK OBAMA ,"Sotomayor, Sonia",Souter,"Monday, June 1, 2009",C,"Thursday, August 6, 2009",FALSE,,2009,2009-2013,BARACK OBAMA (first term)
@@ -162,5 +162,5 @@ President Last First,President,Nominee,To Replace,Nominated*,result,date,recess,
 "Obama, Barack",BARACK OBAMA ,"Garland, Merrick B.",Scalia,"Wednesday, March 16, 2016",N,,FALSE,,2016,2013-2017,BARACK OBAMA (second term)
 "Trump, Donald",DONALD J. TRUMP,"Gorsuch, Neil M.",Scalia,"Wednesday, February 1, 2017",C,"Friday, April 7, 2017",FALSE,,2017,2017-2021,DONALD J. TRUMP
 "Trump, Donald",DONALD J. TRUMP,"Kavanaugh, Brett",Kennedy,"Tuesday, July 10, 2018",C,"Saturday, October 6, 2018",FALSE,,2018,2017-2021,DONALD J. TRUMP
-"Trump, Donald",DONALD J. TRUMP,"Barrett, Amy Coney",Ginsburg,"Tuesday, September 29, 2020",C,"Monday, October 26, 2020",FALSE,,2020,1917-1921,DONALD J. TRUMP
+"Trump, Donald",DONALD J. TRUMP,"Barrett, Amy Coney",Ginsburg,"Tuesday, September 29, 2020",C,"Monday, October 26, 2020",FALSE,,2020,2017-2021,DONALD J. TRUMP
 "Biden, Joseph R., Jr.",JOE BIDEN,"Jackson, Ketanji Brown",Breyer,"Monday, February 28, 2022",C,"Thursday, April 7, 2022",FALSE,,2022,2021-2025,JOE BIDEN

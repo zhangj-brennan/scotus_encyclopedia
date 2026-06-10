@@ -86,7 +86,7 @@ President,Nominee,To Replace,Nominated*,Vote,Results,Date,notes,Yea,Nay,Vote No.
 "Cleveland, Grover","Fuller, Melville",Waite,"Apr 30, 1888",41-20,C,"Jul 20, 1888",Nominated to chief justice.,41,20,,FALSE,1888
 "Cleveland, Grover","Lamar, Lucius",Woods,"Dec 6, 1887",32-28,C,"Jan 16, 1888",,32,28,,FALSE,1888
 "Arthur, Chester","Blatchford, Samuel",Hunt,"Mar 13, 1882",V,C,"Mar 22, 1882",,,,,TRUE,1882
-"Arthur, Chester","Conkling, Roscoe",Hunt,"Feb 24, 1882",39-12,D,"Mar 2, 1882",,39,12,,FALSE,1882
+"Arthur, Chester","Conkling, Roscoe",Hunt,"Feb 24, 1882",,D,"Mar 2, 1882",,39,12,,FALSE,1882
 "Arthur, Chester","Gray, Horace",Clifford,"Dec 19, 1881",51-5,C,"Dec 20, 1881",,51,5,,FALSE,1881
 "Garfield, James",Stanley Matthews,Swayne,"Mar 14, 1881",24-23,C,"May 12, 1881",,24,23,,FALSE,1881
 "Hayes, Rutherford","Matthews, Stanley",Swayne,"Jan 26, 1881",,N,,,,,,FALSE,1881
@@ -123,7 +123,7 @@ President,Nominee,To Replace,Nominated*,Vote,Results,Date,notes,Yea,Nay,Vote No.
 "Tyler, John","Walworth, Reuben",Thompson,"Jun 17, 1844",,N,"Jun 17, 1844","On motion to proceed to consider the nomination, an objection was made.",,,,FALSE,1844
 "Tyler, John","Spencer, John",Thompson,"Jun 17, 1844",,W,"Jun 17, 1844",,,,,FALSE,1844
 "Tyler, John","King, Edward",Baldwin,"Jun 5, 1844",29-18,P,"Jun 15, 1844",,29,18,,FALSE,1844
-"Tyler, John","Walworth, Reuben",Thompson,"Mar 13, 1844",27-20,W,"Jun 17, 1844",,27,20,,FALSE,1844
+"Tyler, John","Walworth, Reuben",Thompson,"Mar 13, 1844",,W,"Jun 17, 1844",,27,20,,FALSE,1844
 "Tyler, John","Spencer, John",Thompson,"Jan 8, 1844",21-26,R,"Jan 31, 1844",,21,26,,FALSE,1844
 "Van Buren, Martin","Daniel, Peter",Barbour,"Feb 26, 1841",25-5,C,"Mar 2, 1841",,25,5,,FALSE,1841
 "Van Buren, Martin","McKinley, John",(new seat),"Sep 18, 1837",V,C,"Sep 25, 1837",,,,,TRUE,1837
