@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Supreme Court Appointments by Justice</title>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+
+<style>
+@font-face {
+  font-family: "Benton";
+  src: url("Benton Sans/Benton Sans Book.otf");
+}
+
+@font-face {
+  font-family: "BentonStrong";
+  src: url("Benton Sans/Benton Sans Bold.otf");
+}
+
+@font-face {
+  font-family: "BentonMedium";
+  src: url("Benton Sans/Benton Sans Medium.otf");
+}
+
+:root {
+  --bg: #ffffff;
+  --text: #000000;
+  --muted: #555555;
+  --font-sans: "Benton", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+}
+
+#container {
+  margin: 10px;
+}
+
+#title {
+  max-width: 650px;
+  border-top: 2px solid black;
+}
+
+h1 {
+  margin: 0 0 6px;
+  font-size: 20px;
+  line-height: 1.6;
+  font-family: "BentonStrong";
+}
+
+#subtitle {
+  font-family: "Benton";
+  font-size: 14px;
+  line-height: 19px;
+  margin-bottom: 14px;
+}
+
+.view-toggle {
+  max-width: 650px;
+  margin: 10px 0;
+}
+
+.sort-toggle.is-hidden {
+  display: none;
+}
+
+.toggle-btn {
+  font-family: "BentonStrong";
+  margin: 0 10px 10px 0;
+  width: 30%;
+  min-width: 140px;
+  border: 1px solid black;
+  border-radius: 0;
+  background-color: white;
+  padding: 7px 10px;
+  cursor: pointer;
+}
+
+.toggle-btn.active {
+  background-color: black;
+  color: white;
+}
+
+.filter-toggle {
+  max-width: 650px;
+  margin: 6px 0 12px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  font-family: "BentonMedium";
+}
+
+.checkbox-label input {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: black;
+}
+
+#chart {
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.row-label {
+  font-size: 12px;
+  dominant-baseline: middle;
+  fill: var(--text);
+}
+
+.row-total {
+  font-size: 12px;
+  dominant-baseline: middle;
+  fill: var(--muted);
+  font-family: "BentonMedium";
+}
+
+.legend text {
+  font-size: 12px;
+  dominant-baseline: middle;
+  fill: var(--text);
+}
+
+.square {
+  stroke: var(--text);
+  stroke-width: 1;
+  cursor: pointer;
+}
+
+.symbol-group.not-confirmed {
+  opacity: 0.35;
+}
+
+.symbol-group:hover .square {
+  stroke-width: 2;
+}
+
+.tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: #fff;
+  color: #000;
+  border: 1px solid black;
+  padding: 10px 12px;
+  border-radius: 0;
+  font-size: 13px;
+  line-height: 1.35;
+  max-width: 340px;
+  opacity: 0;
+    transform: none;
+
+  transition: opacity 120ms ease;
+  white-space: normal;
+  z-index: 20;
+}
+
+.tooltip-title {
+  font-family: "BentonStrong";
+  margin-bottom: 6px;
+}
+
+.tooltip-row {
+  margin: 2px 0;
+}
+
+.footnote {
+  font-size: 12px;
+  max-width: 500px;
+  line-height: 1.35;
+}
+
+@media (max-width: 700px) {
+  .toggle-btn {
+    width: 100%;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="container">
+  <div id="title">
+    <h1></h1>
+  </div>
+
+  <div class="view-toggle">
+    <button class="toggle-btn active" type="button" data-view="president">By President</button>
+    <button class="toggle-btn" type="button" data-view="term">By Term</button>
+  </div>
+
+  <div class="sort-toggle view-toggle">
+    <button class="toggle-btn active" type="button" data-sort="year">Sort by year</button>
+    <button class="toggle-btn" type="button" data-sort="appointments">Sort by most appointments</button>
+  </div>
+
+  <div class="filter-toggle">
+    <label class="checkbox-label">
+      <input id="show-not-confirmed" type="checkbox" />
+      <span>Show not confirmed nominations</span>
+    </label>
+  </div>
+
+  <div id="subtitle">
+  </div>
+
+  <div id="chart"></div>
+
+  <div id="footnote" class="footnote">
+For terms with two presidents listed, that indicates that a president died or left office and the vice president finished out the remainder of the term. 
+<br>
+Elevation: Three Supreme Court justices were elevated from their position as Associate Justice to the position of Chief Justice.  
+<br>
+Recess: Recess Appointments occurred when the Senate was on recess and unable to provide the requisite “advice and consent.”  
+<br>
+<b>Source:</b>
+U.S. Senate, Supreme Court Nominations (1789-Present), https://www.senate.gov/legislative/nominations/SupremeCourtNominations1789present.htm; John S. Castellano, A New Look at Recess Appointments to the Federal Judiciary - United States v. Allocco, 12 Cath. U. L. Rev. 29 (1963). 
+</div>
+
+<div id="tooltip" class="tooltip"></div>
+
+<script>
+let RAW_DATA = [];
+let TERM_DATA = [];
+
+const squareSize = 10;
+const squareGap = 4;
+const rowGap = 18;
+
+const margin = {
+  top: 45,
+  right: 10,
+  bottom: 20,
+  left: 0
+};
+
+const RESULT_LABELS = {
+  C: "Confirmed",
+  D: "Declined",
+  N: "No action",
+  P: "Postponed",
+  R: "Rejected",
+  W: "Withdrawn"
+};
+
+const ELEVATION_MATCHES = [
+  { last: "white", first: "edward" },
+  { last: "stone", first: "harlan" },
+  { last: "rehnquist", first: "william" }
+];
+function formatTermPresidentLabel(value) {
+  const raw = String(value || "");
+
+  if (/\(.*second term.*\)/i.test(raw)) {
+    return "";
+  }
+
+  return cleanTermPresident(raw)
+    .replace(/\s*\([^)]*\)/g, "")
+    .trim();
+}
+const CONFIGS = {
+  president: {
+    title: "Supreme Court nominations by president",
+    groupKey: "President",
+    labelWidth: 165,
+    label: d => cleanText(d.key)
+  },
+  term: {
+  title: "Supreme Court nominations by presidential term",
+  groupKey: "Term Years",
+  labelWidth: 340,
+  presidentLabelWidth: 220,
+  yearLabelWidth: 100,
+  label: d => ({
+president: formatTermPresidentLabel(
+  d.termPresident ||
+  (d.values[0] && d.values[0]["Term President"])
+),
+     years: d.key
+  })
+}
+};
+
+let currentView = "president";
+let currentSort = "year";
+let showNotConfirmed = false;
+
+function cleanText(value) {
+  return String(value || "")
+    .replace(/√ä\d*/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function cleanTermPresident(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/\b\w/g, c => c.toUpperCase())
+    .replace(/Fdr\/truman/i, "FDR/Truman")
+    .trim();
+}
+
+function normalizeNominee(value) {
+  return cleanText(value)
+    .toLowerCase()
+    .replace(/\d/g, "")
+    .replace(/[^a-z,\s.]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function nomineeParts(value) {
+  const s = normalizeNominee(value);
+  const pieces = s.split(",");
+
+  if (pieces.length >= 2) {
+    return {
+      last: pieces[0].trim(),
+      first: pieces[1].trim().split(" ")[0] || ""
+    };
+  }
+
+  const words = s.split(" ");
+  return {
+    last: words[words.length - 1] || "",
+    first: words[0] || ""
+  };
+}
+
+function isTruthy(value) {
+  return String(value).toLowerCase() === "true" || String(value) === "1";
+}
+
+function getSymbolType(row) {
+  if (isTruthy(row.recess)) return "recess";
+  if (isTruthy(row.elevation)) return "elevation";
+  return "appointment";
+}
+
+function isConfirmed(row) {
+  return String(row.result || "").trim() === "C";
+}
+
+function getYear(row) {
+  const y = +row["Nomination Year"];
+  if (!Number.isNaN(y) && y > 0) return y;
+
+  const text = String(row["Nominated*"] || "");
+  const commaYear = text.match(/,\s*(\d{4})/);
+  if (commaYear) return +commaYear[1];
+
+  const anyYear = text.match(/\b(17|18|19|20)\d{2}\b/);
+  return anyYear ? +anyYear[0] : null;
+}
+
+function getResultLabel(row) {
+  const code = String(row.result || "").trim();
+  return RESULT_LABELS[code] || code || "Unknown";
+}
+
+
+function splitTermPresidents(value) {
+  return String(value || "")
+    .replace(/FDR\/Truman/gi, "FRANKLIN D. ROOSEVELT/HARRY S. TRUMAN")
+    .split("/")
+    .map(d => d.trim())
+    .filter(Boolean);
+}
+function presidentNameKey(value) {
+  let s = String(value || "")
+    .replace(/\s*\([^)]*\)/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (s.includes(",")) {
+    const pieces = s.split(",").map(d => d.trim()).filter(Boolean);
+    const last = pieces[0] || "";
+    const rest = pieces.slice(1).join(" ");
+    s = `${rest} ${last}`;
+  }
+
+  const words = s
+    .replace(/[.]/g, "")
+    .split(/\s+/)
+    .filter(Boolean);
+
+  if (words.length === 0) return "";
+
+  const first = words[0].toLowerCase().replace(/[^a-z]/g, "");
+  const last = words[words.length - 1].toLowerCase().replace(/[^a-z]/g, "");
+
+  const middle = words.slice(1, -1)
+    .map(d => d.toLowerCase().replace(/[^a-z]/g, ""))
+    .filter(Boolean)
+    .join("");
+
+  return `${first}${middle}${last}`;
+}
+
+function presidentLastNameKey(value) {
+  let s = String(value || "")
+    .replace(/\s*\([^)]*\)/g, "")
+    .replace(/[.,]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (s.includes(",")) {
+    return s.split(",")[0].toLowerCase().replace(/[^a-z]/g, "");
+  }
+  const words = s.split(/\s+/).filter(Boolean);
+return words.join("_")
+  return words.length ? words[words.length - 1].toLowerCase().replace(/[^a-z]/g, "") : "";
+}
+
+function cleanPresidentNameForLabel(value) {
+  return cleanTermPresident(
+    String(value || "")
+      .replace(/\s*\([^)]*\)/g, "")
+      .trim()
+  );
+}
+
+
+function sortGroups(groups, view) {
+  return groups.sort((a, b) => {
+    if (view === "president" && currentSort === "appointments") {
+      return b.total - a.total || a.firstYear - b.firstYear;
+    }
+
+    return a.firstYear - b.firstYear;
+  });
+}
+
+function prepareGroups(view) {
+  const config = CONFIGS[view];
+
+  const rows = RAW_DATA.map((d, i) => ({
+    ...d,
+    _index: i,
+    _year: getYear(d),
+    _symbolType: getSymbolType(d),
+    _confirmed: isConfirmed(d)
+  }));
+
+  const visibleRows = showNotConfirmed
+    ? rows
+    : rows.filter(d => d._confirmed);
+
+  function symbolOrder(d) {
+    // confirmed appointments
+    if (d._confirmed && d._symbolType === "appointment") return 0;
+
+    // elevations
+    if (d._symbolType === "elevation") return 1;
+
+    // recess appointments
+    if (d._symbolType === "recess") return 2;
+
+    // all unsuccessful nominations
+    return 3;
+  }
+
+  function sortValues(values) {
+    values.sort((a, b) => {
+      const typeDiff = symbolOrder(a) - symbolOrder(b);
+      if (typeDiff !== 0) return typeDiff;
+
+      const ay = a._year ?? 9999;
+      const by = b._year ?? 9999;
+
+      return ay - by || a._index - b._index;
+    });
+  }
+
+  if (TERM_DATA.length && view === "term") {
+    const grouped = d3.group(visibleRows, d => d["Term Years"] || "No match");
+
+    const groups = TERM_DATA.map((termRow, i) => {
+      const key = termRow["term years"];
+      const values = grouped.get(key) || [];
+      sortValues(values);
+
+      return {
+        key,
+        termPresident: termRow.presidents,
+        values,
+        firstYear: +String(key).split("-")[0] || i,
+        total: values.length
+      };
+    });
+
+    grouped.forEach((values, key) => {
+      if (!groups.some(d => d.key === key)) {
+        sortValues(values);
+
+        const years = values.map(d => d._year).filter(d => d !== null);
+
+        groups.push({
+          key,
+          values,
+          firstYear: years.length ? d3.min(years) : 9999,
+          total: values.length
+        });
+      }
+    });
+
+    return sortGroups(groups, view);
+  }
+
+  if (TERM_DATA.length && view === "president") {
+    const groups = [];
+    const keyToGroup = new Map();
+    const lastNameToGroups = new Map();
+
+    TERM_DATA.forEach((termRow, i) => {
+      splitTermPresidents(termRow.presidents).forEach(name => {
+        const key = presidentNameKey(name);
+        const lastKey = presidentLastNameKey(name);
+              const exactKey = presidentNameKey(name);
+
+        if (!keyToGroup.has(key)) {
+          const group = {
+            key,
+            labelText: cleanPresidentNameForLabel(name),
+            values: [],
+            firstYear: +String(termRow["term years"]).split("-")[0] || i,
+            total: 0
+          };
+
+          groups.push(group);
+          keyToGroup.set(key, group);
+
+          if (!lastNameToGroups.has(lastKey)) {
+            lastNameToGroups.set(lastKey, []);
+          }
+
+          lastNameToGroups.get(lastKey).push(group);
+        }
+      });
+    });
+
+    visibleRows.forEach(row => {
+      const exactKey = presidentNameKey(row.President);
+      const lastKey = presidentLastNameKey(row.President);
+      let group = keyToGroup.get(exactKey);
+
+      if (!group) {
+        const lastMatches = lastNameToGroups.get(lastKey) || [];
+        if (lastMatches.length === 1) {
+          group = lastMatches[0];
+        }
+      }
+
+      if (!group) {
+        group = {
+          key: exactKey || row.President || "No match",
+          labelText: cleanText(row.President) || "No match",
+          values: [],
+          firstYear: 9999,
+          total: 0
+        };
+        groups.push(group);
+        keyToGroup.set(group.key, group);
+      }
+
+      group.values.push(row);
+    });
+
+    groups.forEach(group => {
+      sortValues(group.values);
+      group.total = group.values.length;
+    });
+
+    return sortGroups(groups, view);
+  }
+
+  return d3.groups(visibleRows, d => d[config.groupKey] || "No match")
+    .map(([key, values]) => {
+      sortValues(values);
+
+      const years = values.map(d => d._year)
+        .filter(d => d !== null);
+
+      return {
+        key,
+        values,
+        firstYear: years.length
+          ? d3.min(years)
+          : 9999,
+        total: values.length
+      };
+    })
+    .sort((a, b) => a.firstYear - b.firstYear);
+}
+
+
+function renderView(view) {
+  const config = CONFIGS[view];
+
+  d3.select("#title h1").text(config.title);
+
+  const chart = d3.select("#chart");
+  chart.selectAll("*").remove();
+
+  const groups = prepareGroups(view);
+  const maxSymbols = d3.max(groups, d => d.total) || 0;
+
+  const width =
+    margin.left +
+    config.labelWidth +
+    maxSymbols * (squareSize + squareGap) +
+    260 +
+    margin.right;
+
+  const height =
+    margin.top +
+    groups.length * rowGap +
+    margin.bottom;
+
+  const svg = chart
+    .append("svg")
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .attr("height", height);
+
+  drawDefs(svg);
+  drawLegend(svg);
+
+  const rowGroups = svg.selectAll(".group-row")
+    .data(groups)
+    .join("g")
+    .attr("class", "group-row")
+    .attr("transform", (d, i) => `translate(${margin.left}, ${margin.top + i * rowGap})`);
+
+  if (view === "term") {
+  rowGroups.append("text")
+    .attr("class", "row-label")
+    .attr("x", 0)
+    .attr("y", squareSize / 2 + 1)
+    .text(d => config.label(d).president);
+
+  rowGroups.append("text")
+    .attr("class", "row-label")
+    .attr("x", config.presidentLabelWidth)
+    .attr("y", squareSize / 2 + 1)
+    .text(d => config.label(d).years);
+} else {
+  rowGroups.append("text")
+    .attr("class", "row-label")
+    .attr("x", 0)
+    .attr("y", squareSize / 2 + 1)
+    .text(d => d.labelText || config.label(d));
+}
+  rowGroups.each(function(group) {
+    const row = d3.select(this);
+
+    group.values.forEach((justice, i) => {
+      drawSymbol(
+        row,
+        config.labelWidth + i * (squareSize + squareGap),
+        0,
+        justice
+      );
+    });
+
+    row.append("text")
+      .attr("class", "row-total")
+      .attr("x", config.labelWidth + group.total * (squareSize + squareGap))
+      .attr("y", squareSize / 2 + 1)
+      .text(group.total);
+  });
+}
+
+function drawDefs(svg) {
+  const defs = svg.append("defs");
+  const stripes = 4;
+
+  const stripePattern = defs.append("pattern")
+    .attr("id", "diagonal-stripes")
+    .attr("patternUnits", "userSpaceOnUse")
+    .attr("width", stripes)
+    .attr("height", stripes)
+    .attr("patternTransform", "rotate(45)");
+
+  stripePattern.append("rect")
+    .attr("width", stripes)
+    .attr("height", stripes)
+    .attr("fill", "#fff");
+
+  stripePattern.append("line")
+    .attr("x1", 0)
+    .attr("y1", 0)
+    .attr("x2", 0)
+    .attr("y2", stripes)
+    .attr("stroke", "#111")
+    .attr("stroke-width", 2);
+}
+
+function drawLegend(svg) {
+  const legend = svg.append("g")
+    .attr("class", "legend")
+    .attr("transform", "translate(2, 12)");
+
+  drawLegendSymbol(legend, 0, 0, "appointment", true);
+  legend.append("text")
+    .attr("x", 22)
+    .attr("y", 7)
+    .text("Confirmed");
+
+  drawLegendSymbol(legend, 105, 0, "elevation", true);
+  legend.append("text")
+    .attr("x", 127)
+    .attr("y", 7)
+    .text("Elevation");
+
+  drawLegendSymbol(legend, 200, 0, "recess", true);
+  legend.append("text")
+    .attr("x", 222)
+    .attr("y", 7)
+    .text("Recess");
+
+  if (showNotConfirmed) {
+    drawLegendSymbol(legend, 295, 0, "appointment", false);
+
+    legend.append("text")
+      .attr("x", 317)
+      .attr("y", 7)
+      .text("Not confirmed");
+  }
+}
+
+function drawLegendSymbol(parent, x, y, type, confirmed) {
+  const g = parent.append("g")
+    .attr("transform", `translate(${x}, ${y})`)
+    .classed("symbol-group", true)
+    .classed("not-confirmed", !confirmed);
+
+  drawSymbolShape(g, type);
+}
+
+function drawSymbol(parent, x, y, d) {
+  const g = parent.append("g")
+    .datum(d)
+    .attr("class", "symbol-group")
+    .classed("not-confirmed", !d._confirmed)
+    .attr("transform", `translate(${x}, ${y})`)
+    .on("mouseenter", showTooltip)
+    .on("mousemove", moveTooltip)
+    .on("mouseleave", hideTooltip);
+
+  drawSymbolShape(g, d._symbolType);
+}
+
+function drawSymbolShape(g, type) {
+  if (type === "appointment") {
+    g.append("rect")
+      .attr("class", "square")
+      .attr("width", squareSize)
+      .attr("height", squareSize)
+      .attr("fill", "#111");
+  }
+
+  if (type === "elevation") {
+    g.append("rect")
+      .attr("width", squareSize)
+      .attr("height", squareSize)
+      .attr("fill", "#fff");
+
+    g.append("polygon")
+      .attr("points", `0,0 ${squareSize},0 0,${squareSize}`)
+      .attr("fill", "#111");
+
+    g.append("rect")
+      .attr("class", "square")
+      .attr("width", squareSize)
+      .attr("height", squareSize)
+      .attr("fill", "none");
+  }
+
+  if (type === "recess") {
+    g.append("rect")
+      .attr("class", "square")
+      .attr("width", squareSize)
+      .attr("height", squareSize)
+      .attr("fill", "url(#diagonal-stripes)");
+  }
+}
+
+function showTooltip(event, d) {
+  const typeLabel = d._symbolType.charAt(0).toUpperCase() + d._symbolType.slice(1);
+
+  d3.select("#tooltip")
+    .html(`
+      <div class="tooltip-title">${cleanText(d.Nominee)}</div>
+<div class="tooltip-row"><strong>President:</strong> ${cleanTermPresident(d.President)}</div>
+      <div class="tooltip-row"><strong>To replace:</strong> ${cleanText(d["To Replace"]) || "—"}</div>
+      <div class="tooltip-row"><strong>Nominated:</strong> ${cleanText(d["Nominated*"]) || "—"}</div>
+      <div class="tooltip-row"><strong>Result:</strong> ${getResultLabel(d)}${d.date ? " — " + cleanText(d.date) : ""}</div>
+      <div class="tooltip-row"><strong>Term:</strong> ${cleanText(d["Term Years"]) }</div>
+      <div class="tooltip-row"><strong>Type:</strong> ${typeLabel}</div>
+    `)
+    .style("opacity", 1);
+
+  moveTooltip(event);
+}
+
+function moveTooltip(event) {
+  const tooltip = d3.select("#tooltip");
+  const node = tooltip.node();
+
+  const padding = 12;
+
+  const tooltipWidth = node.offsetWidth;
+  const tooltipHeight = node.offsetHeight;
+
+  let left = event.pageX;
+  let top = event.pageY - tooltipHeight - 18;
+
+  // left edge
+  if (left - tooltipWidth / 2 < padding) {
+    left = tooltipWidth / 2 + padding;
+  }
+
+  // right edge
+  if (left + tooltipWidth / 2 > window.innerWidth - padding) {
+    left = window.innerWidth - tooltipWidth / 2 - padding;
+  }
+
+  // top edge
+  if (top < window.scrollY + padding) {
+    top = event.pageY + 18;
+  }
+
+  tooltip
+    .style("left", `${left}px`)
+    .style("top", `${top}px`);
+}
+
+function hideTooltip() {
+  d3.select("#tooltip")
+    .style("opacity", 0);
+}
+
+function updateSortToggleVisibility() {
+  d3.select(".sort-toggle")
+    .classed("is-hidden", currentView !== "president");
+}
+
+function setupToggleButtons() {
+  d3.selectAll(".toggle-btn[data-view]")
+    .on("click", function() {
+      const view = d3.select(this).attr("data-view");
+      currentView = view;
+
+      d3.selectAll(".toggle-btn[data-view]")
+        .classed("active", false);
+
+      d3.select(this)
+        .classed("active", true);
+
+      updateSortToggleVisibility();
+      renderView(currentView);
+    });
+
+  d3.selectAll(".toggle-btn[data-sort]")
+    .on("click", function() {
+      const sort = d3.select(this).attr("data-sort");
+      currentSort = sort;
+
+      d3.selectAll(".toggle-btn[data-sort]")
+        .classed("active", false);
+
+      d3.select(this)
+        .classed("active", true);
+
+      updateSortToggleVisibility();
+      renderView(currentView);
+    });
+
+d3.select("#show-not-confirmed")
+  .on("change", function () {
+    showNotConfirmed = this.checked;
+    renderView(currentView);
+  });
+}
+
+Promise.all([
+  d3.csv("appointments_by_justice.csv", d3.autoType),
+  d3.csv("presidential_terms.csv", d3.autoType)
+]).then(([appointmentsData, termData]) => {
+  RAW_DATA = appointmentsData;
+  TERM_DATA = termData;
+  setupToggleButtons();
+  updateSortToggleVisibility();
+  renderView(currentView);
+}).catch(error => {
+  console.error("Error loading CSV:", error);
+  d3.select("#chart")
+    .html(`<p style="font-size:14px;">Could not load the CSV files. Make sure appointments_with_president_recess_lastname.csv and presidential_terms.csv are in the same folder as this HTML file.</p>`);
+});</script>
+
+</body>
+</html>
