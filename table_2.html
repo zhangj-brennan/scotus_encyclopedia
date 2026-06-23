@@ -206,6 +206,23 @@
       border-bottom: 1px solid #ddd;
     }
   }
+  .card-top {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.portrait {
+  width: 64px;
+  height: 78px;
+  border: none;
+  background: #eee;
+  display: grid;
+  place-items: center;
+  font-size: 34px;
+}
 </style>
 </head>
 
@@ -589,19 +606,33 @@ function renderCard(row) {
   const card = document.createElement("div");
   card.className = "card";
 
-  const name = document.createElement("div");
-  name.className = "card-name";
-  name.textContent = cleanLabel(row.name || "Unnamed");
-  card.appendChild(name);
+  const top = document.createElement("div");
+top.className = "card-top";
 
-  const sub = document.createElement("div");
-  sub.className = "card-sub";
-  sub.textContent = [
-    cleanLabel(row.posit),
-    row.yrnom
-  ].filter(Boolean).join(" · ");
-  card.appendChild(sub);
+const portrait = document.createElement("div");
+portrait.className = "portrait";
+portrait.textContent = "👤";
 
+const textWrap = document.createElement("div");
+
+const name = document.createElement("div");
+name.className = "card-name";
+name.textContent = cleanLabel(row.name || "Unnamed");
+
+const sub = document.createElement("div");
+sub.className = "card-sub";
+sub.textContent = [
+  cleanLabel(row.posit),
+  row.yrnom
+].filter(Boolean).join(" · ");
+
+textWrap.appendChild(name);
+textWrap.appendChild(sub);
+
+top.appendChild(portrait);
+top.appendChild(textWrap);
+
+card.appendChild(top);
   const grid = document.createElement("div");
   grid.className = "card-grid";
 
