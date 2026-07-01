@@ -38,30 +38,6 @@
   background: transparent;
 }
 
-
-.served-toggle-wrap {
-  margin: 0 0 14px;
-  padding: 8px;
-  border: 1px solid var(--border);
-  background: #fff;
-}
-
-.served-toggle-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  line-height: 1.2;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  cursor: pointer;
-}
-
-.served-toggle-label input {
-  margin: 0;
-}
-
 </style>
 </head>
 
@@ -73,13 +49,6 @@
     <div class="load-row">
       <button id="resetFilters">Reset filters</button>
       <input id="searchBox" class="search" placeholder="Search nominee names" />
-    </div>
-
-    <div class="served-toggle-wrap">
-      <label class="served-toggle-label">
-        <input id="servedOnlyToggle" type="checkbox" checked />
-        Show only those who served
-      </label>
     </div>
 
     <div id="filters"></div>
@@ -400,7 +369,6 @@ let activeFilters = {};
 let searchTerm = "";
 let viewMode = "portraits";
 let activeFilterTab = "personal";
-let showOnlyServed = true;
 
 const filtersEl = document.getElementById("filters");
 const cardsEl = document.getElementById("cards");
@@ -409,7 +377,6 @@ const showMoreBtn = document.getElementById("showMore");
 const searchBox = document.getElementById("searchBox");
 const portraitViewBtn = document.getElementById("portraitViewBtn");
 const infoViewBtn = document.getElementById("infoViewBtn");
-const servedOnlyToggle = document.getElementById("servedOnlyToggle");
 
 Papa.parse(CSV_FILE, {
   download: true,
@@ -428,8 +395,6 @@ document.getElementById("resetFilters").addEventListener("click", () => {
   activeFilterTab = "personal";
   searchTerm = "";
   searchBox.value = "";
-  showOnlyServed = true;
-  servedOnlyToggle.checked = true;
   renderFilters();
   applyFilters();
 });
@@ -442,11 +407,6 @@ if (showMoreBtn) {
 
 searchBox.addEventListener("input", e => {
   searchTerm = e.target.value.trim().toLowerCase();
-  applyFilters();
-});
-
-servedOnlyToggle.addEventListener("change", e => {
-  showOnlyServed = e.target.checked;
   applyFilters();
 });
 
@@ -921,8 +881,6 @@ function renderRangeFilter(field) {
 
 function applyFilters() {
   filtered = rows.filter(row => {
-    if (showOnlyServed && !isServedOnCourt(row)) return false;
-
     for (const [field, filter] of Object.entries(activeFilters)) {
       if (filter instanceof Set) {
         if (field === PROFESSIONAL_EXPERIENCE_FIELD) {
@@ -980,8 +938,7 @@ function renderCards() {
   const visible = filtered;
 
   summaryEl.textContent =
-    `Showing ${visible.length.toLocaleString()} of ${rows.length.toLocaleString()} matching people` +
-    (showOnlyServed ? " · served on the Court only" : "");
+    `Showing ${visible.length.toLocaleString()} of ${rows.length.toLocaleString()} matching people`;
 
   renderActiveFilterChips();
 
@@ -1416,15 +1373,6 @@ function renderCareerSummary(row, card) {
     block.appendChild(title);
     block.appendChild(badges);
     card.appendChild(block);
-  });
-}
-
-function isServedOnCourt(row) {
-  const positions = splitInstitutionValues(row["Position "]);
-
-  return positions.some(position => {
-    const label = cleanLabel(position).toLowerCase();
-    return label === "chief justice" || label === "associate justice";
   });
 }
 

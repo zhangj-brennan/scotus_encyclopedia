@@ -91,24 +91,14 @@ body {
 .cards{
 }
 .cards.portrait-mode {
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 10px 0;
   padding-left: 18px;
 }
 
 .card.portrait-card {
-  position: relative;
-  overflow: visible;
-  margin: -40px;
-  margin-bottom: -80px;
-  background: transparent;
-  cursor: pointer;
-  transition: transform 180ms ease;
-}
-
-.card.portrait-card:hover {
-  z-index: 20;
-  transform: translateY(-4px);
+  margin: -50px;
+  margin-top:-80px;
 }
 
 .portrait-large {
@@ -120,34 +110,25 @@ body {
   filter: grayscale(100%);
 }
 
-.portrait-tooltip {
+.portrait-name {
   position: absolute;
-  left: 50%;
-  bottom: -34px;
-  transform: translateX(-50%) translateY(4px);
-  z-index: 30;
-
-  padding: 5px 10px;
-  background: #fff;
-  border: 1px solid var(--border);
-
-  color: #000;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.7);
   font-size: 14px;
   line-height: 1.1;
   font-weight: 800;
-  white-space: nowrap;
-
-  opacity: 0;
-  pointer-events: none;
-
-  transition:
-    opacity 160ms ease,
-    transform 160ms ease;
+  min-height:40px;
 }
 
-.card.portrait-card:hover .portrait-tooltip {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
+.portrait-sub {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  line-height: 1.1;
+  font-weight: 700;
 }
 
 h1 {
@@ -679,5 +660,5 @@ details.is-closing .filter-body {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
 
-  .portrait-tooltip { font-size: 13px; }
+  .portrait-name { font-size: 15px; }
 }

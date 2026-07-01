@@ -91,7 +91,7 @@ body {
 .cards{
 }
 .cards.portrait-mode {
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 10px 0;
   padding-left: 18px;
 }
@@ -99,8 +99,8 @@ body {
 .card.portrait-card {
   position: relative;
   overflow: visible;
-  margin: -40px;
-  margin-bottom: -80px;
+  margin: -50px;
+  margin-top: -80px;
   background: transparent;
   cursor: pointer;
   transition: transform 180ms ease;
