@@ -59,6 +59,7 @@ body {
   height: 100%;
   overflow: auto;
   padding: 0;
+  background-color:black;
 }
 
 .main-top {
@@ -99,8 +100,8 @@ body {
 .card.portrait-card {
   position: relative;
   overflow: visible;
-  margin: -40px;
-  margin-bottom: -30px;
+  margin: -50px;
+  margin-bottom: -40px;
   background: transparent;
   cursor: pointer;
   transition: transform 180ms ease;
@@ -112,8 +113,8 @@ body {
 }
 
 .portrait-large {
-  width: 100%;
-  height: 100%;
+  width: 80%;
+  height: 80%;
   object-fit: cover;
   object-position: center top;
   display: block;
@@ -377,6 +378,9 @@ details.is-closing .filter-body {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
   gap: 1px;
+  padding:20px;
+  margin:20px;
+  margin-left:40px
 }
 
 .card {
