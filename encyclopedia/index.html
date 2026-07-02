@@ -9,7 +9,6 @@
   <link rel="stylesheet" href="encyclopedia.css">
 
 <style>
-
 /* Missing portrait group: keeps unavailable portraits at the end without overlap */
 .missing-portrait-heading {
   grid-column: 1 / -1;
@@ -1377,7 +1376,7 @@ function preloadPortraitAvailability() {
 
 function getPortraitPath(fullName) {
   const filename = `${fullName}.png`;
-  return `portraits_nobg/${encodeURIComponent(filename)}`;
+  return `portraits_nobg_tuned/${encodeURIComponent(filename)}`;
 }
 
 function renderPortraitCard(row, isMissingPortrait = false) {

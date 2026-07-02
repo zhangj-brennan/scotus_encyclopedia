@@ -59,7 +59,6 @@ body {
   height: 100%;
   overflow: auto;
   padding: 0;
-  background-color:black;
 }
 
 .main-top {
@@ -153,9 +152,10 @@ body {
 
 h1 {
   margin: 0 0 10px;
-  font-size: clamp(1.4rem, 3vw, 2.25rem);
+  font-size: 18px;
   line-height: 1;
   font-weight: 800;
+
 }
 
 .load-row {
@@ -379,7 +379,7 @@ details.is-closing .filter-body {
   grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
   gap: 1px;
   padding:20px;
-  margin:20px;
+  margin:0px;
   margin-left:40px
 }
 
