@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Judicial Crossfiltered Table</title>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <link rel="stylesheet" href="table.css" />
+</head>
+<body>
+ <div class="wrap">
+  <div class="page-layout">
+    <aside class="sidebar">
+      <div class="topbar">
+        <h1>SCOTUS Basics</h1>
+       <p> Data source: www.fjc.gov </p>
+        <!-- <div class="upload-row">
+          <div class="panel">
+            <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+              <div id="fileName" class="file-name">Loading CSV...</div>
+            </div>
+          </div>
+        </div> -->
+
+        <div class="filter-grid">
+          <div class="panel span-12">
+            <div style="display:grid; gap:10px;">
+              <div>
+                <h2>Name</h2>
+                <input id="nameSearch" type="text" placeholder="Search name..." />
+              </div>
+              </div>
+
+              </div>
+          <div class="panel span-12">
+              <div>
+                <div>
+                <h2>Appointing President</h2>
+                <select id="presidentSelect">
+                  <option value="">All presidents</option>
+                </select>
+              </div>
+
+              <div><br>
+                <h2>Party of Appointing President</h2>
+                <div id="partyButtons" class="top-list"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel span-12">
+            <div style="display:grid; gap:12px;">
+              <div>
+              <h2>Confirmation Date</h2>
+              <div class="range-wrap histogram-wrap">
+                <div class="range-values">
+                  <span id="confirmMinLabel">—</span>
+                  <span id="confirmMaxLabel">—</span>
+                </div>
+
+                <div id="confirmHistogram" class="confirm-histogram" aria-label="Confirmation date histogram"></div>
+
+                <div class="range-stack histogram-range-stack">
+                  <input id="confirmMin" type="range" />
+                  <input id="confirmMax" type="range" />
+                </div>
+              </div>
+            </div>
+            </div>
+          </div>
+
+          <div class="panel span-12">
+            <h2>Birth State</h2>
+            <div id="birthStateButtons" class="state-cartogram-panel"></div>
+          </div>
+
+          <div class="panel span-12">
+            <h2>Top 10 Schools + Degrees by School Slot</h2>
+            <div id="topSchools" class="top-list"></div>
+            <div id="topDegrees" class="top-list"></div>
+          </div>
+
+          <!-- <div class="panel span-12">
+            <div style="display:grid; gap:10px;">
+              <div>
+                <h2>Court Type (1)</h2>
+                <div id="courtTypeButtons" class="top-list"></div>
+              </div>
+
+            </div>
+          </div> -->
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-table">
+<div class="table-topbar">
+  <div class="table-summary-line">
+    Showing <span id="filteredRows">0</span> of <span id="totalRows">0</span> records
+  </div>
+
+  <div class="table-actions">
+    <button class="action-btn" id="sortNameBtn" type="button">
+      Sort: Last Name
+    </button>
+    <button class="action-btn" id="sortConfirmBtn" type="button">
+      Sort: Confirmation Date
+    </button>
+<button class="action-btn" id="sortTermBtn" type="button">
+  Sort: Term Length
+</button>
+    <button class="action-btn" id="clearBtn" type="button">Clear Filters</button>
+    <button class="action-btn" id="downloadBtn" type="button">Download Filtered CSV</button>
+  </div>
+</div>
+
+      <div class="table-wrap">
+        <div class="table-scroll">
+          <table id="dataTable">
+            <thead>
+              <tr>
+                <th style="width: 32%;">Justice</th>
+                <th style="width: 68%;">Education & Career</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+  <script id="grid" type="text/plain">
+                              ME
+               WI          VT NH
+WA ID MT ND MN IL MI    NY MA
+OR NV WY SD IA IN OH PA NJ CT RI
+CA UT CO NE MO KY WV VA MD DE
+   AZ NM KS AR TN NC SC
+         OK LA MS AL GA
+HI AK    TX             FL
+  </script>
+
+  <script src="table.js"></script>
+  <script src="control.js"></script>
+</body>
+</html>

@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nominee Crossfilter Cards</title>
+
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: Helvetica, Arial, sans-serif;
+    color: #111;
+    background: #f6f6f6;
+  }
+
+  .app {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    min-height: 100vh;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: auto;
+    padding: 18px;
+    border-right: 1px solid #000;
+    background: white;
+  }
+
+  .main {
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 22px;
+    margin: 0 0 12px;
+  }
+
+  .load-row {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  input[type="file"] {
+    font-size: 13px;
+  }
+
+  button {
+    font-family: inherit;
+    border: 1px solid #111;
+    background: white;
+    padding: 7px 10px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: #111;
+    color: white;
+  }
+
+  .summary {
+    font-size: 18px;
+    margin-bottom: 16px;
+  }
+
+  .section {
+    border-top: 1px solid #000;
+    padding-top: 12px;
+    margin-top: 12px;
+  }
+
+  .section-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+
+  details {
+    border: 1px solid #000;
+    margin-bottom: 8px;
+    background: #fafafa;
+  }
+
+  summary {
+    padding: 9px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .filter-body {
+    padding: 8px 10px 10px;
+    max-height: 260px;
+    overflow: auto;
+    background: white;
+    border-top: 1px solid #000;
+  }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    font-size: 13px;
+    line-height: 1.25;
+    margin-bottom: 7px;
+  }
+
+  .option input {
+    margin-top: 1px;
+  }
+
+  .option-count {
+    color: #777;
+    margin-left: auto;
+    padding-left: 8px;
+    white-space: nowrap;
+  }
+
+  .range-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .range-row input {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #bbb;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: 14px;
+  }
+
+  .card {
+    background: white;
+    border: 1px solid #000;
+    padding: 14px;
+  }
+
+  .card-name {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .card-sub {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 12px;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 5px 10px;
+    font-size: 13px;
+  }
+
+  .k {
+    color: #666;
+  }
+
+  .v {
+    font-weight: 500;
+  }
+
+  .missing {
+    color: #aaa;
+    font-weight: 400;
+  }
+
+  .more-wrap {
+    margin: 20px 0 40px;
+    text-align: center;
+  }
+
+  .search {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #bbb;
+    font-size: 14px;
+  }
+
+  @media (max-width: 800px) {
+    .app {
+      grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+      position: relative;
+      height: auto;
+      max-height: none;
+      border-right: none;
+      border-bottom: 1px solid #000;
+    }
+  }
+  .card-top {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.portrait {
+  width: 64px;
+  height: 78px;
+  border: none;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 34px;
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <h1>Nominee Filters</h1>
+
+<div class="load-row">
+  <button id="resetFilters">Reset filters</button>
+  <input id="searchBox" class="search" placeholder="Search names/cards…" />
+</div>
+
+    <div id="filters"></div>
+  </aside>
+
+  <main class="main">
+    <div id="summary" class="summary">Load a CSV to begin.</div>
+    <div id="cards" class="cards"></div>
+    <div class="more-wrap">
+      <button id="showMore" style="display:none;">Show more</button>
+    </div>
+  </main>
+</div>
+
+<script>
+const FILTERS = {
+  personal: [
+    "birthst", "childst", "famses", "famjud",
+    "nomrelig", "natorig", "race", "gender",
+    "undsch", "gradsch", "lawsch", "marryn", "child"
+  ],
+  beforeCourt: [
+    "militbr", "militwar", "clerkj",
+    "barst1", "privtyp1",
+    "sttrist", "stapst", "stsupst",
+    "feddist", "fedca",
+    "usat", "ussgo1", "usago1",
+    "uscab", "ussec", "uspres1",
+    "ushr1", "ussn1",
+    "gov", "mayor", "stsenate", "sthouse"
+  ],
+  supremeCourtService: [
+    "yrnom", "posit", "recess", "success",
+    "presname", "prespart", "senparty",
+    "abarate", "senact", "serve",
+    "reasdep", "postdep"
+  ]
+};
+
+const LABELS = {
+  personal: "Personal",
+  beforeCourt: "Before the Court",
+  supremeCourtService: "Supreme Court Service",
+
+  name: "Name",
+  yrnom: "Year nominated",
+  posit: "Position",
+  recess: "Recess appointment",
+  success: "Confirmed",
+  birthst: "Birth state",
+  childst: "Childhood state",
+  famses: "Family SES",
+  famjud: "Family judicial tradition",
+  nomrelig: "Religion",
+  natorig: "National origin",
+  race: "Race",
+  gender: "Gender",
+  undsch: "Undergraduate school",
+  gradsch: "Graduate school",
+  lawsch: "Law school",
+  marryn: "Married",
+  child: "Children",
+  militbr: "Military branch",
+  militwar: "War service",
+  clerkj: "Clerked for Supreme Court justice",
+  barst1: "First bar state",
+  privtyp1: "Private practice type",
+  sttrist: "State trial court",
+  stapst: "State appellate court",
+  stsupst: "State supreme court",
+  feddist: "Federal district court",
+  fedca: "Federal circuit court",
+  usat: "U.S. attorney",
+  ussgo1: "Solicitor General office",
+  usago1: "Attorney General office",
+  uscab: "U.S. cabinet",
+  ussec: "U.S. secretary",
+  uspres1: "U.S. president",
+  ushr1: "U.S. House",
+  ussn1: "U.S. Senate",
+  gov: "Governor",
+  mayor: "Mayor",
+  stsenate: "State senate",
+  sthouse: "State house",
+  presname: "President",
+  prespart: "President party",
+  senparty: "Senate party",
+  abarate: "ABA rating",
+  senact: "Senate action",
+  serve: "Served",
+  reasdep: "Reason departed",
+  postdep: "Post-departure position"
+};
+
+const NUMERIC_FIELDS = new Set([
+  "yrnom", "biryear", "unddat", "graddat", "lawdat",
+  "readyr", "marryr", "agenom", "agedep"
+]);
+
+const CARD_FIELDS = [
+  "posit", "yrnom", "success", "recess",
+  "presname", "prespart", "senparty",
+  "birthst", "race", "gender", "nomrelig",
+  "lawsch", "clerkj", "abarate",
+  "senact", "serve", "dateserb", "datesere",
+  "reasdep", "postdep"
+];
+
+const MISSING_PREFIXES = ["777", "888", "999", "666"];
+
+let rows = [];
+let filtered = [];
+let activeFilters = {};
+let visibleCount = 100;
+let searchTerm = "";
+
+const filtersEl = document.getElementById("filters");
+const cardsEl = document.getElementById("cards");
+const summaryEl = document.getElementById("summary");
+const showMoreBtn = document.getElementById("showMore");
+const searchBox = document.getElementById("searchBox");
+
+
+Papa.parse("justicesdata2022.csv", {
+  download: true,
+  header: true,
+  skipEmptyLines: true,
+  dynamicTyping: false,
+  complete: results => init(results.data),
+  error: err => {
+    console.error(err);
+    summaryEl.textContent =
+      "Could not load justicesdata2022.csv";
+  }
+});
+
+document.getElementById("resetFilters").addEventListener("click", () => {
+  activeFilters = {};
+  searchTerm = "";
+  searchBox.value = "";
+  visibleCount = 100;
+  renderFilters();
+  applyFilters();
+});
+
+showMoreBtn.addEventListener("click", () => {
+  visibleCount += 100;
+  renderCards();
+});
+
+searchBox.addEventListener("input", e => {
+  searchTerm = e.target.value.trim().toLowerCase();
+  visibleCount = 100;
+  applyFilters();
+});
+
+function init(data) {
+  rows = data
+    .map(cleanRow)
+    .filter(d => d.name && d.name.trim());
+
+  activeFilters = {};
+  visibleCount = 100;
+
+  renderFilters();
+  applyFilters();
+}
+
+function cleanRow(row) {
+  const out = {};
+  for (const key in row) {
+    const cleanKey = key.trim();
+    out[cleanKey] = row[key] == null ? "" : String(row[key]).trim();
+  }
+  return out;
+}
+
+function renderFilters() {
+  filtersEl.innerHTML = "";
+
+  for (const [sectionKey, fields] of Object.entries(FILTERS)) {
+    const section = document.createElement("div");
+    section.className = "section";
+
+    const title = document.createElement("div");
+    title.className = "section-title";
+    title.textContent = LABELS[sectionKey] || sectionKey;
+    section.appendChild(title);
+
+    fields.forEach(field => {
+      if (!rows.some(d => d[field])) return;
+
+      const details = document.createElement("details");
+      details.open = false;
+
+      const summary = document.createElement("summary");
+      summary.textContent = LABELS[field] || field;
+      details.appendChild(summary);
+
+      const body = document.createElement("div");
+      body.className = "filter-body";
+
+      if (NUMERIC_FIELDS.has(field)) {
+        body.appendChild(renderRangeFilter(field));
+      } else {
+        body.appendChild(renderCheckboxFilter(field));
+      }
+
+      details.appendChild(body);
+      section.appendChild(details);
+    });
+
+    filtersEl.appendChild(section);
+  }
+}
+
+function renderCheckboxFilter(field) {
+  const wrap = document.createElement("div");
+
+  const counts = new Map();
+  rows.forEach(d => {
+    const val = d[field] || "";
+    if (!val) return;
+    counts.set(val, (counts.get(val) || 0) + 1);
+  });
+
+  const values = Array.from(counts.keys()).sort((a, b) => {
+    const am = isMissingValue(a);
+    const bm = isMissingValue(b);
+    if (am !== bm) return am ? 1 : -1;
+    return cleanLabel(a).localeCompare(cleanLabel(b), undefined, { numeric: true });
+  });
+
+  values.forEach(value => {
+    const label = document.createElement("label");
+    label.className = "option";
+
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.checked = activeFilters[field]?.has(value) || false;
+
+    input.addEventListener("change", () => {
+      if (!activeFilters[field]) activeFilters[field] = new Set();
+
+      if (input.checked) {
+        activeFilters[field].add(value);
+      } else {
+        activeFilters[field].delete(value);
+        if (activeFilters[field].size === 0) delete activeFilters[field];
+      }
+
+      visibleCount = 100;
+      applyFilters();
+    });
+
+    const text = document.createElement("span");
+    text.textContent = cleanLabel(value);
+
+    const count = document.createElement("span");
+    count.className = "option-count";
+    count.textContent = counts.get(value);
+
+    label.appendChild(input);
+    label.appendChild(text);
+    label.appendChild(count);
+    wrap.appendChild(label);
+  });
+
+  return wrap;
+}
+
+function renderRangeFilter(field) {
+  const wrap = document.createElement("div");
+
+  const nums = rows
+    .map(d => toNumber(d[field]))
+    .filter(v => Number.isFinite(v));
+
+  const min = Math.min(...nums);
+  const max = Math.max(...nums);
+
+  const current = activeFilters[field] || { min, max };
+
+  const row = document.createElement("div");
+  row.className = "range-row";
+
+  const minInput = document.createElement("input");
+  minInput.type = "number";
+  minInput.value = current.min;
+  minInput.placeholder = min;
+
+  const maxInput = document.createElement("input");
+  maxInput.type = "number";
+  maxInput.value = current.max;
+  maxInput.placeholder = max;
+
+  function update() {
+    activeFilters[field] = {
+      min: toNumber(minInput.value),
+      max: toNumber(maxInput.value)
+    };
+
+    if (
+      activeFilters[field].min === min &&
+      activeFilters[field].max === max
+    ) {
+      delete activeFilters[field];
+    }
+
+    visibleCount = 100;
+    applyFilters();
+  }
+
+  minInput.addEventListener("change", update);
+  maxInput.addEventListener("change", update);
+
+  row.appendChild(minInput);
+  row.appendChild(maxInput);
+  wrap.appendChild(row);
+
+  return wrap;
+}
+
+function applyFilters() {
+  filtered = rows.filter(row => {
+    for (const [field, filter] of Object.entries(activeFilters)) {
+      if (filter instanceof Set) {
+        if (!filter.has(row[field])) return false;
+      } else {
+        const n = toNumber(row[field]);
+        if (!Number.isFinite(n)) return false;
+        if (Number.isFinite(filter.min) && n < filter.min) return false;
+        if (Number.isFinite(filter.max) && n > filter.max) return false;
+      }
+    }
+
+    if (searchTerm) {
+      const haystack = CARD_FIELDS.concat(["name"])
+        .map(f => row[f] || "")
+        .join(" ")
+        .toLowerCase();
+
+      if (!haystack.includes(searchTerm)) return false;
+    }
+
+    return true;
+  });
+
+  renderCards();
+}
+
+function renderCards() {
+  cardsEl.innerHTML = "";
+
+  const visible = filtered.slice(0, visibleCount);
+
+  summaryEl.textContent =
+    `Showing ${visible.length.toLocaleString()} of ${filtered.length.toLocaleString()} matching rows ` +
+    `(${rows.length.toLocaleString()} total)`;
+
+  visible.forEach(row => {
+    cardsEl.appendChild(renderCard(row));
+  });
+
+  showMoreBtn.style.display =
+    filtered.length > visibleCount ? "inline-block" : "none";
+}
+
+function renderCard(row) {
+  const card = document.createElement("div");
+  card.className = "card";
+
+  const top = document.createElement("div");
+top.className = "card-top";
+
+const portrait = document.createElement("div");
+portrait.className = "portrait";
+portrait.textContent = "👤";
+
+const textWrap = document.createElement("div");
+
+const name = document.createElement("div");
+name.className = "card-name";
+name.textContent = cleanLabel(row.name || "Unnamed");
+
+const sub = document.createElement("div");
+sub.className = "card-sub";
+sub.textContent = [
+  cleanLabel(row.posit),
+  row.yrnom
+].filter(Boolean).join(" · ");
+
+textWrap.appendChild(name);
+textWrap.appendChild(sub);
+
+top.appendChild(portrait);
+top.appendChild(textWrap);
+
+card.appendChild(top);
+  const grid = document.createElement("div");
+  grid.className = "card-grid";
+
+  CARD_FIELDS.forEach(field => {
+    if (field === "posit" || field === "yrnom") return;
+
+    const raw = row[field];
+    if (!raw) return;
+
+    const k = document.createElement("div");
+    k.className = "k";
+    k.textContent = LABELS[field] || field;
+
+    const v = document.createElement("div");
+    v.className = "v";
+    v.textContent = cleanLabel(raw);
+
+    if (isMissingValue(raw)) v.classList.add("missing");
+
+    grid.appendChild(k);
+    grid.appendChild(v);
+  });
+
+  card.appendChild(grid);
+  return card;
+}
+
+function cleanLabel(value) {
+  if (!value) return "";
+
+  return String(value)
+    .replace(/^\d+\.\s*/, "")
+    .replace(/^ORIGINAL NOMINATION$/i, "Original nomination")
+    .trim();
+}
+
+function isMissingValue(value) {
+  const s = String(value).trim();
+  return MISSING_PREFIXES.some(prefix => s.startsWith(prefix + ".") || s === prefix);
+}
+
+function toNumber(value) {
+  if (value == null || value === "") return NaN;
+  const n = Number(String(value).replace(/[^\d.-]/g, ""));
+  return Number.isFinite(n) ? n : NaN;
+}
+</script>
+</body>
+</html>

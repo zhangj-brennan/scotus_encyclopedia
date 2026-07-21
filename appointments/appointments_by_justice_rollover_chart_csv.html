@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Supreme Court Appointments by Justice</title>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+
+<style>
+@font-face {
+  font-family: "Benton";
+  src: url("Benton Sans/Benton Sans Book.otf");
+}
+
+@font-face {
+  font-family: "BentonStrong";
+  src: url("Benton Sans/Benton Sans Bold.otf");
+}
+
+@font-face {
+  font-family: "BentonMedium";
+  src: url("Benton Sans/Benton Sans Medium.otf");
+}
+
+:root {
+  --bg: #ffffff;
+  --text: #000000;
+  --muted: #555555;
+  --font-sans: "Benton", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+}
+
+#container {
+  margin: 10px;
+}
+
+#title {
+  max-width: 650px;
+  border-top: 2px solid black;
+}
+
+h1 {
+  margin: 0 0 6px;
+  font-size: 20px;
+  line-height: 1.6;
+  font-family: "BentonStrong";
+}
+
+#subtitle {
+  font-family: "Benton";
+  font-size: 14px;
+  line-height: 19px;
+  margin-bottom: 14px;
+}
+
+.view-toggle {
+  max-width: 650px;
+  margin: 10px 0;
+}
+
+.toggle-btn {
+  font-family: "BentonStrong";
+  margin: 0 10px 10px 0;
+  width: 30%;
+  min-width: 140px;
+  border: 1px solid black;
+  border-radius: 0;
+  background-color: white;
+  padding: 7px 10px;
+  cursor: pointer;
+}
+
+.toggle-btn.active {
+  background-color: black;
+  color: white;
+}
+
+#chart {
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.row-label {
+  font-size: 12px;
+  dominant-baseline: middle;
+  fill: var(--text);
+}
+
+.row-total {
+  font-size: 12px;
+  dominant-baseline: middle;
+  fill: var(--muted);
+  font-family: "BentonMedium";
+}
+
+.legend text {
+  font-size: 12px;
+  dominant-baseline: middle;
+  fill: var(--text);
+}
+
+.square {
+  stroke: var(--text);
+  stroke-width: 1;
+  cursor: pointer;
+}
+
+.symbol-group.not-confirmed {
+  opacity: 0.35;
+}
+
+.symbol-group:hover .square {
+  stroke-width: 2;
+}
+
+.tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: #fff;
+  color: #000;
+  border: 1px solid black;
+  padding: 10px 12px;
+  border-radius: 0;
+  font-size: 13px;
+  line-height: 1.35;
+  max-width: 340px;
+  opacity: 0;
+  transform: translate(-50%, calc(-100% - 12px));
+  transition: opacity 120ms ease;
+  white-space: normal;
+  z-index: 20;
+}
+
+.tooltip-title {
+  font-family: "BentonStrong";
+  margin-bottom: 6px;
+}
+
+.tooltip-row {
+  margin: 2px 0;
+}
+
+.footnote {
+  font-size: 10px;
+  max-width: 650px;
+  line-height: 1.35;
+}
+
+@media (max-width: 700px) {
+  .toggle-btn {
+    width: 100%;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="container">
+  <div id="title">
+    <h1></h1>
+  </div>
+
+  <div class="view-toggle">
+    <button class="toggle-btn active" type="button" data-view="president">By President</button>
+    <button class="toggle-btn" type="button" data-view="term">By Term</button>
+  </div>
+
+  <div id="subtitle">
+    Each square is one justice/nomination row. Hover over a square to see details.
+  </div>
+
+  <div id="chart"></div>
+
+  <div id="footnote" class="footnote">
+    Filled squares are confirmed nominations. Dimmed squares are not confirmed. Striped squares are recess appointments. Half-filled squares are elevations.
+  </div>
+</div>
+
+<div id="tooltip" class="tooltip"></div>
+
+<script>
+let RAW_DATA = [];
+
+const squareSize = 10;
+const squareGap = 4;
+const rowGap = 18;
+
+const margin = {
+  top: 45,
+  right: 10,
+  bottom: 20,
+  left: 0
+};
+
+const RESULT_LABELS = {
+  C: "Confirmed",
+  D: "Declined",
+  N: "No action",
+  P: "Postponed",
+  R: "Rejected",
+  W: "Withdrawn"
+};
+
+const ELEVATION_MATCHES = [
+  { last: "white", first: "edward" },
+  { last: "stone", first: "harlan" },
+  { last: "rehnquist", first: "william" }
+];
+
+const CONFIGS = {
+  president: {
+    title: "Supreme Court nominations by president",
+    groupKey: "President",
+    labelWidth: 165,
+    label: d => cleanText(d.key)
+  },
+  term: {
+    title: "Supreme Court nominations by presidential term",
+    groupKey: "Term Years",
+    labelWidth: 340,
+    label: d => `${d.key}   ${cleanTermPresident(d.values[0]["Term President"])}`
+  }
+};
+
+let currentView = "president";
+
+function cleanText(value) {
+  return String(value || "")
+    .replace(/√ä\d*/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function cleanTermPresident(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/\b\w/g, c => c.toUpperCase())
+    .replace(/Fdr\/truman/i, "FDR/Truman")
+    .trim();
+}
+
+function normalizeNominee(value) {
+  return cleanText(value)
+    .toLowerCase()
+    .replace(/\d/g, "")
+    .replace(/[^a-z,\s.]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function nomineeParts(value) {
+  const s = normalizeNominee(value);
+  const pieces = s.split(",");
+
+  if (pieces.length >= 2) {
+    return {
+      last: pieces[0].trim(),
+      first: pieces[1].trim().split(" ")[0] || ""
+    };
+  }
+
+  const words = s.split(" ");
+  return {
+    last: words[words.length - 1] || "",
+    first: words[0] || ""
+  };
+}
+
+function isTruthy(value) {
+  return String(value).toLowerCase() === "true" || String(value) === "1";
+}
+
+function getSymbolType(row) {
+  if (isTruthy(row.recess)) return "recess";
+  if (isTruthy(row.elevation)) return "elevation";
+  return "appointment";
+}
+
+function isConfirmed(row) {
+  return String(row.result || "").trim() === "C";
+}
+
+function getYear(row) {
+  const y = +row["Nomination Year"];
+  if (!Number.isNaN(y) && y > 0) return y;
+
+  const text = String(row["Nominated*"] || "");
+  const commaYear = text.match(/,\s*(\d{4})/);
+  if (commaYear) return +commaYear[1];
+
+  const anyYear = text.match(/\b(17|18|19|20)\d{2}\b/);
+  return anyYear ? +anyYear[0] : null;
+}
+
+function getResultLabel(row) {
+  const code = String(row.result || "").trim();
+  return RESULT_LABELS[code] || code || "Unknown";
+}
+
+function prepareGroups(view) {
+  const config = CONFIGS[view];
+
+  const rows = RAW_DATA.map((d, i) => ({
+    ...d,
+    _index: i,
+    _year: getYear(d),
+    _symbolType: getSymbolType(d),
+    _confirmed: isConfirmed(d)
+  }));
+
+  function symbolOrder(d) {
+  // confirmed appointments
+  if (d._confirmed && d._symbolType === "appointment") return 0;
+
+  // elevations
+  if (d._symbolType === "elevation") return 1;
+
+  // recess appointments
+  if (d._symbolType === "recess") return 2;
+
+  // all unsuccessful nominations
+  return 3;
+}
+
+return d3.groups(rows, d => d[config.groupKey] || "No match")
+  .map(([key, values]) => {
+
+    values.sort((a, b) => {
+
+      const typeDiff =
+        symbolOrder(a) - symbolOrder(b);
+
+      if (typeDiff !== 0) return typeDiff;
+
+      const ay = a._year ?? 9999;
+      const by = b._year ?? 9999;
+
+      return ay - by || a._index - b._index;
+    });
+
+    const years = values.map(d => d._year)
+      .filter(d => d !== null);
+
+    return {
+      key,
+      values,
+      firstYear: years.length
+        ? d3.min(years)
+        : 9999,
+      total: values.length
+    };
+  })
+    .sort((a, b) => a.firstYear - b.firstYear);
+}
+
+function renderView(view) {
+  const config = CONFIGS[view];
+
+  d3.select("#title h1").text(config.title);
+
+  const chart = d3.select("#chart");
+  chart.selectAll("*").remove();
+
+  const groups = prepareGroups(view);
+  const maxSymbols = d3.max(groups, d => d.total) || 0;
+
+  const width =
+    margin.left +
+    config.labelWidth +
+    maxSymbols * (squareSize + squareGap) +
+    260 +
+    margin.right;
+
+  const height =
+    margin.top +
+    groups.length * rowGap +
+    margin.bottom;
+
+  const svg = chart
+    .append("svg")
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .attr("height", height);
+
+  drawDefs(svg);
+  drawLegend(svg);
+
+  const rowGroups = svg.selectAll(".group-row")
+    .data(groups)
+    .join("g")
+    .attr("class", "group-row")
+    .attr("transform", (d, i) => `translate(${margin.left}, ${margin.top + i * rowGap})`);
+
+  rowGroups.append("text")
+    .attr("class", "row-label")
+    .attr("x", 0)
+    .attr("y", squareSize / 2 + 1)
+    .text(d => config.label(d));
+
+  rowGroups.each(function(group) {
+    const row = d3.select(this);
+
+    group.values.forEach((justice, i) => {
+      drawSymbol(
+        row,
+        config.labelWidth + i * (squareSize + squareGap),
+        0,
+        justice
+      );
+    });
+
+    row.append("text")
+      .attr("class", "row-total")
+      .attr("x", config.labelWidth + group.total * (squareSize + squareGap))
+      .attr("y", squareSize / 2 + 1)
+      .text(group.total);
+  });
+}
+
+function drawDefs(svg) {
+  const defs = svg.append("defs");
+  const stripes = 4;
+
+  const stripePattern = defs.append("pattern")
+    .attr("id", "diagonal-stripes")
+    .attr("patternUnits", "userSpaceOnUse")
+    .attr("width", stripes)
+    .attr("height", stripes)
+    .attr("patternTransform", "rotate(45)");
+
+  stripePattern.append("rect")
+    .attr("width", stripes)
+    .attr("height", stripes)
+    .attr("fill", "#fff");
+
+  stripePattern.append("line")
+    .attr("x1", 0)
+    .attr("y1", 0)
+    .attr("x2", 0)
+    .attr("y2", stripes)
+    .attr("stroke", "#111")
+    .attr("stroke-width", 2);
+}
+
+function drawLegend(svg) {
+  const legend = svg.append("g")
+    .attr("class", "legend")
+    .attr("transform", "translate(2, 12)");
+
+  drawLegendSymbol(legend, 0, 0, "appointment", true);
+  legend.append("text")
+    .attr("x", 22)
+    .attr("y", 7)
+    .text("Confirmed");
+
+  drawLegendSymbol(legend, 105, 0, "appointment", false);
+  legend.append("text")
+    .attr("x", 127)
+    .attr("y", 7)
+    .text("Not confirmed");
+
+  drawLegendSymbol(legend, 230, 0, "elevation", true);
+  legend.append("text")
+    .attr("x", 252)
+    .attr("y", 7)
+    .text("Elevation");
+
+  drawLegendSymbol(legend, 325, 0, "recess", true);
+  legend.append("text")
+    .attr("x", 347)
+    .attr("y", 7)
+    .text("Recess");
+}
+
+function drawLegendSymbol(parent, x, y, type, confirmed) {
+  const g = parent.append("g")
+    .attr("transform", `translate(${x}, ${y})`)
+    .classed("symbol-group", true)
+    .classed("not-confirmed", !confirmed);
+
+  drawSymbolShape(g, type);
+}
+
+function drawSymbol(parent, x, y, d) {
+  const g = parent.append("g")
+    .datum(d)
+    .attr("class", "symbol-group")
+    .classed("not-confirmed", !d._confirmed)
+    .attr("transform", `translate(${x}, ${y})`)
+    .on("mouseenter", showTooltip)
+    .on("mousemove", moveTooltip)
+    .on("mouseleave", hideTooltip);
+
+  drawSymbolShape(g, d._symbolType);
+}
+
+function drawSymbolShape(g, type) {
+  if (type === "appointment") {
+    g.append("rect")
+      .attr("class", "square")
+      .attr("width", squareSize)
+      .attr("height", squareSize)
+      .attr("fill", "#111");
+  }
+
+  if (type === "elevation") {
+    g.append("rect")
+      .attr("width", squareSize)
+      .attr("height", squareSize)
+      .attr("fill", "#fff");
+
+    g.append("polygon")
+      .attr("points", `0,0 ${squareSize},0 0,${squareSize}`)
+      .attr("fill", "#111");
+
+    g.append("rect")
+      .attr("class", "square")
+      .attr("width", squareSize)
+      .attr("height", squareSize)
+      .attr("fill", "none");
+  }
+
+  if (type === "recess") {
+    g.append("rect")
+      .attr("class", "square")
+      .attr("width", squareSize)
+      .attr("height", squareSize)
+      .attr("fill", "url(#diagonal-stripes)");
+  }
+}
+
+function showTooltip(event, d) {
+  const typeLabel = d._symbolType.charAt(0).toUpperCase() + d._symbolType.slice(1);
+
+  d3.select("#tooltip")
+    .html(`
+      <div class="tooltip-title">${cleanText(d.Nominee)}</div>
+      <div class="tooltip-row"><strong>President:</strong> ${cleanText(d.President)}</div>
+      <div class="tooltip-row"><strong>To replace:</strong> ${cleanText(d["To Replace"]) || "—"}</div>
+      <div class="tooltip-row"><strong>Nominated:</strong> ${cleanText(d["Nominated*"]) || "—"}</div>
+      <div class="tooltip-row"><strong>Nomination year:</strong> ${d["Nomination Year"] || "—"}</div>
+      <div class="tooltip-row"><strong>Result:</strong> ${getResultLabel(d)}${d.date ? " — " + cleanText(d.date) : ""}</div>
+      <div class="tooltip-row"><strong>Term:</strong> ${cleanText(d["Term Years"]) || "—"}${d["Term President"] ? " / " + cleanTermPresident(d["Term President"]) : ""}</div>
+      <div class="tooltip-row"><strong>Type:</strong> ${typeLabel}</div>
+    `)
+    .style("opacity", 1);
+
+  moveTooltip(event);
+}
+
+function moveTooltip(event) {
+  d3.select("#tooltip")
+    .style("left", `${event.pageX}px`)
+    .style("top", `${event.pageY}px`);
+}
+
+function hideTooltip() {
+  d3.select("#tooltip")
+    .style("opacity", 0);
+}
+
+function setupToggleButtons() {
+  d3.selectAll(".toggle-btn")
+    .on("click", function() {
+      const view = d3.select(this).attr("data-view");
+      currentView = view;
+
+      d3.selectAll(".toggle-btn")
+        .classed("active", false);
+
+      d3.select(this)
+        .classed("active", true);
+
+      renderView(currentView);
+    });
+}
+
+d3.csv("appointments_with_president_recess_lastname.csv", d3.autoType).then(data => {
+  RAW_DATA = data;
+  setupToggleButtons();
+  renderView(currentView);
+}).catch(error => {
+  console.error("Error loading CSV:", error);
+  d3.select("#chart")
+    .html(`<p style="font-size:14px;">Could not load appointments_by_justice_with_terms_v2.csv. Make sure the CSV is in the same folder as this HTML file.</p>`);
+});
+</script>
+
+</body>
+</html>

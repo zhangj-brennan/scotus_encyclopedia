@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SCOTUS Encyclopedia</title>
+
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<style>
+@font-face {
+  font-family: "Benton";
+  src: url("Benton Sans/Benton Sans Book.otf");
+}
+
+@font-face {
+  font-family: "BentonStrong";
+  src: url("Benton Sans/Benton Sans Bold.otf");
+}
+
+@font-face {
+  font-family: "BentonMedium";
+  src: url("Benton Sans/Benton Sans Medium.otf");
+}
+
+:root {
+  --bg: #ffffff;
+  --panel: #ffffff;
+  --text: #000000;
+  --muted: #000;
+  --border: #000;
+  --accent: #FFCF01;
+  --accent-soft: #fff;
+  --font-sans: "BentonMedium", Helvetica, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.45;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: minmax(280px, 30%) minmax(0, 1fr);
+  gap: 24px;
+  height: 100vh;
+  padding: 16px 24px 24px;
+  overflow: hidden;
+}
+
+.sidebar {
+  min-width: 0;
+  max-width: 400px;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 6px;
+  background: var(--panel);
+  border-right: 0;
+}
+
+.main {
+  min-width: 0;
+  height: 100%;
+  overflow: auto;
+  padding: 0;
+}
+
+.main-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.view-toggle-wrap {
+  display: inline-flex;
+  border: 1px solid var(--text);
+  flex: 0 0 auto;
+}
+
+.view-toggle {
+  border: 0;
+  border-right: 1px solid var(--text);
+  min-height: 30px;
+  background: #fff;
+}
+
+.view-toggle:last-child { border-right: 0; }
+
+.view-toggle.active {
+  background: var(--accent);
+  color: #000;
+}
+
+.cards.portrait-mode {
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.card.portrait-card {
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 3 / 4;
+  background: #f2f2f2;
+}
+
+.portrait-large {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  filter: grayscale(100%);
+}
+
+.portrait-name {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.9);
+  border-top: 1px solid var(--border);
+  font-size: 18px;
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+.portrait-sub {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+h1 {
+  margin: 0 0 10px;
+  font-size: clamp(1.4rem, 3vw, 2.25rem);
+  line-height: 1;
+  font-weight: 800;
+}
+
+.load-row {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 7px;
+  border: 1px solid var(--text);
+  border-radius: 0;
+  background: #fff;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1.1;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.92;
+  background: #fff;
+  color: var(--text);
+}
+
+.search {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  font: inherit;
+  font-size: 13px;
+  color: var(--text);
+  background: #fff;
+}
+
+.summary {
+  font-size: 16px;
+  line-height: 1.2;
+  font-weight: 700;
+  margin: 0 0 10px;
+}
+
+.section {
+  margin-top: 20px;
+  padding-top: 10px;
+}
+
+.section-title {
+  margin-bottom: 6px;
+  font-size: 24px;
+  line-height: 1.25;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+details {
+  margin-bottom: 6px;
+  border: 0;
+  background: var(--panel);
+}
+
+summary {
+  padding: 2px 8px;
+  margin-bottom: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: #000;
+  color: #fff;
+  list-style: none;
+}
+
+summary::-webkit-details-marker { display: none; }
+
+summary::before {
+  content: "−";
+  display: inline-block;
+  width: 14px;
+  margin-right: 6px;
+  font-weight: 700;
+}
+
+details:not([open]) summary::before { content: "+"; }
+
+.filter-body {
+  padding: 8px 8px 12px;
+  border-top: 0;
+  background: #fff;
+}
+
+.filter-body.scrollable {
+  max-height: 260px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.option {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  min-height: 22px;
+  margin-bottom: 4px;
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.option input { margin-top: 1px; }
+
+.option-count {
+  color: var(--muted);
+  margin-left: auto;
+  padding-left: 8px;
+  white-space: nowrap;
+}
+
+.professional-group {
+  margin-bottom: 12px;
+}
+
+.professional-group:last-child {
+  margin-bottom: 0;
+}
+
+.professional-group-title {
+  margin: 8px 0 5px;
+  font-size: 10px;
+  line-height: 1.1;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 14px;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 14px;
+}
+
+.card-top {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.portrait {
+  width: 64px;
+  height: 78px;
+  object-fit: cover;
+  object-position: center top;
+  border: 1px solid var(--border);
+  background: #fff;
+  display: block;
+  filter: grayscale(100%);
+}
+
+.card-name {
+  font-size: 24px;
+  line-height: 1.2;
+  font-weight: 800;
+  margin-bottom: 3px;
+}
+
+.card-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 0;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 6px 10px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.k {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.v {
+  font-family: "Benton", Helvetica, Arial, sans-serif;
+  font-weight: 400;
+}
+
+.missing {
+  color: #aaa;
+  font-weight: 400;
+}
+
+.career-block {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.career-title {
+  margin-bottom: 6px;
+  font-size: 10px;
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.career-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.career-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 2px 6px;
+  border: 1px solid var(--border);
+  background: var(--accent);
+  font-size: 11px;
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+.more-wrap {
+  margin: 20px 0 40px;
+  text-align: center;
+}
+
+.range-slider-wrap {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+}
+
+.range-values {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.dual-slider {
+  position: relative;
+  height: 22px;
+  overflow: hidden;
+}
+
+.slider-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 12px;
+  height: 4px;
+  background: #ccc;
+}
+
+.dual-slider input[type="range"] {
+  position: absolute;
+  width: 100%;
+  top: 8px;
+  left: 0;
+  height: 14px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  pointer-events: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.dual-slider input[type="range"]::-webkit-slider-thumb {
+  position: relative;
+  z-index: 3;
+  pointer-events: auto;
+  width: 12px;
+  height: 12px;
+  background: var(--accent);
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.dual-slider input[type="range"]::-moz-range-thumb {
+  pointer-events: auto;
+  width: 12px;
+  height: 12px;
+  background: var(--accent);
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.state-cartogram {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 2px;
+  margin: 10px;
+}
+
+.state-square {
+  aspect-ratio: 1 / 1;
+  background: #f2f2f2;
+  color: #555;
+  font-size: 10px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.state-square.has-data { border-color: var(--border); }
+
+.state-square.active {
+  background: var(--accent) !important;
+  border-color: var(--text);
+  color: #fff;
+  outline: none;
+}
+
+.state-square.empty {
+  opacity: 1;
+  border: 0;
+  background: transparent;
+  font-size: 0;
+  pointer-events: none;
+}
+
+.non-us-wrap {
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+  margin-top: 8px;
+}
+
+@media (max-width: 980px) {
+  body { overflow: auto; }
+
+  .app {
+    grid-template-columns: 1fr;
+    height: auto;
+    overflow: visible;
+  }
+
+  .sidebar {
+    max-width: none;
+    height: auto;
+    overflow: visible;
+    padding-right: 0;
+  }
+
+  .main {
+    height: auto;
+    overflow: visible;
+  }
+
+  .main-top {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: #fff;
+    padding: 8px 0;
+  }
+
+  .cards.portrait-mode {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+
+  .portrait-name { font-size: 15px; }
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <h1>SCOTUS Encyclopedia</h1>
+
+    <div class="load-row">
+      <button id="resetFilters">Reset filters</button>
+      <input id="searchBox" class="search" placeholder="Search nominee names" />
+    </div>
+
+    <div id="filters"></div>
+  </aside>
+
+  <main class="main">
+    <div class="main-top">
+      <div id="summary" class="summary">Load a CSV to begin.</div>
+      <div class="view-toggle-wrap" aria-label="View mode">
+        <button id="portraitViewBtn" class="view-toggle active" type="button">Portrait grid</button>
+        <button id="infoViewBtn" class="view-toggle" type="button">Info cards</button>
+      </div>
+    </div>
+    <div id="cards" class="cards portrait-mode"></div>
+    <div class="more-wrap">
+      <button id="showMore" style="display:none;">Show more</button>
+    </div>
+  </main>
+</div>
+
+<script>
+const CSV_FILE = "07012026.csv";
+
+const FIELD_ALIASES = {
+  "Position": "Position ",
+  "Home State of Nominee": "Home State of Nominee",
+  "Served in the Office of the U.S. Attorney General (but not as AG)?": "Served in the Office of the U.S. Attorney General (but not as AG)?",
+  "Served in the Office of the U.S. Attorney General (but not as AG)": "Served in the Office of the U.S. Attorney General (but not as AG)?"
+};
+
+const CAREER_GROUPS = [
+  {
+    key: "stateJudiciary",
+    label: "State Judiciary",
+    fields: [
+      ["Served as a state trial judge", "Trial judge"],
+      ["Served as a state appellate judge", "Appellate judge"],
+      ["Served as a justice on the state's highest court", "State highest court"]
+    ]
+  },
+  {
+    key: "federalJudiciary",
+    label: "Federal Judiciary",
+    fields: [
+      ["Served as a federal district court judge", "District court"],
+      ["Served as a federal appellate judge", "Court of appeals"]
+    ]
+  },
+  {
+    key: "federalLegal",
+    label: "Federal Legal Positions",
+    fields: [
+      ["Served as an Assistant U.S. Attorney?", "Assistant U.S. Attorney"],
+      ["Served as a U.S. Attorney?", "U.S. Attorney"],
+      ["Served in the Office of the U.S. Solicitor General (but not as SG)?", "Office of Solicitor General"],
+      ["Served as the U.S. Solicitor General?", "Solicitor General"],
+      ["Served in the Office of the U.S. Attorney General (but not as AG)?", "Office of Attorney General"],
+      ["Served as the U.S. Attorney General?", "Attorney General"]
+    ]
+  },
+  {
+    key: "executiveBranch",
+    label: "Executive Branch",
+    fields: [
+      ["Served in a U.S. Cabinet (below Secretary level)?", "Cabinet, below secretary"],
+      ["Served at the Secretary level in a U.S. Cabinet?", "Cabinet secretary"],
+      ["Served in a Executive Commission, Agency, or White House Post (at a level below Head)?", "Agency / White House, below head"],
+      ["Served as Head of an Executive Commission or Agency?", "Agency head"],
+      ["Served as U.S. President", "U.S. President"]
+    ]
+  },
+  {
+    key: "legislativeElected",
+    label: "Legislative / Elected Office",
+    fields: [
+      ["Served in the U.S. House of Representatives", "U.S. House"],
+      ["Served in the U.S. Senate", "U.S. Senate"],
+      ["Served as Lt. Governor", "Lt. governor"],
+      ["Served as Governor", "Governor"],
+      ["Served as Mayor", "Mayor"],
+      ["Served in a State Senate", "State senate"],
+      ["Served in a State House", "State house"],
+      ["Served on a City Council", "City council"]
+    ]
+  },
+  {
+    key: "otherService",
+    label: "Other Service",
+    fields: [
+      ["Served as a Public Defender", "Public defender"]
+    ]
+  }
+];
+
+const CAREER_FIELDS = CAREER_GROUPS.flatMap(group => group.fields.map(d => d[0]));
+const PROFESSIONAL_EXPERIENCE_FIELD = "__professionalExperience";
+const CAREER_LABEL_BY_FIELD = new Map(
+  CAREER_GROUPS.flatMap(group => group.fields.map(([field, label]) => [field, label]))
+);
+
+const FILTERS = {
+  personal: [
+    "Year of Birth",
+    "Birth location",
+    "Home State of Nominee",
+    "Religion",
+    "Race/Ethnicity",
+    "Gender"
+  ],
+  education: [
+    "Undergraduate Institution",
+    "Graduate Institution",
+    "Law School",
+    "State Where Nominee Read the Law"
+  ],
+  beforeCourt: [
+    "Supreme Court clerkship",
+    "State(s) in which Nominee was Admitted to the Bar",
+    PROFESSIONAL_EXPERIENCE_FIELD
+  ],
+  supremeCourtService: [
+    "Position ",
+    "Years of Service as a justice",
+    "Recess Appointment?",
+    "Age When Appointed",
+    "Appointing President",
+    "Political Party Affiliation of President",
+    "Justice's Reason for Departure from the Court",
+    "Justice's Age at Time of Departure from the Court",
+    "Year of Death"
+  ]
+};
+
+const LABELS = {
+  personal: "Personal",
+  education: "Education",
+  beforeCourt: "Before the Court",
+  supremeCourtService: "Supreme Court Service",
+  [PROFESSIONAL_EXPERIENCE_FIELD]: "Professional Experience",
+
+  "Full Name": "Name",
+  "Position ": "Position",
+  "Years of Service as a justice": "Years of service",
+  "Recess Appointment?": "Recess appointment",
+  "Year of Birth": "Year of birth",
+  "Age When Appointed": "Age when appointed",
+  "Birth location": "Birth location",
+  "Home State of Nominee": "Home state",
+  "Religion": "Religion",
+  "Race/Ethnicity": "Race/Ethnicity",
+  "Gender": "Gender",
+  "Undergraduate Institution": "Undergraduate institution",
+  "Graduate Institution": "Graduate institution",
+  "Law School": "Law school",
+  "State Where Nominee Read the Law": "State where nominee read the law",
+  "Supreme Court clerkship": "Supreme Court clerkship",
+  "State(s) in which Nominee was Admitted to the Bar": "Bar admission state(s)",
+  "Nominee's Occupation at Time of Appointment": "Occupation at appointment",
+  "Appointing President": "Appointing president",
+  "Political Party Affiliation of President": "President's party",
+  "Justice's Reason for Departure from the Court": "Reason for departure",
+  "Justice's Age at Time of Departure from the Court": "Age at departure",
+  "Year of Death": "Year of death",
+
+  "Served as a state trial judge": "State trial judge",
+  "Served as a state appellate judge": "State appellate judge",
+  "Served as a justice on the state's highest court": "State highest court justice",
+  "Served as a federal district court judge": "Federal district judge",
+  "Served as a federal appellate judge": "Federal appellate judge",
+  "Served as an Assistant U.S. Attorney?": "Assistant U.S. Attorney",
+  "Served as a U.S. Attorney?": "U.S. Attorney",
+  "Served in the Office of the U.S. Solicitor General (but not as SG)?": "Office of Solicitor General",
+  "Served as the U.S. Solicitor General?": "U.S. Solicitor General",
+  "Served in the Office of the U.S. Attorney General (but not as AG)?": "Office of Attorney General",
+  "Served as the U.S. Attorney General?": "U.S. Attorney General",
+  "Served in a U.S. Cabinet (below Secretary level)?": "Cabinet, below secretary",
+  "Served at the Secretary level in a U.S. Cabinet?": "Cabinet secretary",
+  "Served in a Executive Commission, Agency, or White House Post (at a level below Head)?": "Agency / White House, below head",
+  "Served as Head of an Executive Commission or Agency?": "Agency head",
+  "Served as U.S. President": "U.S. President",
+  "Served in the U.S. House of Representatives": "U.S. House",
+  "Served in the U.S. Senate": "U.S. Senate",
+  "Served as Lt. Governor": "Lt. governor",
+  "Served as Governor": "Governor",
+  "Served as Mayor": "Mayor",
+  "Served in a State Senate": "State senate",
+  "Served in a State House": "State house",
+  "Served on a City Council": "City council",
+  "Served as a Public Defender": "Public defender"
+};
+
+const INSTITUTION_FIELDS = new Set([
+  "Undergraduate Institution",
+  "Graduate Institution",
+  "Law School"
+]);
+
+let institutionAliasMap = {};
+
+const NUMERIC_FIELDS = new Set([
+  "Years of Service as a justice",
+  "Year of Birth",
+  "Age When Appointed",
+  "Justice's Age at Time of Departure from the Court",
+  "Year of Death"
+]);
+
+const CARD_FIELDS = [
+  "Position ",
+  "Birth location",
+  "Home State of Nominee",
+  "Race/Ethnicity",
+  "Gender",
+  "Years of Service as a justice",
+  "Recess Appointment?",
+  "Age When Appointed",
+  "Justice's Age at Time of Departure from the Court",
+  "Year of Death",
+  "Appointing President",
+  "Political Party Affiliation of President",
+  "Religion",
+  "Undergraduate Institution",
+  "Graduate Institution",
+  "Law School",
+  "Supreme Court clerkship",
+  "Justice's Reason for Departure from the Court"
+];
+
+const STATE_CARTOGRAM_FIELDS = new Set([
+  "State(s) in which Nominee was Admitted to the Bar",
+  "Home State of Nominee",
+  "Birth location"
+]);
+
+const MISSING_PREFIXES = ["777", "888", "999", "666"];
+
+const STATE_ABBR = {
+  Alabama:"AL", Alaska:"AK", Arizona:"AZ", Arkansas:"AR", California:"CA",
+  Colorado:"CO", Connecticut:"CT", Delaware:"DE", Florida:"FL", Georgia:"GA",
+  Hawaii:"HI", Idaho:"ID", Illinois:"IL", Indiana:"IN", Iowa:"IA",
+  Kansas:"KS", Kentucky:"KY", Louisiana:"LA", Maine:"ME", Maryland:"MD",
+  Massachusetts:"MA", Michigan:"MI", Minnesota:"MN", Mississippi:"MS",
+  Missouri:"MO", Montana:"MT", Nebraska:"NE", Nevada:"NV", "New Hampshire":"NH",
+  "New Jersey":"NJ", "New Mexico":"NM", "New York":"NY", "North Carolina":"NC",
+  "North Dakota":"ND", Ohio:"OH", Oklahoma:"OK", Oregon:"OR", Pennsylvania:"PA",
+  "Rhode Island":"RI", "South Carolina":"SC", "South Dakota":"SD", Tennessee:"TN",
+  Texas:"TX", Utah:"UT", Vermont:"VT", Virginia:"VA", Washington:"WA",
+  "West Virginia":"WV", Wisconsin:"WI", Wyoming:"WY", "District of Columbia":"DC",
+  "Washington, DC":"DC", "Washington D.C.":"DC", "D.C.":"DC", DC:"DC"
+};
+
+const CARTO_POS = [
+  ["AK",0,0], ["ME",11,0],
+  ["VT",9,1], ["NH",10,1], ["MA",11,1],
+  ["WA",0,2], ["ID",1,2], ["MT",2,2], ["ND",3,2], ["MN",4,2], ["IL",5,2], ["WI",6,2], ["MI",7,2], ["NY",9,2], ["RI",10,2], ["CT",11,2],
+  ["OR",0,3], ["NV",1,3], ["WY",2,3], ["SD",3,3], ["IA",4,3], ["IN",5,3], ["OH",6,3], ["PA",8,3], ["NJ",9,3],
+  ["CA",0,4], ["UT",1,4], ["CO",2,4], ["NE",3,4], ["MO",4,4], ["KY",5,4], ["WV",6,4], ["VA",7,4], ["MD",8,4], ["DE",9,4],
+  ["AZ",1,5], ["NM",2,5], ["KS",3,5], ["AR",4,5], ["TN",5,5], ["NC",6,5], ["SC",7,5], ["DC",8,5],
+  ["OK",3,6], ["LA",4,6], ["MS",5,6], ["AL",6,6], ["GA",7,6],
+  ["HI",0,7], ["TX",3,7], ["FL",8,7]
+];
+
+function normalizeStateToken(value) {
+  const s = cleanLabel(value).replace(/\./g, "").trim();
+  if (!s) return "";
+
+  const upper = s.toUpperCase();
+  if (Object.values(STATE_ABBR).includes(upper)) return upper;
+
+  return STATE_ABBR[s] || "";
+}
+
+function splitStateValues(value) {
+  if (!value) return [];
+
+  return String(value)
+    .split(/[,;/]|\band\b/i)
+    .map(d => d.trim())
+    .filter(Boolean);
+}
+
+function getStateTokens(value) {
+  return splitStateValues(value)
+    .map(normalizeStateToken)
+    .filter(Boolean);
+}
+
+let rows = [];
+let filtered = [];
+let activeFilters = {};
+let visibleCount = 100;
+let searchTerm = "";
+let viewMode = "portraits";
+
+const filtersEl = document.getElementById("filters");
+const cardsEl = document.getElementById("cards");
+const summaryEl = document.getElementById("summary");
+const showMoreBtn = document.getElementById("showMore");
+const searchBox = document.getElementById("searchBox");
+const portraitViewBtn = document.getElementById("portraitViewBtn");
+const infoViewBtn = document.getElementById("infoViewBtn");
+
+Papa.parse(CSV_FILE, {
+  download: true,
+  header: true,
+  skipEmptyLines: true,
+  dynamicTyping: false,
+  complete: results => init(results.data),
+  error: err => {
+    console.error(err);
+    summaryEl.textContent = `Could not load ${CSV_FILE}`;
+  }
+});
+
+document.getElementById("resetFilters").addEventListener("click", () => {
+  activeFilters = {};
+  searchTerm = "";
+  searchBox.value = "";
+  visibleCount = 100;
+  renderFilters();
+  applyFilters();
+});
+
+showMoreBtn.addEventListener("click", () => {
+  visibleCount += 100;
+  renderCards();
+});
+
+searchBox.addEventListener("input", e => {
+  searchTerm = e.target.value.trim().toLowerCase();
+  visibleCount = 100;
+  applyFilters();
+});
+
+portraitViewBtn.addEventListener("click", () => {
+  viewMode = "portraits";
+  portraitViewBtn.classList.add("active");
+  infoViewBtn.classList.remove("active");
+  visibleCount = 100;
+  renderCards();
+});
+
+infoViewBtn.addEventListener("click", () => {
+  viewMode = "info";
+  infoViewBtn.classList.add("active");
+  portraitViewBtn.classList.remove("active");
+  visibleCount = 100;
+  renderCards();
+});
+
+function init(data) {
+  rows = data
+    .map(cleanRow)
+    .filter(d => d["Full Name"] && d["Full Name"].trim());
+
+  buildInstitutionAliasMap();
+  normalizeInstitutionFields();
+
+  activeFilters = {};
+  visibleCount = 100;
+
+  renderFilters();
+  applyFilters();
+}
+
+function cleanRow(row) {
+  const out = {};
+
+  for (const key in row) {
+    const cleanKey = normalizeFieldKey(key);
+    let value = row[key] == null ? "" : String(row[key]).trim();
+
+    if (cleanKey === "Recess Appointment?" && value === "") {
+      value = "No";
+    }
+
+    out[cleanKey] = value;
+  }
+
+  return out;
+}
+
+function normalizeFieldKey(key) {
+  const normalized = String(key || "").replace(/\s+/g, " ").trim();
+  return FIELD_ALIASES[normalized] || normalized;
+}
+
+function splitInstitutionValues(value) {
+  if (!value) return [];
+
+  return String(value)
+    .split(";")
+    .map(v => v.trim())
+    .filter(Boolean);
+}
+
+function buildInstitutionAliasMap() {
+  institutionAliasMap = {};
+
+  INSTITUTION_FIELDS.forEach(field => {
+    institutionAliasMap[field] = new Map();
+
+    rows.forEach(row => {
+      splitInstitutionValues(row[field]).forEach(value => {
+        const match = value.match(/^(.+?)\s*\(now\s+(.+?)\)$/i);
+        if (!match) return;
+
+        const oldName = match[1].trim();
+        const newName = match[2].trim();
+        const combined = `${newName} (including ${oldName})`;
+
+        institutionAliasMap[field].set(value, combined);
+        institutionAliasMap[field].set(oldName, combined);
+        institutionAliasMap[field].set(newName, combined);
+      });
+    });
+
+    if (field === "Undergraduate Institution") {
+      [
+        "Unknown",
+        "Unknown or Unknown or No Undergraduate Education",
+        "Unknown or No Undergraduate Education"
+      ].forEach(value => {
+        institutionAliasMap[field].set(value, "Unknown");
+      });
+    }
+  });
+}
+
+function normalizeInstitutionFields() {
+  rows.forEach(row => {
+    INSTITUTION_FIELDS.forEach(field => {
+      const values = splitInstitutionValues(row[field]);
+      if (!values.length) return;
+
+      row[field] = values
+        .map(value => institutionAliasMap[field]?.get(value) || value)
+        .join("; ");
+    });
+  });
+}
+
+function renderFilters() {
+  filtersEl.innerHTML = "";
+
+  for (const [sectionKey, fields] of Object.entries(FILTERS)) {
+    const visibleFields = fields.filter(field => {
+      if (field === PROFESSIONAL_EXPERIENCE_FIELD) {
+        return CAREER_FIELDS.some(careerField => rows.some(row => row.hasOwnProperty(careerField)));
+      }
+      return rows.some(d => d[field]);
+    });
+    if (!visibleFields.length) continue;
+
+    const section = document.createElement("div");
+    section.className = "section";
+
+    const title = document.createElement("div");
+    title.className = "section-title";
+    title.textContent = LABELS[sectionKey] || sectionKey;
+    section.appendChild(title);
+
+    visibleFields.forEach(field => {
+      const details = document.createElement("details");
+      details.open = true;
+
+      const summary = document.createElement("summary");
+      summary.textContent = LABELS[field] || field;
+      details.appendChild(summary);
+
+      const body = document.createElement("div");
+      body.className = "filter-body";
+
+      if (!NUMERIC_FIELDS.has(field) && !STATE_CARTOGRAM_FIELDS.has(field)) {
+        body.classList.add("scrollable");
+      }
+
+      if (field === PROFESSIONAL_EXPERIENCE_FIELD) {
+        body.appendChild(renderProfessionalExperienceFilter());
+      } else if (STATE_CARTOGRAM_FIELDS.has(field)) {
+        body.appendChild(renderStateCartogramFilter(field));
+      } else if (NUMERIC_FIELDS.has(field)) {
+        body.appendChild(renderRangeFilter(field));
+      } else {
+        body.appendChild(renderCheckboxFilter(field));
+      }
+
+      details.appendChild(body);
+      section.appendChild(details);
+    });
+
+    filtersEl.appendChild(section);
+  }
+}
+
+function renderProfessionalExperienceFilter() {
+  const wrap = document.createElement("div");
+  const selected = activeFilters[PROFESSIONAL_EXPERIENCE_FIELD] || new Set();
+
+  CAREER_GROUPS.forEach(group => {
+    const groupWrap = document.createElement("div");
+    groupWrap.className = "professional-group";
+
+    const groupTitle = document.createElement("div");
+    groupTitle.className = "professional-group-title";
+    groupTitle.textContent = group.label;
+    groupWrap.appendChild(groupTitle);
+
+    group.fields.forEach(([field, labelText]) => {
+      const countValue = rows.reduce((sum, row) => sum + (isAffirmative(row[field]) ? 1 : 0), 0);
+
+      const label = document.createElement("label");
+      label.className = "option";
+
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.checked = selected.has(field);
+
+      input.addEventListener("change", () => {
+        if (!activeFilters[PROFESSIONAL_EXPERIENCE_FIELD]) {
+          activeFilters[PROFESSIONAL_EXPERIENCE_FIELD] = new Set();
+        }
+
+        if (input.checked) {
+          activeFilters[PROFESSIONAL_EXPERIENCE_FIELD].add(field);
+        } else {
+          activeFilters[PROFESSIONAL_EXPERIENCE_FIELD].delete(field);
+          if (activeFilters[PROFESSIONAL_EXPERIENCE_FIELD].size === 0) {
+            delete activeFilters[PROFESSIONAL_EXPERIENCE_FIELD];
+          }
+        }
+
+        visibleCount = 100;
+        applyFilters();
+      });
+
+      const text = document.createElement("span");
+      text.textContent = labelText;
+
+      const count = document.createElement("span");
+      count.className = "option-count";
+      count.textContent = countValue;
+
+      label.appendChild(input);
+      label.appendChild(text);
+      label.appendChild(count);
+      groupWrap.appendChild(label);
+    });
+
+    wrap.appendChild(groupWrap);
+  });
+
+  return wrap;
+}
+
+function renderCheckboxFilter(field) {
+  const wrap = document.createElement("div");
+  const counts = new Map();
+
+  rows.forEach(d => {
+    if (INSTITUTION_FIELDS.has(field)) {
+      splitInstitutionValues(d[field]).forEach(val => {
+        counts.set(val, (counts.get(val) || 0) + 1);
+      });
+    } else {
+      const val = d[field] || "";
+      if (!val) return;
+      counts.set(val, (counts.get(val) || 0) + 1);
+    }
+  });
+
+  let values = Array.from(counts.keys());
+
+  if (field === "Position ") {
+    const priority = ["Chief Justice", "Associate Justice"];
+
+    values.sort((a, b) => {
+      const cleanA = cleanLabel(a);
+      const cleanB = cleanLabel(b);
+      const ai = priority.indexOf(cleanA);
+      const bi = priority.indexOf(cleanB);
+
+      if (ai !== -1 || bi !== -1) {
+        if (ai === -1) return 1;
+        if (bi === -1) return -1;
+        return ai - bi;
+      }
+
+      const countDiff = counts.get(b) - counts.get(a);
+      if (countDiff !== 0) return countDiff;
+      return cleanA.localeCompare(cleanB, undefined, { numeric: true });
+    });
+  } else {
+    values.sort((a, b) => {
+      const am = isMissingValue(a);
+      const bm = isMissingValue(b);
+      if (am !== bm) return am ? 1 : -1;
+
+      if (isBinaryField(field)) {
+        return binarySortRank(a) - binarySortRank(b);
+      }
+
+      const countDiff = counts.get(b) - counts.get(a);
+      if (countDiff !== 0) return countDiff;
+
+      return cleanLabel(a).localeCompare(cleanLabel(b), undefined, { numeric: true });
+    });
+  }
+
+  values.forEach(value => {
+    const label = document.createElement("label");
+    label.className = "option";
+
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.checked = activeFilters[field]?.has(value) || false;
+
+    input.addEventListener("change", () => {
+      if (!activeFilters[field]) activeFilters[field] = new Set();
+
+      if (input.checked) {
+        activeFilters[field].add(value);
+      } else {
+        activeFilters[field].delete(value);
+        if (activeFilters[field].size === 0) delete activeFilters[field];
+      }
+
+      visibleCount = 100;
+      applyFilters();
+    });
+
+    const text = document.createElement("span");
+    text.textContent = cleanLabel(value);
+
+    if (
+      field === "Position " &&
+      (cleanLabel(value) === "Chief Justice" || cleanLabel(value) === "Associate Justice")
+    ) {
+      text.style.fontWeight = "700";
+    }
+
+    const count = document.createElement("span");
+    count.className = "option-count";
+    count.textContent = counts.get(value);
+
+    label.appendChild(input);
+    label.appendChild(text);
+    label.appendChild(count);
+    wrap.appendChild(label);
+  });
+
+  return wrap;
+}
+
+function renderRangeFilter(field) {
+  const wrap = document.createElement("div");
+  wrap.className = "range-slider-wrap";
+
+  const nums = rows
+    .map(d => toNumber(d[field], field))
+    .filter(v => Number.isFinite(v));
+
+  if (!nums.length) {
+    const note = document.createElement("div");
+    note.className = "option";
+    note.textContent = "No numeric values available";
+    wrap.appendChild(note);
+    return wrap;
+  }
+
+  const min = Math.floor(Math.min(...nums));
+  const max = Math.ceil(Math.max(...nums));
+  const current = activeFilters[field] || { min, max };
+
+  const values = document.createElement("div");
+  values.className = "range-values";
+
+  const minLabel = document.createElement("span");
+  const maxLabel = document.createElement("span");
+
+  const slider = document.createElement("div");
+  slider.className = "dual-slider";
+
+  const track = document.createElement("div");
+  track.className = "slider-track";
+
+  const minSlider = document.createElement("input");
+  minSlider.type = "range";
+  minSlider.min = min;
+  minSlider.max = max;
+  minSlider.step = 1;
+  minSlider.value = Number.isFinite(current.min) ? current.min : min;
+
+  const maxSlider = document.createElement("input");
+  maxSlider.type = "range";
+  maxSlider.min = min;
+  maxSlider.max = max;
+  maxSlider.step = 1;
+  maxSlider.value = Number.isFinite(current.max) ? current.max : max;
+
+  function updateTrack() {
+    const low = toNumber(minSlider.value);
+    const high = toNumber(maxSlider.value);
+    const denom = max - min || 1;
+    const lowPct = ((low - min) / denom) * 100;
+    const highPct = ((high - min) / denom) * 100;
+
+    track.style.background =
+      `linear-gradient(to right,
+        #ddd 0%,
+        #ddd ${lowPct}%,
+        #FFCF01 ${lowPct}%,
+        #FFCF01 ${highPct}%,
+        #ddd ${highPct}%,
+        #ddd 100%)`;
+  }
+
+  function update() {
+    let low = toNumber(minSlider.value);
+    let high = toNumber(maxSlider.value);
+
+    if (low > high) {
+      if (this === minSlider) {
+        high = low;
+        maxSlider.value = high;
+      } else {
+        low = high;
+        minSlider.value = low;
+      }
+    }
+
+    activeFilters[field] = { min: low, max: high };
+    if (low === min && high === max) delete activeFilters[field];
+
+    minLabel.textContent = low;
+    maxLabel.textContent = high;
+    updateTrack();
+
+    visibleCount = 100;
+    applyFilters();
+  }
+
+  minSlider.addEventListener("input", update);
+  maxSlider.addEventListener("input", update);
+
+  minLabel.textContent = minSlider.value;
+  maxLabel.textContent = maxSlider.value;
+
+  slider.appendChild(track);
+  slider.appendChild(minSlider);
+  slider.appendChild(maxSlider);
+
+  wrap.appendChild(values);
+  values.appendChild(minLabel);
+  values.appendChild(maxLabel);
+  wrap.appendChild(slider);
+
+  updateTrack();
+  return wrap;
+}
+
+function applyFilters() {
+  filtered = rows.filter(row => {
+    for (const [field, filter] of Object.entries(activeFilters)) {
+      if (filter instanceof Set) {
+        if (field === PROFESSIONAL_EXPERIENCE_FIELD) {
+          const selectedExperience = Array.from(filter);
+          if (!selectedExperience.some(careerField => isAffirmative(row[careerField]))) return false;
+        } else if (STATE_CARTOGRAM_FIELDS.has(field)) {
+          const raw = row[field] || "";
+          const stateTokens = getStateTokens(raw);
+          const rawParts = splitStateValues(raw);
+          const matchesState = stateTokens.some(v => filter.has(v));
+          const matchesRaw = rawParts.some(v => filter.has(v));
+          if (!matchesState && !matchesRaw) return false;
+        } else if (INSTITUTION_FIELDS.has(field)) {
+          const values = splitInstitutionValues(row[field]);
+          if (!values.some(v => filter.has(v))) return false;
+        } else {
+          if (!filter.has(row[field])) return false;
+        }
+      } else {
+        const n = toNumber(row[field], field);
+        if (!Number.isFinite(n)) return false;
+        if (Number.isFinite(filter.min) && n < filter.min) return false;
+        if (Number.isFinite(filter.max) && n > filter.max) return false;
+      }
+    }
+
+    if (searchTerm) {
+      const professionalExperienceText = CAREER_GROUPS
+        .flatMap(group => group.fields)
+        .filter(([field]) => isAffirmative(row[field]))
+        .map(([, label]) => label)
+        .join(" ");
+
+      const searchable = [
+        row["Full Name"],
+        row["Appointing President"],
+        professionalExperienceText,
+        row["Law School"],
+        row["Undergraduate Institution"]
+      ].join(" ").toLowerCase();
+
+      if (!searchable.includes(searchTerm)) return false;
+    }
+
+    return true;
+  });
+
+  renderCards();
+}
+
+function renderCards() {
+  cardsEl.innerHTML = "";
+  cardsEl.classList.toggle("portrait-mode", viewMode === "portraits");
+
+  const visible = filtered.slice(0, visibleCount);
+
+  summaryEl.textContent =
+    `Showing ${visible.length.toLocaleString()} of ${filtered.length.toLocaleString()} matching people ` +
+    `(${rows.length.toLocaleString()} total)`;
+
+  visible.forEach(row => {
+    cardsEl.appendChild(viewMode === "portraits" ? renderPortraitCard(row) : renderCard(row));
+  });
+
+  showMoreBtn.style.display = filtered.length > visibleCount ? "inline-block" : "none";
+}
+
+function renderStateCartogramFilter(field) {
+  const wrap = document.createElement("div");
+  const stateCounts = new Map();
+  const nonUSCounts = new Map();
+
+  rows.forEach(row => {
+    const raw = row[field];
+    if (!raw) return;
+
+    const parts = splitStateValues(raw);
+    parts.forEach(part => {
+      const abbr = normalizeStateToken(part);
+      if (abbr) {
+        stateCounts.set(abbr, (stateCounts.get(abbr) || 0) + 1);
+      } else if (field === "Birth location") {
+        nonUSCounts.set(part, (nonUSCounts.get(part) || 0) + 1);
+      }
+    });
+  });
+
+  const maxCount = Math.max(...stateCounts.values(), 1);
+  const grid = document.createElement("div");
+  grid.className = "state-cartogram";
+
+  const byPos = new Map();
+  CARTO_POS.forEach(([abbr, col, row]) => {
+    byPos.set(`${col},${row}`, abbr);
+  });
+
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 12; c++) {
+      const abbr = byPos.get(`${c},${r}`);
+      const cell = document.createElement("div");
+
+      if (!abbr) {
+        cell.className = "state-square empty";
+        grid.appendChild(cell);
+        continue;
+      }
+
+      const count = stateCounts.get(abbr) || 0;
+      const selected = activeFilters[field]?.has(abbr);
+
+      cell.className = "state-square";
+      if (count > 0) cell.classList.add("has-data");
+      if (selected) cell.classList.add("active");
+
+      const opacity = count ? 0.2 + 0.8 * (count / maxCount) : 0;
+      cell.style.background = count ? `rgba(57, 149, 178, ${opacity})` : "#eee";
+      cell.textContent = abbr;
+      cell.title = `${abbr}: ${count}`;
+
+      if (count > 0) {
+        cell.addEventListener("click", () => {
+          if (!activeFilters[field]) activeFilters[field] = new Set();
+
+          if (activeFilters[field].has(abbr)) {
+            activeFilters[field].delete(abbr);
+            if (activeFilters[field].size === 0) delete activeFilters[field];
+          } else {
+            activeFilters[field].add(abbr);
+          }
+
+          visibleCount = 100;
+          renderFilters();
+          applyFilters();
+        });
+      }
+
+      grid.appendChild(cell);
+    }
+  }
+
+  wrap.appendChild(grid);
+
+  if (field === "Birth location" && nonUSCounts.size) {
+    const nonUSWrap = document.createElement("div");
+    nonUSWrap.className = "non-us-wrap";
+
+    Array.from(nonUSCounts.keys())
+      .sort((a, b) => a.localeCompare(b))
+      .forEach(value => {
+        const label = document.createElement("label");
+        label.className = "option";
+
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.checked = activeFilters[field]?.has(value) || false;
+
+        input.addEventListener("change", () => {
+          if (!activeFilters[field]) activeFilters[field] = new Set();
+
+          if (input.checked) {
+            activeFilters[field].add(value);
+          } else {
+            activeFilters[field].delete(value);
+            if (activeFilters[field].size === 0) delete activeFilters[field];
+          }
+
+          visibleCount = 100;
+          applyFilters();
+        });
+
+        const text = document.createElement("span");
+        text.textContent = cleanLabel(value);
+
+        const count = document.createElement("span");
+        count.className = "option-count";
+        count.textContent = nonUSCounts.get(value);
+
+        label.appendChild(input);
+        label.appendChild(text);
+        label.appendChild(count);
+        nonUSWrap.appendChild(label);
+      });
+
+    wrap.appendChild(nonUSWrap);
+  }
+
+  return wrap;
+}
+
+function getPortraitPath(fullName) {
+  const filename = `${fullName}.jpg`;
+  return `portraits/${encodeURIComponent(filename)}`;
+}
+
+function renderPortraitCard(row) {
+  const card = document.createElement("div");
+  card.className = "card portrait-card";
+
+  const fullName = (row["Full Name"] || "").trim();
+
+  const portrait = document.createElement("img");
+  portrait.className = "portrait-large";
+  portrait.src = getPortraitPath(fullName);
+  portrait.alt = fullName;
+
+  portrait.onerror = function () {
+    this.onerror = null;
+    this.src = "portraits/placeholder.png";
+  };
+
+  const name = document.createElement("div");
+  name.className = "portrait-name";
+  name.textContent = cleanLabel(fullName || "Unnamed");
+
+  const subText = [
+    cleanLabel(row["Position "]),
+    row["Appointing President"]
+  ].filter(Boolean).join(" · ");
+
+  if (subText) {
+    const sub = document.createElement("span");
+    sub.className = "portrait-sub";
+    sub.textContent = subText;
+    name.appendChild(sub);
+  }
+
+  card.appendChild(portrait);
+  card.appendChild(name);
+  return card;
+}
+
+function renderCard(row) {
+  const card = document.createElement("div");
+  card.className = "card";
+
+  const top = document.createElement("div");
+  top.className = "card-top";
+
+  const portrait = document.createElement("img");
+  portrait.className = "portrait";
+
+  const fullName = (row["Full Name"] || "").trim();
+  portrait.src = getPortraitPath(fullName);
+  portrait.alt = fullName;
+
+  portrait.onerror = function () {
+    this.onerror = null;
+    this.src = "portraits/placeholder.png";
+  };
+
+  const textWrap = document.createElement("div");
+
+  const name = document.createElement("div");
+  name.className = "card-name";
+  name.textContent = cleanLabel(row["Full Name"] || "Unnamed");
+
+  const sub = document.createElement("div");
+  sub.className = "card-sub";
+  sub.textContent = [
+    cleanLabel(row["Position "]),
+    row["Appointing President"]
+  ].filter(Boolean).join(" · ");
+
+  textWrap.appendChild(name);
+  textWrap.appendChild(sub);
+
+  top.appendChild(portrait);
+  top.appendChild(textWrap);
+  card.appendChild(top);
+
+  const grid = document.createElement("div");
+  grid.className = "card-grid";
+
+  CARD_FIELDS.forEach(field => {
+    const raw = row[field];
+    if (!raw) return;
+
+    const k = document.createElement("div");
+    k.className = "k";
+    k.textContent = LABELS[field] || field;
+
+    const v = document.createElement("div");
+    v.className = "v";
+    v.textContent = cleanLabel(raw);
+
+    if (isMissingValue(raw)) v.classList.add("missing");
+
+    grid.appendChild(k);
+    grid.appendChild(v);
+  });
+
+  card.appendChild(grid);
+  renderCareerSummary(row, card);
+
+  return card;
+}
+
+function renderCareerSummary(row, card) {
+  CAREER_GROUPS.forEach(group => {
+    const active = group.fields.filter(([field]) => isAffirmative(row[field]));
+    if (!active.length) return;
+
+    const block = document.createElement("div");
+    block.className = "career-block";
+
+    const title = document.createElement("div");
+    title.className = "career-title";
+    title.textContent = group.label;
+
+    const badges = document.createElement("div");
+    badges.className = "career-badges";
+
+    active.forEach(([, label]) => {
+      const badge = document.createElement("span");
+      badge.className = "career-badge";
+      badge.textContent = label;
+      badges.appendChild(badge);
+    });
+
+    block.appendChild(title);
+    block.appendChild(badges);
+    card.appendChild(block);
+  });
+}
+
+function isBinaryField(field) {
+  return CAREER_FIELDS.includes(field) || /\?$/.test(field);
+}
+
+function binarySortRank(value) {
+  const s = String(value || "").trim().toLowerCase();
+  if (["yes", "y", "true", "1", "x"].includes(s)) return 0;
+  if (["no", "n", "false", "0"].includes(s)) return 1;
+  return 2;
+}
+
+function isAffirmative(value) {
+  const s = String(value || "").trim().toLowerCase();
+  return ["yes", "y", "true", "1", "x"].includes(s);
+}
+
+function cleanLabel(value) {
+  if (!value) return "";
+
+  return String(value)
+    .replace(/^\d+\.\s*/, "")
+    .replace(/^ORIGINAL NOMINATION$/i, "Original nomination")
+    .trim();
+}
+
+function isMissingValue(value) {
+  const s = String(value).trim();
+  return MISSING_PREFIXES.some(prefix => s.startsWith(prefix + ".") || s === prefix);
+}
+
+function toNumber(value, field = "") {
+  if (value == null || value === "") return NaN;
+  const s = String(value).trim();
+
+  if (
+    field === "Years of Service as a justice" ||
+    field === "Years of Service as a Justice"
+  ) {
+    if (!s || /^n\/?a$/i.test(s)) return NaN;
+    const currentYear = new Date().getFullYear();
+
+    let match = s.match(/^(\d{4})\s*[-–—]\s*(\d{4})$/);
+    if (match) return Number(match[2]) - Number(match[1]);
+
+    match = s.match(/^(\d{4})\s*[-–—]\s*present$/i);
+    if (match) return currentYear - Number(match[1]);
+
+    const n = Number(s.replace(/[^\d.-]/g, ""));
+    return Number.isFinite(n) ? n : NaN;
+  }
+
+  if (field === "Justice's Age at Time of Departure from the Court") {
+    if (!s || /^n\/?a$/i.test(s) || /still on the court/i.test(s)) return NaN;
+    const match = s.match(/\d+/);
+    return match ? Number(match[0]) : NaN;
+  }
+
+  if (field === "Year of Death") {
+    if (!s || /still alive/i.test(s)) return NaN;
+    const match = s.match(/\b\d{4}\b/);
+    return match ? Number(match[0]) : NaN;
+  }
+
+  const n = Number(s.replace(/[^\d.-]/g, ""));
+  return Number.isFinite(n) ? n : NaN;
+}
+</script>
+</body>
+</html>

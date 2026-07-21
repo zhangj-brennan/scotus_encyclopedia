@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Presidential Justice Appointments Symbol Chart</title>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+    <div id="container">
+<div id="title"><h1>Number of Justices Appointed by President</h1></div>
+<div id="subtitle">In chronological order</div>
+<div id="chart"></div>
+  <div class="footnote"><h3>Note:</h3>
+  Presidents with no nominations: William H. Harrison, Zachary Taylor, Andrew Johnson, Jimmy Carter
+    <br>Recess appointments and elevations:
+    <br>George Washington	- Thomas Johnson was appointed in August 1791 and ultimatley confirmed in Nov 1791
+<br>John Adams- Bushrod Washington was appointed in Sep 1798 and ultimatley confirmed in Dec 1798; and Alfred Moore appointed Oct 1799 and confirmed Dec 1799
+<br>Thomas Jefferson- Henry B. Livingston was appointed in Nov 1806 and ultimatley confirmed in Dec 1806
+<br>James Monroe- Smith Thompson was appointed in Sept 1823 and ultimatley confirmed in Dec 1823
+<br>Martin Van Buren	- John McKinley was appointed in April 1837 and ultimatley confirmed in Sept 1837
+<br>James K. Polk	- Levi Woodbury was appointed in Sept 1845 and ultimatley confirmed in Jan 1846
+<br>Millard Fillmore	- Benjamin Curtis was appointed in Sept 1851 and ultimatley confirmed in Dec 1851
+<br>Abraham Lincoln- David Davis was appointed in Oct 1862 and ultimatley confirmed in Dec 1862.
+<br>Theodore Roosevelt	- Oliver Wendell Holmes was appointed in Aug 1902 and ultimatley confirmed in Dec 1902 [appointed by Roosevelt]
+<br>William Howard Taft	-	Associate Justice White elevation to Chief Justice	
+<br>Herbert Hoover -	(One of these nominations is Charles Evan Hughes who previously served on the Court)	
+<br>Franklin D. Roosevelt	- PLUS Associate Justice Stone elevation to Chief Justice	
+<br>Dwight D. Eisenhower - Earl Warren was appointed in Oct 1953 and ultimatley confirmed in March 1954; William Brennan was appointed in Oct 1956 and ultimatley confirmed in March 1957; Potter Stewart was appointed in Oct 1958 and ultimatley confirmed in May 1959
+<br>Ronald Reagan - Associate Justice Rehnquist elevation to Chief Justice	
+  </div>
+</div>
+<script>
+const CSV_PATH = "scotus data prep - appointments by president.csv";
+
+const COLS = {
+  president: "president",
+  appointments: "appointments",
+  elevations: "elevations",
+  recess: "recess"
+};
+
+const squareSize = 10;
+const squareGap = 4;
+const rowGap = 18;
+const labelWidth = 130;
+const totalOffset = 10;
+
+const margin = {
+  top: 45,
+  right: 10,
+  bottom: 20,
+  left: 20
+};
+
+d3.csv(CSV_PATH, d => ({
+  president: d[COLS.president],
+  appointments: +d[COLS.appointments] || 0,
+  elevations: +d[COLS.elevations] || 0,
+  recess: +d[COLS.recess] || 0
+})).then(data => {
+
+  const noNominationPresidents = data
+    .filter(d =>
+      (+d[COLS.appointments] || 0) +
+      (+d[COLS.elevations] || 0) +
+      (+d[COLS.recess] || 0) === 0
+    )
+    .map(d => d.president);
+
+  data = data.filter(d =>
+    (+d[COLS.appointments] || 0) +
+    (+d[COLS.elevations] || 0) +
+    (+d[COLS.recess] || 0) > 0
+  );
+
+  data.forEach(d => {
+
+    d.symbols = [
+      ...Array(d.appointments).fill("appointment"),
+      ...Array(d.elevations).fill("elevation"),
+      ...Array(d.recess).fill("recess")
+    ];
+
+    d.total = d.symbols.length;
+
+    const parts = [];
+
+    if (d.elevations > 0) {
+      parts.push(
+        `${d.elevations} elevation${d.elevations === 1 ? "" : "s"}`
+      );
+    }
+
+    if (d.recess > 0) {
+      parts.push(
+        `${d.recess} recess${d.recess === 1 ? "" : " appointments"}`
+      );
+    }
+
+    d.totalLabel = `${d.total}`;
+    // if (parts.length > 0) {
+    //   d.totalLabel = `${d.total} including ${parts.join(" and ")}`;
+    // } else {
+    //   d.totalLabel = `${d.total}`;
+    // }
+  });
+
+  const maxSymbols = d3.max(data, d => d.total) || 0;
+
+  const width =
+    margin.left +
+    labelWidth +
+    maxSymbols * (squareSize + squareGap) +
+    260 +
+    margin.right;
+
+  const height =
+    margin.top +
+    data.length * rowGap +
+    margin.bottom;
+
+  const svg = d3.select("#chart")
+    .append("svg")
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    // .attr("width", "100%")
+    .attr("height", height);
+
+  const defs = svg.append("defs");
+  const stripes = 4
+  const stripePattern = defs.append("pattern")
+    .attr("id", "diagonal-stripes")
+    .attr("patternUnits", "userSpaceOnUse")
+    .attr("width", stripes)
+    .attr("height", stripes)
+    .attr("patternTransform", "rotate(45)");
+
+  stripePattern.append("rect")
+    .attr("width", stripes)
+    .attr("height", stripes)
+    .attr("fill", "#fff");
+
+  stripePattern.append("line")
+    .attr("x1", 0)
+    .attr("y1", 0)
+    .attr("x2", 0)
+    .attr("y2", stripes)
+    .attr("stroke", "#111")
+    .attr("stroke-width", 2);
+
+  const legend = svg.append("g")
+    .attr("class", "legend")
+    .attr("transform", `translate(2, 12)`);
+
+  drawSymbol(legend, 0, 0, "appointment");
+  legend.append("text")
+    .attr("x", 22)
+    .attr("y", 7)
+    .text("Appointment");
+
+  drawSymbol(legend, 125, 0, "elevation");
+  legend.append("text")
+    .attr("x", 147)
+    .attr("y", 7)
+    .text("Elevation");
+
+  drawSymbol(legend, 235, 0, "recess");
+  legend.append("text")
+    .attr("x", 257)
+    .attr("y", 7)
+    .text("Recess");
+
+  const rows = svg.selectAll(".president-row")
+    .data(data)
+    .join("g")
+    .attr("class", "president-row")
+    .attr(
+      "transform",
+      (d, i) => `translate(${margin.left}, ${margin.top + i * rowGap})`
+    );
+
+  rows.append("text")
+    .attr("class", "row-label")
+    .attr("x", 0)
+    .attr("y", squareSize / 2)
+    .text(d => d.president);
+
+  rows.each(function(d) {
+
+    const row = d3.select(this);
+
+    d.symbols.forEach((type, i) => {
+
+      drawSymbol(
+        row,
+        labelWidth + i * (squareSize + squareGap),
+        0,
+        type
+      );
+
+    });
+
+    row.append("text")
+      .attr("class", "row-total")
+      .attr(
+        "x",
+        labelWidth +
+        d.total * (squareSize + squareGap) 
+      )
+      .attr("y", squareSize / 2+1)
+      .text(d => d.totalLabel);
+
+      
+  });
+
+    // d3.select("#chart").append("div")
+    // .attr("class", "footnote")
+    // .html(
+    //   `Presidents with no nominations: ${noNominationPresidents.join(", ")}`
+    // );
+
+  function drawSymbol(parent, x, y, type) {
+
+    const g = parent.append("g")
+      .attr("transform", `translate(${x}, ${y})`);
+
+    if (type === "appointment") {
+
+      g.append("rect")
+        .attr("class", "square")
+        .attr("width", squareSize)
+        .attr("height", squareSize)
+        .attr("fill", "#111");
+
+    }
+
+    if (type === "elevation") {
+
+  // white background
+  g.append("rect")
+    .attr("width", squareSize)
+    .attr("height", squareSize)
+    .attr("fill", "#fff");
+
+  // black diagonal triangle
+  g.append("polygon")
+    .attr(
+      "points",
+      `
+      0,0
+      ${squareSize},0
+      0,${squareSize}
+      `
+    )
+    .attr("fill", "#111");
+
+  // border
+  g.append("rect")
+    .attr("class", "square")
+    .attr("width", squareSize)
+    .attr("height", squareSize)
+    .attr("fill", "none");
+
+}
+
+    if (type === "recess") {
+
+      g.append("rect")
+        .attr("class", "square")
+        .attr("width", squareSize)
+        .attr("height", squareSize)
+        .attr("fill", "url(#diagonal-stripes)");
+
+    }
+  }
+
+});
+</script>
+
+</body>
+</html>
