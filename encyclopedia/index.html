@@ -839,6 +839,11 @@ function renderCheckboxFilter(field) {
   });
 
   let values = Array.from(counts.keys());
+  if (field === "Justice's Reason for Departure from the Court") {
+  values = values.filter(
+    value => !/currently serving/i.test(cleanLabel(value))
+  );
+}
 
   if (field === "Position ") {
     const priority = ["Chief Justice", "Associate Justice"];
