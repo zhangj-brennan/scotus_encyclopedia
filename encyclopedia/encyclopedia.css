@@ -92,8 +92,16 @@ body {
 }
 .cards.portrait-mode {
   grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-  gap: 0px 6px;
+  gap: -20px 6px;
   padding-left: 0px;
+}
+.portrait-large {
+  filter: grayscale(100%);
+  transition: filter 250ms ease;
+}
+
+.card.portrait-card:hover .portrait-large {
+  filter: grayscale(0%);
 }
 
 .card.portrait-card {
@@ -119,23 +127,18 @@ body {
   display: block;
   filter: grayscale(100%);
 }
-
 .portrait-tooltip {
   position: absolute;
-  left: 50%;
+  left: 0;
   bottom: 4px;
-  transform: translateX(-50%) translateY(4px);
-  z-index: 30;
+  transform: translateY(4px);
 
   padding: 5px 10px;
   background: #fff;
   border: 1px solid var(--border);
 
-  color: #000;
-  font-size: 14px;
-  line-height: 1.1;
-  font-weight: 800;
   white-space: nowrap;
+  z-index: 30;
 
   opacity: 0;
   pointer-events: none;
@@ -147,7 +150,7 @@ body {
 
 .card.portrait-card:hover .portrait-tooltip {
   opacity: 1;
-  transform: translateX(-50%) translateY(0);
+  transform: translateY(0);
 }
 
 h1 {
