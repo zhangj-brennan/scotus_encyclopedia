@@ -6,7 +6,7 @@
 <title>SCOTUS Encyclopedia</title>
 
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <link rel="stylesheet" href="encyclopedia.css">
+  <link rel="stylesheet" href="encyclopedia_bg.css">
 
 <style>
 /* Missing portrait group: keeps unavailable portraits at the end without overlap */
@@ -28,7 +28,7 @@
 }
 
 .cards.portrait-mode .card.portrait-card.missing-portrait-card:hover {
-  transform: translateY(-4px) scale(1.03);
+  transform: translateY(0px) scale(1.03);
 }
 
 .missing-portrait-card .portrait-large {
@@ -168,7 +168,7 @@ body.overlay-open {
 </div>
 
 <script>
-const CSV_FILE = "07062026.csv";
+const CSV_FILE = "08032026.csv";
 
 const FIELD_ALIASES = {
   "Position": "Position ",
@@ -1452,8 +1452,8 @@ function preloadPortraitAvailability() {
 }
 
 function getPortraitPath(fullName) {
-  const filename = `${fullName}.png`;
-  return `portraits_nobg_tuned/${encodeURIComponent(filename)}`;
+  const filename = `${fullName}.jpg`;
+  return `portraits/${encodeURIComponent(filename)}`;
 }
 
 function renderPortraitCard(row, isMissingPortrait = false) {
@@ -1676,13 +1676,13 @@ function toNumber(value, field = "") {
   }
 
   if (field === "Justice's Age at Time of Departure from the Court") {
-    if (!s || /^n\/?a$/i.test(s) || /still on the court/i.test(s)) return NaN;
+    if (!s || /^n\/?a$/i.test(s) || /Currently serving/i.test(s)) return NaN;
     const match = s.match(/\d+/);
     return match ? Number(match[0]) : NaN;
   }
 
   if (field === "Year of Death") {
-    if (!s || /still alive/i.test(s)) return NaN;
+    if (!s || /Living/i.test(s)) return NaN;
     const match = s.match(/\b\d{4}\b/);
     return match ? Number(match[0]) : NaN;
   }

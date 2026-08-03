@@ -92,15 +92,15 @@ body {
 }
 .cards.portrait-mode {
   grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-  gap: 10px 0;
-  padding-left: 18px;
+  gap: 10px 12px;
+  padding-left: 0px;
 }
 
 .card.portrait-card {
   position: relative;
   overflow: visible;
-  margin: -30px;
-  margin-bottom: -10px;
+  margin: -15px;
+  margin-bottom: -5px;
   background: transparent;
   cursor: pointer;
   transition: transform 180ms ease;
@@ -709,7 +709,7 @@ details.is-closing .filter-body {
   }
 
   .cards.portrait-mode .card.portrait-card {
-    margin-left: -20px;
+    margin-left: -10px;
   }
 
   .cards.portrait-mode .portrait-large {
