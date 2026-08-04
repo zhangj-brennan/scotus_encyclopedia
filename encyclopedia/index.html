@@ -1457,8 +1457,8 @@ function preloadPortraitAvailability() {
 }
 
 function getPortraitPath(fullName) {
-  const filename = `${fullName}.png`;
-  return `portraits_nobg/${encodeURIComponent(filename)}`;
+  const filename = `${fullName}.jpg`;
+  return `portraits/${encodeURIComponent(filename)}`;
 }
 
 function renderPortraitCard(row, isMissingPortrait = false) {
