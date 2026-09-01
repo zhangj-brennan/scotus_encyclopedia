@@ -312,3 +312,8 @@ svg {
 #footnote{
   font-size:12px;
 }
+
+#footnote a {
+  color: #007194;
+  text-decoration: none;
+}

@@ -11,7 +11,7 @@
 <body>
   <div class="wrap">
     <section class="hero">
-      <h1>Senate Votes on SCOTUS Confirmations</h1>
+      <h1>Senate Votes on Supreme Court Justice Confirmations</h1>
 
       <div class="panel">
         <div class="panelSectionLabel">SORT BY CONFIRMATION YEAR:</div>
@@ -63,7 +63,8 @@
         <div class="chart-wrap" id="chart"></div>
 
       </div>
-      <div id="footnote">*The confirmation of these justices was for their elevations to the position of Chief Justice from Associate Justice
+      <div id="footnote">*Confirmation for justice’s elevation to the position of Chief Justice from Associate Justice
+      <br><strong>Source: </strong><a href="https://www.senate.gov/legislative/nominations/SupremeCourtNominations1789present.htm" target="_blank">U.S. Senate, Supreme Court Nominations (1789-Present)</a>
     </div>
       </section>
 
@@ -209,6 +210,14 @@ document.getElementById("filter-voice").addEventListener("change", e => {
 
 document.getElementById("filter-modern").addEventListener("change", e => {
   hideOlder = e.target.checked;
+
+  if (!hideOlder) {
+    hideVoiceVotes = false;
+    document.getElementById("filter-voice").checked = false;
+    document.getElementById("filter-voice")
+      .classList.toggle("active", hideVoiceVotes);
+  }
+
   updateFilterVisibility();
   updateChart();
 });
