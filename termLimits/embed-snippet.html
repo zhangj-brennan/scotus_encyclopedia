@@ -1,7 +1,7 @@
 <!-- Paste into Drupal (Full HTML / source view). Full-window-width pinned iframe;
      the page scroll drives the Term Limits scrollytelling via postMessage. -->
 <div id="tl-scrolly" style="position:relative; height:800vh; width:100vw; margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw);">
-  <div id="tl-sticky" style="position:sticky; top:0; height:100vh; overflow:hidden;">
+  <div id="tl-sticky" style="position:sticky; top:100px; height:calc(100vh - 100px); overflow:hidden;">
     <iframe id="tl-frame"
             src="https://zhangj-brennan.github.io/scotus_encyclopedia/termLimits/index.html"
             style="width:100%; height:100%; border:0; display:block;"
@@ -13,6 +13,8 @@
   var ORIGIN = 'https://zhangj-brennan.github.io';
   // Height of the site's fixed nav, in px. null = measure it automatically.
   var NAV_OFFSET = null;
+  // Minimum space kept above the chart, in px, even if the nav isn't detected.
+  var MIN_OFFSET = 100;
 
   var wrap = document.getElementById('tl-scrolly');
   var sticky = document.getElementById('tl-sticky');
@@ -22,7 +24,7 @@
 
   // Bottom edge of any fixed/sticky bars (site nav, Drupal admin toolbar) covering the top of the window
   function measureNav() {
-    if (NAV_OFFSET != null) return NAV_OFFSET;
+    if (NAV_OFFSET != null) return Math.max(MIN_OFFSET, NAV_OFFSET);
     var bottom = 0;
     [10, window.innerWidth / 2, window.innerWidth - 10].forEach(function (x) {
       document.elementsFromPoint(x, 1).forEach(function (el) {
@@ -38,7 +40,7 @@
       });
     });
     // Only grow, so a nav that hides/shows on scroll doesn't make the chart jump
-    return Math.max(navH, Math.round(bottom));
+    return Math.max(MIN_OFFSET, navH, Math.round(bottom));
   }
 
   function applyNav() {
