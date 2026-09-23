@@ -854,6 +854,20 @@ function hideTooltip() {
     function hideTooltip() {
       tooltip.style("opacity", 0);
     }
+
+    // When embedded, tell the host page our height so the iframe can fit the content
+    if (window.parent !== window) {
+      let lastHeight = 0;
+      const postHeight = () => {
+        // Measure the content itself; documentElement.scrollHeight never drops below the iframe height
+        const h = Math.ceil(document.querySelector(".wrap").getBoundingClientRect().bottom + window.scrollY);
+        if (h === lastHeight) return;
+        lastHeight = h;
+        window.parent.postMessage({ type: "senate-height", height: h }, "*");
+      };
+      new ResizeObserver(postHeight).observe(document.body);
+      window.addEventListener("load", postHeight);
+    }
   </script>
 </body>
 </html>

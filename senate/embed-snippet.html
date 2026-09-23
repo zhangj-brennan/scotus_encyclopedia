@@ -1,0 +1,15 @@
+<!-- Paste into Drupal (Full HTML / source view). The iframe resizes to fit the chart
+     when filters change the number of rows. -->
+<iframe id="senate-frame"
+        src="https://zhangj-brennan.github.io/scotus_encyclopedia/senate/index.html"
+        style="width:100%; height:900px; border:0; display:block;"
+        scrolling="no" title="Senate Votes on Supreme Court Justice Confirmations"></iframe>
+<script>
+(function () {
+  var frame = document.getElementById('senate-frame');
+  window.addEventListener('message', function (e) {
+    if (e.origin !== 'https://zhangj-brennan.github.io' || e.source !== frame.contentWindow) return;
+    if (e.data && e.data.type === 'senate-height') frame.style.height = e.data.height + 'px';
+  });
+})();
+</script>
