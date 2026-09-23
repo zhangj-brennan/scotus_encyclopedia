@@ -138,7 +138,7 @@ html,body{
 .figure-column{
   position:-webkit-sticky;
   position:sticky;
-  top:24px;
+  top:60px;
   align-self:start;
   height:fit-content;
 }
@@ -146,6 +146,17 @@ html,body{
 .sticky-figure{
   position:relative;
   padding-top:0;
+}
+
+.source-note{
+  margin-top:12px;
+  font-size:12px;
+  color:var(--muted);
+}
+
+.source-note a{
+  color:#007194;
+  text-decoration:none;
 }
 
 .figure-header{
