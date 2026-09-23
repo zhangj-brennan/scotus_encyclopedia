@@ -98,7 +98,7 @@ html,body{
   flex-wrap:wrap;
   max-width:35ch;
   margin:12px 0 0;
-  font-size:18px;
+  font-size:16px;
   color:var(--muted);
 }
 
@@ -191,8 +191,8 @@ html,body{
 .summary-box .big{
   display:block;
   margin-bottom:4px;
-  font-size:24px;
-  line-height:1.6;
+  font-size:16px;
+  line-height:1.4;
   font-family:"BentonStrong", Arial, sans-serif;
 }
 
@@ -243,15 +243,15 @@ html,body{
 .step h3{
   margin:0 0 10px;
   max-width:35ch;
-  font-size:18px;
-  line-height:1.1;
+  font-size:20px;
+  line-height:1.25;
   font-family:"BentonStrong", Arial, sans-serif;
 }
 
 .step p{
   margin:0;
   max-width:35ch;
-  font-size:18px;
+  font-size:16px;
 }
 
 svg{
