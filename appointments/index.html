@@ -994,7 +994,22 @@ Promise.all([
   console.error("Error loading CSV:", error);
   d3.select("#chart")
     .html(`<p style="font-size:14px;">Could not load the CSV files. Make sure appointments_with_president_recess_lastname.csv and presidential_terms.csv are in the same folder as this HTML file.</p>`);
-});</script>
+});
+
+// When embedded, tell the host page our height so the iframe can fit the content
+if (window.parent !== window) {
+  let lastHeight = 0;
+  const postHeight = () => {
+    // Measure the content itself; documentElement.scrollHeight never drops below the iframe height
+    const h = Math.ceil(document.getElementById("container").getBoundingClientRect().bottom + window.scrollY) + 10;
+    if (h === lastHeight) return;
+    lastHeight = h;
+    window.parent.postMessage({ type: "appt-height", height: h }, "*");
+  };
+  new ResizeObserver(postHeight).observe(document.body);
+  window.addEventListener("load", postHeight);
+}
+</script>
 
 </body>
 </html>
