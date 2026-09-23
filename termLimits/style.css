@@ -160,7 +160,7 @@ html,body{
 }
 
 .figure-header{
-  margin-bottom:12px;
+  margin-bottom:0;
 }
 
 .scene-label{
@@ -180,8 +180,11 @@ html,body{
 }
 
 .summary-box{
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
   min-height:120px;
-  padding:12px 14px;
+  padding:12px 14px 0;
   font-size:14px;
 }
 
