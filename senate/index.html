@@ -41,7 +41,7 @@
   </label> 
    <label>
     <input type="checkbox" id="filter-modern" checked>
-  Show only 1975 to present
+  Show only 1967 to present
   </label>
 
   <label id="voice-filter-wrapper">
@@ -273,7 +273,7 @@ document.getElementById("filter-modern").addEventListener("change", e => {
       }
 
       if (hideOlder) {
-        data = data.filter(d => d.voteYear >= 1975);
+        data = data.filter(d => d.voteYear >= 1967);
       }
 
       if (currentSort === "partisanship") {

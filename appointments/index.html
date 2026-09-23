@@ -728,7 +728,7 @@ function renderView(view) {
     .text(d => {
       const label = config.label(d).president;
       const isTwoPresidentTerm = String(d.termPresident || "").includes("/");
-      return isTwoPresidentTerm ? `^${label}` : label;
+      return isTwoPresidentTerm ? `${label}^` : label;
     });
 
   rowGroups.append("text")
