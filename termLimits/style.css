@@ -138,7 +138,7 @@ html,body{
 .figure-column{
   position:-webkit-sticky;
   position:sticky;
-  top:60px;
+  top:100px;
   align-self:start;
   height:fit-content;
 }
