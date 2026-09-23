@@ -588,11 +588,11 @@ svg{
   gap:8px;
 }
   .controls-note{
-    font-size:18px;
+    font-size:13px;
   }
 
   .figure-hint{
-    font-size:18px;
+    font-size:13px;
     margin-top:6px;
     position:relative;
     z-index:3;

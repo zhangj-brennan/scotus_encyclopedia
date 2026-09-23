@@ -1,7 +1,7 @@
 <!-- Paste into Drupal (Full HTML / source view). Full-window-width pinned iframe;
      the page scroll drives the Term Limits scrollytelling via postMessage. -->
 <div id="tl-scrolly" style="position:relative; height:800vh; width:100vw; margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw);">
-  <div style="position:sticky; top:0; height:100vh; overflow:hidden;">
+  <div id="tl-sticky" style="position:sticky; top:0; height:100vh; overflow:hidden;">
     <iframe id="tl-frame"
             src="https://zhangj-brennan.github.io/scotus_encyclopedia/termLimits/index.html"
             style="width:100%; height:100%; border:0; display:block;"
@@ -11,13 +11,48 @@
 <script>
 (function () {
   var ORIGIN = 'https://zhangj-brennan.github.io';
+  // Height of the site's fixed nav, in px. null = measure it automatically.
+  var NAV_OFFSET = null;
+
   var wrap = document.getElementById('tl-scrolly');
+  var sticky = document.getElementById('tl-sticky');
   var frame = document.getElementById('tl-frame');
   var flingId = 0;
+  var navH = -1;
+
+  // Bottom edge of any fixed/sticky bars (site nav, Drupal admin toolbar) covering the top of the window
+  function measureNav() {
+    if (NAV_OFFSET != null) return NAV_OFFSET;
+    var bottom = 0;
+    [10, window.innerWidth / 2, window.innerWidth - 10].forEach(function (x) {
+      document.elementsFromPoint(x, 1).forEach(function (el) {
+        for (var n = el; n && n !== document.body; n = n.parentElement) {
+          if (n === wrap || wrap.contains(n)) return;
+          var pos = getComputedStyle(n).position;
+          if (pos === 'fixed' || pos === 'sticky') {
+            var r = n.getBoundingClientRect();
+            if (r.top <= 1 && r.bottom < window.innerHeight / 2) bottom = Math.max(bottom, r.bottom);
+            return;
+          }
+        }
+      });
+    });
+    // Only grow, so a nav that hides/shows on scroll doesn't make the chart jump
+    return Math.max(navH, Math.round(bottom));
+  }
+
+  function applyNav() {
+    var h = measureNav();
+    if (h === navH) return;
+    navH = h;
+    sticky.style.top = navH + 'px';
+    sticky.style.height = 'calc(100vh - ' + navH + 'px)';
+  }
 
   function report() {
-    var total = wrap.offsetHeight - window.innerHeight;
-    var p = total > 0 ? Math.min(1, Math.max(0, -wrap.getBoundingClientRect().top / total)) : 0;
+    applyNav();
+    var total = wrap.offsetHeight - sticky.offsetHeight;
+    var p = total > 0 ? Math.min(1, Math.max(0, (navH - wrap.getBoundingClientRect().top) / total)) : 0;
     frame.contentWindow.postMessage({ type: 'tl-progress', progress: p }, ORIGIN);
   }
 
@@ -48,7 +83,7 @@
   });
 
   window.addEventListener('scroll', report, { passive: true });
-  window.addEventListener('resize', report);
+  window.addEventListener('resize', function () { navH = -1; report(); });
   frame.addEventListener('load', report);
 })();
 </script>
