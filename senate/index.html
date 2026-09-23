@@ -611,7 +611,7 @@ function hideTooltip() {
   const leftLabelWidth =
     Math.max(180, Math.min(340, maxNameLength * 7.2));
 
-  const rightLabelWidth = 120;
+  const rightLabelWidth = 50;
 
   const margin = {
     top: 40,
@@ -620,7 +620,8 @@ function hideTooltip() {
     left: leftLabelWidth
   };
 
-  const width = Math.max(760, wrapWidth);
+  // Match the container; the svg is stretched to 100% width, so anything wider gets clipped
+  const width = wrapWidth;
 
   const height =
     margin.top +
