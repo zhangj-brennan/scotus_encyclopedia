@@ -55,6 +55,7 @@ export function buildSummaryThreshold(threshold, stats) {
     <span class="big">
     <div>After ${Math.round(threshold)} years, ${stats.survived} out of ${stats.total} justices (${Math.round(stats.rate*100)}%) are still on the Court.</div>
     </span>
+    <span class="summary-hint">Drag the orange dashed line vertically.</span>
     `;
 }
 
@@ -604,7 +605,7 @@ this.summaryContainer.innerHTML = `
   <span class="big">
     Customizable Graph
   </span>
-  
+  <span class="summary-hint">Drag the orange horizontal line and the purple vertical line.</span>
 `;
 
 this.renderQuadrants(counts, splitDate, threshold);
@@ -673,6 +674,9 @@ this.renderQuadrants(counts, splitDate, threshold);
         Median tenure before ${splitLabel} vs. after:<br>
         ${d3.format(".1f")(medians.left)} years vs. ${d3.format(".1f")(medians.right)} years
       </span>
+      ${this.state?.sceneConfig?.medianSplitDraggable
+        ? `<span class="summary-hint">Drag the orange vertical line left or right.</span>`
+        : ""}
     `;
   }
 
@@ -702,7 +706,6 @@ this.renderQuadrants(counts, splitDate, threshold);
       this.updateMedianSplitView(data);
 
       if (sceneConfig.medianSplitDraggable) {
-        this.hintContainer.textContent = "Drag the orange vertical line left or right.";
         this.setVerticalLineInteractive(true);
         this.enableMedianVerticalDrag(data);
       }
@@ -821,7 +824,6 @@ this.renderQuadrants(counts, splitDate, threshold);
         prevSceneConfig &&
         prevSceneConfig.threshold != null;
 
-      this.hintContainer.textContent = "Drag the orange dashed line vertically.";
       this.setHorizontalLineInteractive(true);
 
       if (cameFromThresholdScene) {
@@ -849,8 +851,7 @@ this.renderQuadrants(counts, splitDate, threshold);
     }
 
     if (sceneName === "scene6") {
-  this.hintContainer.textContent =
-    "Drag the orange horizontal line and the purple vertical line.";
+  this.hintContainer.textContent = "";
 
   this.setThresholdPosition(sceneConfig.threshold);
 

@@ -196,6 +196,11 @@ html,body{
   font-family:"BentonStrong", Arial, sans-serif;
 }
 
+.summary-box .summary-hint{
+  display:block;
+  margin-bottom:4px;
+}
+
 .chart-shell{
   position:relative;
   background:#fff;
