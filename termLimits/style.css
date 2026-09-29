@@ -14,9 +14,9 @@
   --line:#d9d9d9;
   --axis:#000;
   --dot:#111111;
-  --dot-current:#c00000;
-  --accent:#c00000;
-  --accent2:#0057b8;
+  --dot-current:#000;
+  --accent:#f17e3c;
+  --accent2:#6a3d9a;
   --panel-max:1280px;
 }
 
@@ -292,7 +292,7 @@ svg{
 }
 
 .dot.current{
-  fill:var(--dot-current);
+  fill:#fff;
   stroke:var(--dot-current);
   stroke-width:1.5px;
 }
@@ -559,7 +559,8 @@ svg{
   }
 
   .step-inner .legend-swatch.current{
-    background:#000;
+    background:transparent;
+    border-color:#fff;
   }
 
   .summary-box{

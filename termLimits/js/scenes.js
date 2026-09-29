@@ -34,7 +34,7 @@ export function getSceneConfigs() {
       stepTitle: "At 20 years, the durability rate falls to 40%.",
       stepBody: `
         <p>If the threshold is adjusted to 20 years on the bench, the durability rate falls to 40% — in other words, 40% of past Supreme Court justices served for at least 20 years.</p>
-        <br><p><strong>Adjust the threshold by moving the red line up or down to see durability rate for various tenures.</strong></p>
+        <br><p><strong>Adjust the threshold by moving the orange line up or down to see durability rate for various tenures.</strong></p>
       `,
       threshold: CONFIG.sceneThresholds.scene4
     },
@@ -67,7 +67,7 @@ export function getSceneConfigs() {
   stepTitle: "Median tenure after 1966 is more than 10 years longer than before 1966.",
   stepBody: `
  <p>Supreme Court justices who served on the Court prior to 1966 stayed for a median of 15.3 years. But for the justices that served on the Court after 1966, that number jumps dramatically to a median of 25.7 years (not including the current justices).</p>
- <br><p>Move the red line to explore how median tenure compares across two time periods.</p>
+ <br><p>Move the orange line to explore how median tenure compares across two time periods.</p>
     `,
   medianOnly: true,
   medianSplitDraggable: true,

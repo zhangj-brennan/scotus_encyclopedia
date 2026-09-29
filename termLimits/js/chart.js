@@ -661,7 +661,7 @@ this.renderQuadrants(counts, splitDate, threshold);
       .attr("x", xRightCenter)
       .attr("y", yCenter)
       .text(`${d3.format(".1f")(medians.right)}`)
-      .style("fill", "#ED1C24");
+      .style("fill", "var(--accent)");
 
     this.g.quad.trSub
       .attr("x", xRightCenter)
@@ -702,7 +702,7 @@ this.renderQuadrants(counts, splitDate, threshold);
       this.updateMedianSplitView(data);
 
       if (sceneConfig.medianSplitDraggable) {
-        this.hintContainer.textContent = "Drag the red vertical line left or right.";
+        this.hintContainer.textContent = "Drag the orange vertical line left or right.";
         this.setVerticalLineInteractive(true);
         this.enableMedianVerticalDrag(data);
       }
@@ -821,7 +821,7 @@ this.renderQuadrants(counts, splitDate, threshold);
         prevSceneConfig &&
         prevSceneConfig.threshold != null;
 
-      this.hintContainer.textContent = "Drag the red dashed line vertically.";
+      this.hintContainer.textContent = "Drag the orange dashed line vertically.";
       this.setHorizontalLineInteractive(true);
 
       if (cameFromThresholdScene) {
@@ -850,7 +850,7 @@ this.renderQuadrants(counts, splitDate, threshold);
 
     if (sceneName === "scene6") {
   this.hintContainer.textContent =
-    "Drag the red horizontal line and the blue vertical line.";
+    "Drag the orange horizontal line and the purple vertical line.";
 
   this.setThresholdPosition(sceneConfig.threshold);
 
@@ -910,7 +910,7 @@ this.renderQuadrants(counts, splitDate, threshold);
         .style("fill", "#000");
 
       // RIGHT SIDE (highlight color)
-      const rightColor = "#ED1C24"; // or your accent color
+      const rightColor = "var(--accent)"; // or your accent color
 
       this.g.quad.tr
         .attr("x", xRightCenter)
