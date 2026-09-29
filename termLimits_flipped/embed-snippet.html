@@ -1,0 +1,91 @@
+<!-- Paste into Drupal (Full HTML / source view). Full-window-width pinned iframe;
+     the page scroll drives the Term Limits scrollytelling via postMessage. -->
+<div id="tl-scrolly" style="position:relative; height:800vh; width:100vw; margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw);">
+  <div id="tl-sticky" style="position:sticky; top:100px; height:calc(100vh - 100px); overflow:hidden;">
+    <iframe id="tl-frame"
+            src="https://zhangj-brennan.github.io/scotus_encyclopedia/termLimits_flipped/index.html"
+            style="width:100%; height:100%; border:0; display:block;"
+            scrolling="no" title="Supreme Court Tenure Explainer"></iframe>
+  </div>
+</div>
+<script>
+(function () {
+  var ORIGIN = 'https://zhangj-brennan.github.io';
+  // Height of the site's fixed nav, in px. null = measure it automatically.
+  var NAV_OFFSET = null;
+  // Minimum space kept above the chart, in px, even if the nav isn't detected.
+  var MIN_OFFSET = 100;
+
+  var wrap = document.getElementById('tl-scrolly');
+  var sticky = document.getElementById('tl-sticky');
+  var frame = document.getElementById('tl-frame');
+  var flingId = 0;
+  var navH = -1;
+
+  // Bottom edge of any fixed/sticky bars (site nav, Drupal admin toolbar) covering the top of the window
+  function measureNav() {
+    if (NAV_OFFSET != null) return Math.max(MIN_OFFSET, NAV_OFFSET);
+    var bottom = 0;
+    [10, window.innerWidth / 2, window.innerWidth - 10].forEach(function (x) {
+      document.elementsFromPoint(x, 1).forEach(function (el) {
+        for (var n = el; n && n !== document.body; n = n.parentElement) {
+          if (n === wrap || wrap.contains(n)) return;
+          var pos = getComputedStyle(n).position;
+          if (pos === 'fixed' || pos === 'sticky') {
+            var r = n.getBoundingClientRect();
+            if (r.top <= 1 && r.bottom < window.innerHeight / 2) bottom = Math.max(bottom, r.bottom);
+            return;
+          }
+        }
+      });
+    });
+    // Only grow, so a nav that hides/shows on scroll doesn't make the chart jump
+    return Math.max(MIN_OFFSET, navH, Math.round(bottom));
+  }
+
+  function applyNav() {
+    var h = measureNav();
+    if (h === navH) return;
+    navH = h;
+    sticky.style.top = navH + 'px';
+    sticky.style.height = 'calc(100vh - ' + navH + 'px)';
+  }
+
+  function report() {
+    applyNav();
+    var total = wrap.offsetHeight - sticky.offsetHeight;
+    var p = total > 0 ? Math.min(1, Math.max(0, (navH - wrap.getBoundingClientRect().top) / total)) : 0;
+    frame.contentWindow.postMessage({ type: 'tl-progress', progress: p }, ORIGIN);
+  }
+
+  function scrollByPx(dy) {
+    window.scrollBy({ top: dy, behavior: 'instant' });
+  }
+
+  window.addEventListener('message', function (e) {
+    if (e.origin !== ORIGIN || e.source !== frame.contentWindow || !e.data) return;
+    var d = e.data;
+    if (d.type === 'tl-height') {
+      // Match the wrapper to the embedded page's height so scrolling is 1:1
+      wrap.style.height = d.height + 'px';
+      report();
+    } else if (d.type === 'tl-scroll') {
+      cancelAnimationFrame(flingId);
+      scrollByPx(d.dy);
+    } else if (d.type === 'tl-fling') {
+      var v = d.v * 16;
+      cancelAnimationFrame(flingId);
+      (function step() {
+        if (Math.abs(v) < 0.5) return;
+        scrollByPx(v);
+        v *= 0.95;
+        flingId = requestAnimationFrame(step);
+      })();
+    }
+  });
+
+  window.addEventListener('scroll', report, { passive: true });
+  window.addEventListener('resize', function () { navH = -1; report(); });
+  frame.addEventListener('load', report);
+})();
+</script>
