@@ -602,9 +602,7 @@ const splitLabel = d3.timeFormat("%Y")(splitDate);
 
 this.summaryContainer.innerHTML = `
   <span class="big">
-    Before vs. After ${splitLabel}:<br>
-    ${Math.round(counts.left.topRate * 100)}% vs. ${Math.round(counts.right.topRate * 100)}%
-    remain on the bench after ${d3.format(".1f")(threshold)} years
+    Customizable Graph
   </span>
   
 `;
@@ -672,7 +670,7 @@ this.renderQuadrants(counts, splitDate, threshold);
 
     this.summaryContainer.innerHTML = `
       <span class="big">
-        Median tenure before vs. after ${splitLabel}:<br>
+        Median tenure before ${splitLabel} vs. after:<br>
         ${d3.format(".1f")(medians.left)} years vs. ${d3.format(".1f")(medians.right)} years
       </span>
     `;
@@ -693,7 +691,7 @@ this.renderQuadrants(counts, splitDate, threshold);
       const stats = countSurvivors(data, threshold);
 
       this.summaryContainer.innerHTML = `
-        <span class="big">Median tenure of former Supreme Court justices: ${d3.format(".1f")(median)} years<br>
+        <span class="big">The median tenure of past Supreme Court justices is ${d3.format(".1f")(median)} years.<br>
         </span>
       `;
 
@@ -804,7 +802,7 @@ this.renderQuadrants(counts, splitDate, threshold);
   if (sceneName === "scene2"){
       this.summaryContainer.innerHTML = `
         <span class="big">
-        Historically, 73 out of 107 justices (68%) served at least 10 years. 
+        Historically, more than two-thirds of past justices (73 out of 107) served at least 10 years.
         </span>
       `;
   }
@@ -841,7 +839,11 @@ this.renderQuadrants(counts, splitDate, threshold);
 
     if (sceneName === "scene5") {
       const counts = splitCounts(data, sceneConfig.splitDate, sceneConfig.threshold);
-      this.summaryContainer.innerHTML = buildSummarySplit(sceneConfig.splitYear, sceneConfig.threshold, counts);
+      this.summaryContainer.innerHTML = `
+        <span class="big">
+        Since 1966, every past justice remained on the bench for at least 15 years, compared with only about half that rate before.
+        </span>
+      `;
       this.renderQuadrants(counts, sceneConfig.splitDate, sceneConfig.threshold);
       return;
     }

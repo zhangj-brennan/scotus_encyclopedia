@@ -60,7 +60,7 @@ function renderSteps() {
     <article class="step${i === 0 ? " is-active" : ""}" data-scene="${scene.id}">
       <div class="step-inner">
         <div class="step-number">${scene.stepLabel || ""}</div>
-        <h3>${scene.stepTitle || ""}</h3>
+        ${scene.stepTitle ? `<h3>${scene.stepTitle}</h3>` : ""}
         ${scene.stepBody || ""}
       </div>
     </article>
