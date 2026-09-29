@@ -14,23 +14,23 @@
       <h1>Senate Votes on Supreme Court Justice Confirmations</h1>
 
       <div class="panel">
-        <div class="panelSectionLabel">SORT BY CONFIRMATION YEAR:</div>
+        <div class="panelSectionLabel">Sort by Confirmation Year</div>
         <div class="controls">
           <button id="sort-date" class="active" type="button">Earliest to Most Recent</button>
            <button id="sort-date-desc" type="button">Most Recent to Earliest</button>
         </div>
-                <div class="panelSectionLabel">SORT BY % MARGIN:</div>
+                <div class="panelSectionLabel">Sort by margin</div>
 
  <div class="controls">
-          <button id="sort-partisanship" type="button">Largest to Smallest</button>
+          <button id="sort-partisanship" type="button">Largest to smallest</button>
 <button id="sort-partisanship-asc" type="button">
   Smallest to Largest
 </button>          </div>
 
-<div class="panelSectionLabel"> VIEW:</div>
+<div class="panelSectionLabel">View</div>
      <div class="controls">
-          <button id="view-counts" class="active" type="button">Show Counts</button>
-          <button id="view-percent" type="button">Show Percent</button>
+          <button id="view-counts" type="button">Show counts</button>
+          <button id="view-percent" class="active" type="button">Show percent</button>
      </div>
     <div class="panelSectionLabel">FILTER:</div> 
      <div class="controls">
@@ -63,8 +63,8 @@
         <div class="chart-wrap" id="chart"></div>
 
       </div>
-      <div id="footnote">*Confirmation for justice’s elevation to the position of Chief Justice from Associate Justice
-      <br><strong>Source: </strong><a href="https://www.senate.gov/legislative/nominations/SupremeCourtNominations1789present.htm" target="_blank">U.S. Senate, Supreme Court Nominations (1789-Present)</a>
+      <div id="footnote">*Confirmation for justice’s elevation from associate justice to chief justice
+      <br><strong>Source: </strong><a href="https://www.senate.gov/legislative/nominations/SupremeCourtNominations1789present.htm" target="_blank">U.S. Senate</a>.
     </div>
       </section>
 
@@ -106,18 +106,28 @@
     const tooltip = d3.select("#tooltip");
 
     let allData = [];
-    let currentSort = "date";
+    let currentSort = "date-asc";
     let currentView = "percent";
 
     let confirmedOnly = true;
     let hideVoiceVotes = true;
     let hideOlder = true;
 
+    // "Alito, Samuel A., Jr." -> "Samuel A. Alito Jr."; a trailing * stays at the end
+    function toFirstLast(name) {
+      const star = name.endsWith("*") ? "*" : "";
+      const parts = name.replace(/\*$/, "").split(",").map(s => s.trim());
+      if (parts.length < 2) return name;
+      const [last, first, ...suffix] = parts;
+      return [first, last, ...suffix].join(" ") + star;
+    }
+
     d3.csv(csvPath, d => {
       const voteYear = +String(d["Vote Year"] || "").trim();
       const yeaVotes = +String(d["Yea"] || "").replace(/,/g, "").trim();
       const noVotes = +String(d["Nay"] || "").replace(/,/g, "").trim();
       const justiceName = String(d["Nominee"] || "").trim();
+      const displayName = toFirstLast(justiceName);
       const totalVotes = yeaVotes + noVotes;
       const resultCode = String(d["Results"] || "").trim().toUpperCase();
 
@@ -126,6 +136,7 @@
         yeaVotes,
         noVotes,
         justiceName,
+        displayName,
         totalVotes,
         voice: String(d["Voice"] || "").toLowerCase() === "true",
         resultCode,
@@ -420,7 +431,7 @@ function hideTooltip() {
       .attr("text-anchor", "middle")
       .text(
         currentView === "percent"
-          ? "Yes %"
+          ? "Yes"
           : "Yes Votes"
       );
 
@@ -431,7 +442,7 @@ function hideTooltip() {
       .attr("text-anchor", "middle")
       .text(
         currentView === "percent"
-          ? "No %"
+          ? "No"
           : "No Votes"
       );
 
@@ -449,7 +460,7 @@ function hideTooltip() {
       .attr("y", (_, i) => y(i) + labelOffset)
       .attr("text-anchor", "start")
       .style("font-size", `${fontSizeName}px`)
-      .text(d => `${d.justiceName} (${d.voteYear})`);
+      .text(d => `${d.displayName} (${d.voteYear})`);
 
     // svg.selectAll(".year-label")
     //   .data(data)
@@ -494,7 +505,7 @@ function hideTooltip() {
           event,
           d,
           currentView === "percent"
-            ? "Yes %"
+            ? "Yes"
             : "Yes Votes",
           currentView === "percent"
             ? `${d.yeaPct.toFixed(0)}%`
@@ -529,7 +540,7 @@ function hideTooltip() {
           event,
           d,
           currentView === "percent"
-            ? "No %"
+            ? "No"
             : "No Votes",
           currentView === "percent"
             ? `${d.noPct.toFixed(0)}%`
@@ -606,7 +617,7 @@ function hideTooltip() {
   const fontSizeValue = 11;
 
   const maxNameLength =
-    d3.max(data, d => d.justiceName.length) || 10;
+    d3.max(data, d => d.displayName.length) || 10;
 
   const leftLabelWidth =
     Math.max(180, Math.min(340, maxNameLength * 7.2));
@@ -674,7 +685,7 @@ function hideTooltip() {
     .attr("text-anchor", "middle")
     .text(
       currentView === "percent"
-        ? "Yes %"
+        ? "Yes"
         : "Yes Votes"
     );
 
@@ -685,7 +696,7 @@ function hideTooltip() {
     .attr("text-anchor", "middle")
     .text(
       currentView === "percent"
-        ? "No %"
+        ? "No"
         : "No Votes"
     );
 
@@ -703,7 +714,7 @@ function hideTooltip() {
     .attr("y", (_, i) => y(i) + y.bandwidth() / 2)
     .attr("text-anchor", "end")
     .style("font-size", `${fontSizeName}px`)
-    .text(d => d.justiceName);
+    .text(d => d.displayName);
 
   svg.selectAll(".year-label")
     .data(data)
@@ -748,7 +759,7 @@ function hideTooltip() {
         event,
         d,
         currentView === "percent"
-          ? "Yes %"
+          ? "Yes"
           : "Yes Votes",
         currentView === "percent"
           ? `${d.yeaPct.toFixed(0)}%`
@@ -783,7 +794,7 @@ function hideTooltip() {
         event,
         d,
         currentView === "percent"
-          ? "No %"
+          ? "No"
           : "No Votes",
         currentView === "percent"
           ? `${d.noPct.toFixed(0)}%`
