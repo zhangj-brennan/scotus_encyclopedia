@@ -297,7 +297,7 @@ svg{
 }
 
 .dot.current{
-  fill:#fff;
+  fill:var(--dot-current);
   stroke:var(--dot-current);
   stroke-width:1.5px;
 }
@@ -386,9 +386,9 @@ svg{
 
 .chart-controls-main{
   display:flex;
-  align-items:center;
-  gap:10px;
-  flex-wrap:wrap;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:6px;
 }
 
 .justice-segment-group{

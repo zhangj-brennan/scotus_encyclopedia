@@ -154,6 +154,11 @@ document.querySelectorAll(".js-assume-current-years").forEach(btn => {
     group.classList.toggle("is-disabled", includeCurrentInCalculations);
   });
 
+  // Legend distinguishes outlined current justices, which no longer applies once they're included
+  document.querySelectorAll(".step .legend").forEach(legend => {
+    legend.style.display = includeCurrentInCalculations ? "none" : "";
+  });
+
   let noteText = includeCurrentInCalculations
     ? "Current justices are filled and included in calculations."
     : "Current justices are outlined and excluded from calculations.";
