@@ -1,6 +1,13 @@
 import { CONFIG, getChartDimensions } from "./config.js";
 import { pct, pct1 } from "./utils.js";
 
+// One decimal, but two when rounding would show ".0" (e.g. 7.98 not 8.0); whole numbers as-is (15)
+function formatTenure(years) {
+  if (Number.isInteger(years)) return String(years);
+  const oneDecimal = d3.format(".1f")(years);
+  return oneDecimal.endsWith(".0") ? d3.format(".2f")(years) : oneDecimal;
+}
+
 function getCalculationData(data) {
   return data.filter(d => d.includeInCalculations !== false);
 }
@@ -364,7 +371,7 @@ const x = d3.scaleTime()
       .style("display", "block")
       .html(`
         <div class="tooltip-name">${d.name || "Unknown justice"}</div>
-        <div>Tenure: ${d3.format(".1f")(d.tenureYears)} years</div>
+        <div>Tenure: ${formatTenure(d.tenureYears)} years</div>
         <div>Start: ${startYear}</div>
       `);
     this.moveTooltip(event);
