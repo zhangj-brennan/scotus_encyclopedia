@@ -907,9 +907,7 @@ function showTooltip(event, d) {
 <div class="tooltip-row"><strong>President:</strong> ${cleanTermPresident(d.President)}</div>
       <div class="tooltip-row"><strong>To replace:</strong> ${toReplaceLabel(d)}</div>
       <div class="tooltip-row"><strong>Nominated:</strong> ${formatDate(d["Nominated*"]) || "—"}</div>
-      <div class="tooltip-row"><strong>Result:</strong> ${getResultLabel(d)}${d.date ? " on " + formatDate(d.date) : ""}</div>
-      <div class="tooltip-row"><strong>Presidential term:</strong> ${formatYearRange(d["Term Years"])}</div>
-    `)
+      <div class="tooltip-row"><strong>Result:</strong> ${getResultLabel(d)}${d.date ? " on " + formatDate(d.date) : ""}</div>    `)
     .style("opacity", 1);
 
   moveTooltip(event);
