@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Diverging Vote Bars</title>
+  <title>Diverging vote bars</title>
   <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
   <link rel="stylesheet" href="senate.css" />
 </head>
@@ -11,20 +11,20 @@
 <body>
   <div class="wrap">
     <section class="hero">
-      <h1>Senate Votes on Supreme Court Justice Confirmations</h1>
+      <h1>Senate votes on Supreme Court justice nominations</h1>
 
       <div class="panel">
-        <div class="panelSectionLabel">Sort by Confirmation Year</div>
+        <div class="panelSectionLabel">Sort by confirmation year</div>
         <div class="controls">
-          <button id="sort-date" class="active" type="button">Earliest to Most Recent</button>
-           <button id="sort-date-desc" type="button">Most Recent to Earliest</button>
+          <button id="sort-date" type="button">Earliest to most recent</button>
+           <button id="sort-date-desc" class="active" type="button">Most recent to earliest</button>
         </div>
                 <div class="panelSectionLabel">Sort by margin</div>
 
  <div class="controls">
           <button id="sort-partisanship" type="button">Largest to smallest</button>
 <button id="sort-partisanship-asc" type="button">
-  Smallest to Largest
+  Smallest to largest
 </button>          </div>
 
 <div class="panelSectionLabel">View</div>
@@ -32,22 +32,13 @@
           <button id="view-counts" type="button">Show counts</button>
           <button id="view-percent" class="active" type="button">Show percent</button>
      </div>
-    <div class="panelSectionLabel">FILTER:</div> 
+    <div class="panelSectionLabel">Filter</div> 
      <div class="controls">
         <div class="controls filters-checkboxes">
   <label>
     <input type="checkbox" id="filter-confirmed" checked>
-    Confirmed Only
+    Confirmed only
   </label> 
-   <label>
-    <input type="checkbox" id="filter-modern" checked>
-  Show only 1967 to present
-  </label>
-
-  <label id="voice-filter-wrapper">
-    <input type="checkbox" id="filter-voice" checked>
-    Hide Voice Votes
-  </label>
 
 
 </div>
@@ -94,23 +85,22 @@
     ]);
 
     const RESULT_LABELS = {
-      D: "Declined",
-      N: "No Action",
+      D: "Declined to serve",
+      N: "No action",
       P: "Postponed",
       R: "Rejected",
       W: "Withdrawn",
-      CNA: "Confirmed Vote N/A"
+      CNA: "Confirmed vote N/A"
     };
 
     const chartContainer = d3.select("#chart");
     const tooltip = d3.select("#tooltip");
 
     let allData = [];
-    let currentSort = "date-asc";
+    let currentSort = "date-desc";
     let currentView = "percent";
 
     let confirmedOnly = true;
-    let hideVoiceVotes = true;
     let hideOlder = true;
 
     // "Alito, Samuel A., Jr." -> "Samuel A. Alito Jr."; a trailing * stays at the end
@@ -158,7 +148,6 @@
       );
 
       setActiveButton();
-      updateFilterVisibility();
       updateChart();
 
       window.addEventListener("resize", updateChart);
@@ -171,21 +160,18 @@
     document.getElementById("sort-date").addEventListener("click", () => {
       currentSort = "date-asc";
       setActiveButton();
-      updateFilterVisibility();
       updateChart();
     });
 
     document.getElementById("sort-date-desc").addEventListener("click", () => {
       currentSort = "date-desc";
       setActiveButton();
-      updateFilterVisibility();
       updateChart();
     });
 
     document.getElementById("sort-partisanship").addEventListener("click", () => {
       currentSort = "partisanship";
       setActiveButton();
-      updateFilterVisibility();
       updateChart();
     });
 document.getElementById("sort-partisanship-asc").addEventListener("click", () => {
@@ -198,14 +184,12 @@ document.getElementById("sort-partisanship-asc").addEventListener("click", () =>
     document.getElementById("view-counts").addEventListener("click", () => {
       currentView = "counts";
       setActiveButton();
-      updateFilterVisibility();
       updateChart();
     });
 
     document.getElementById("view-percent").addEventListener("click", () => {
       currentView = "percent";
       setActiveButton();
-      updateFilterVisibility();
       updateChart();
     });
 
@@ -214,24 +198,6 @@ document.getElementById("sort-partisanship-asc").addEventListener("click", () =>
   updateChart();
 });
 
-document.getElementById("filter-voice").addEventListener("change", e => {
-  hideVoiceVotes = e.target.checked;
-  updateChart();
-});
-
-document.getElementById("filter-modern").addEventListener("change", e => {
-  hideOlder = e.target.checked;
-
-  if (!hideOlder) {
-    hideVoiceVotes = false;
-    document.getElementById("filter-voice").checked = false;
-    document.getElementById("filter-voice")
-      .classList.toggle("active", hideVoiceVotes);
-  }
-
-  updateFilterVisibility();
-  updateChart();
-});
 
     function setActiveButton() {
       document.getElementById("sort-date")
@@ -253,34 +219,14 @@ document.getElementById("filter-modern").addEventListener("change", e => {
 
       document.getElementById("filter-confirmed")
         .classList.toggle("active", confirmedOnly);
-
-      document.getElementById("filter-voice")
-        .classList.toggle("active", hideVoiceVotes);
-
-      document.getElementById("filter-modern")
-        .classList.toggle("active", hideOlder);
     }
 
-
-    function updateFilterVisibility() {
-      const voiceWrapper = document.getElementById("voice-filter-wrapper");
-
-      if (hideOlder) {
-        voiceWrapper.style.display = "none";
-      } else {
-        voiceWrapper.style.display = "";
-      }
-    }
 
     function getSortedData() {
       let data = [...allData];
 
       if (confirmedOnly) {
         data = data.filter(d => d.resultCode === "C");
-      }
-
-      if (hideVoiceVotes) {
-        data = data.filter(d => !d.voice);
       }
 
       if (hideOlder) {
@@ -332,11 +278,11 @@ document.getElementById("filter-modern").addEventListener("change", e => {
     .style("top", `${event.pageY - 10}px`)
     // .html(console.log(d))
     .html(`
-      <strong>${d.justiceName}</strong><br>
-      Vote Year: ${d.voteYear}<br>
-      Yea Votes: ${d.yeaVotes} (${Math.round(d.yeaPct)}%)<br>
-      No Votes: ${d.noVotes} (${Math.round(d.noPct)}%)<br>
-      Total Votes: ${d.totalVotes}<br>
+      <strong>${d.displayName}</strong><br>
+      Vote year: ${d.voteYear}<br>
+      Yea votes: ${d.yeaVotes} (${Math.round(d.yeaPct)}%)<br>
+      No votes: ${d.noVotes} (${Math.round(d.noPct)}%)<br>
+      Total votes: ${d.totalVotes}<br>
     `);
 }
 
@@ -432,7 +378,7 @@ function hideTooltip() {
       .text(
         currentView === "percent"
           ? "Yes"
-          : "Yes Votes"
+          : "Yes votes"
       );
 
     svg.append("text")
@@ -443,7 +389,7 @@ function hideTooltip() {
       .text(
         currentView === "percent"
           ? "No"
-          : "No Votes"
+          : "No votes"
       );
 
     svg.selectAll(".name-label")
@@ -506,7 +452,7 @@ function hideTooltip() {
           d,
           currentView === "percent"
             ? "Yes"
-            : "Yes Votes",
+            : "Yes votes",
           currentView === "percent"
             ? `${d.yeaPct.toFixed(0)}%`
             : d.yeaVotes
@@ -541,7 +487,7 @@ function hideTooltip() {
           d,
           currentView === "percent"
             ? "No"
-            : "No Votes",
+            : "No votes",
           currentView === "percent"
             ? `${d.noPct.toFixed(0)}%`
             : d.noVotes
@@ -686,7 +632,7 @@ function hideTooltip() {
     .text(
       currentView === "percent"
         ? "Yes"
-        : "Yes Votes"
+        : "Yes votes"
     );
 
   svg.append("text")
@@ -697,7 +643,7 @@ function hideTooltip() {
     .text(
       currentView === "percent"
         ? "No"
-        : "No Votes"
+        : "No votes"
     );
 
   svg.selectAll(".name-label")
@@ -760,7 +706,7 @@ function hideTooltip() {
         d,
         currentView === "percent"
           ? "Yes"
-          : "Yes Votes",
+          : "Yes votes",
         currentView === "percent"
           ? `${d.yeaPct.toFixed(0)}%`
           : d.yeaVotes
@@ -795,7 +741,7 @@ function hideTooltip() {
         d,
         currentView === "percent"
           ? "No"
-          : "No Votes",
+          : "No votes",
         currentView === "percent"
           ? `${d.noPct.toFixed(0)}%`
           : d.noVotes
