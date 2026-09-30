@@ -101,7 +101,7 @@
     let currentView = "percent";
 
     let confirmedOnly = true;
-    let hideOlder = true;
+    let hideOlder = false;
 
     // "Alito, Samuel A., Jr." -> "Samuel A. Alito Jr."; a trailing * stays at the end
     function toFirstLast(name) {
@@ -249,7 +249,9 @@ document.getElementById("sort-partisanship-asc").addEventListener("click", () =>
     const diffA = Math.abs(a.yeaPct - a.noPct);
     const diffB = Math.abs(b.yeaPct - b.noPct);
 
-    return d3.ascending(diffA, diffB) ||
+    // voice votes have no margin, so keep them at the bottom
+    return d3.ascending(a.voice, b.voice) ||
+           d3.ascending(diffA, diffB) ||
            d3.ascending(a.voteYear, b.voteYear);
   });
 
