@@ -154,6 +154,11 @@ html,body{
   color:var(--muted);
 }
 
+.source-note strong{
+  font-family:"BentonStrong", Arial, sans-serif;
+  font-weight:normal;
+}
+
 .source-note a{
   color:#007194;
   text-decoration:none;
