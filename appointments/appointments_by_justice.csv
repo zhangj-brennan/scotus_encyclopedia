@@ -18,7 +18,7 @@ President Last First,President,Nominee,To Replace,Nominated*,result,date,recess,
 "Adams, John",JOHN ADAMS,"Jay, John",Ellsworth,"Dec 18, 1800",D,"Dec 19, 1800",FALSE,,1800,1797-1801,JOHN ADAMS
 "Adams, John",JOHN ADAMS,"Marshall, John",Ellsworth,"Jan 20, 1801",C,"Jan 27, 1801",FALSE,,1801,1797-1801,JOHN ADAMS
 "Jefferson, Thomas",THOMAS JEFFERSON ,"Johnson, William",Moore,"Mar 22, 1804",C,"Mar 24, 1804",FALSE,,1804,1801-1805,THOMAS JEFFERSON (first term)
-"Jefferson, Thomas",THOMAS JEFFERSON ,"Livingston, Henry B.",Paterson,"Dec 13, 1806",C,"Dec 17, 1806",TRUE,,1806,1805-1809,THOMAS JEFFERSON (second term)
+"Jefferson, Thomas",THOMAS JEFFERSON ,"Livingston, Henry",Paterson,"Dec 13, 1806",C,"Dec 17, 1806",TRUE,,1806,1805-1809,THOMAS JEFFERSON (second term)
 "Jefferson, Thomas",THOMAS JEFFERSON ,"Todd, Thomas",(new seat),"Feb 28, 1807",C,"Mar 2, 1807",FALSE,,1807,1805-1809,THOMAS JEFFERSON (second term)
 "Madison, James",JAMES MADISON ,"Adams, John Quincy",Cushing,"Feb 21, 1811",D,"Feb 22, 1811",FALSE,,1811,1809-1813,JAMES MADISON (first term)
 "Madison, James",JAMES MADISON ,"Lincoln, Levi",Cushing,"Jan 2, 1811",D,"Jan 3, 1811",FALSE,,1811,1809-1813,JAMES MADISON (first term)
@@ -125,9 +125,9 @@ President Last First,President,Nominee,To Replace,Nominated*,result,date,recess,
 "Truman, Harry",HARRY S. TRUMAN,"Vinson, Fred",Stone,"Thursday, June 6, 1946",C,"Thursday, June 20, 1946",FALSE,,1946,1945-1949,FDR/Truman
 "Truman, Harry",HARRY S. TRUMAN,"Clark, Tom",Murphy,"Tuesday, August 2, 1949",C,"Thursday, August 18, 1949",FALSE,,1949,1949-1953,HARRY S. TRUMAN
 "Truman, Harry",HARRY S. TRUMAN,"Minton, Sherman",Rutledge,"Thursday, September 15, 1949",C,"Tuesday, October 4, 1949",FALSE,,1949,1949-1953,HARRY S. TRUMAN
-"Eisenhower, Dwight",DWIGHT D. EISENHOWER ,"Harlan, John",Jackson,"Tuesday, November 9, 1954",N,,FALSE,,1954,1953-1957,DWIGHT D. EISENHOWER (first term)
+"Eisenhower, Dwight",DWIGHT D. EISENHOWER ,"Harlan, John, II",Jackson,"Tuesday, November 9, 1954",N,,FALSE,,1954,1953-1957,DWIGHT D. EISENHOWER (first term)
 "Eisenhower, Dwight",DWIGHT D. EISENHOWER ,"Warren, Earl",Vinson,"Monday, January 11, 1954",C,"Monday, March 1, 1954",TRUE,,1954,1953-1957,DWIGHT D. EISENHOWER (first term)
-"Eisenhower, Dwight",DWIGHT D. EISENHOWER ,"Harlan, John",Jackson,"Monday, January 10, 1955",C,"Wednesday, March 16, 1955",FALSE,,1955,1953-1957,DWIGHT D. EISENHOWER (first term)
+"Eisenhower, Dwight",DWIGHT D. EISENHOWER ,"Harlan, John, II",Jackson,"Monday, January 10, 1955",C,"Wednesday, March 16, 1955",FALSE,,1955,1953-1957,DWIGHT D. EISENHOWER (first term)
 "Eisenhower, Dwight",DWIGHT D. EISENHOWER ,"Whittaker, Charles",Reed,"Saturday, March 2, 1957",C,"Tuesday, March 19, 1957",FALSE,,1957,1957-1961,DWIGHT D. EISENHOWER (second term)
 "Eisenhower, Dwight",DWIGHT D. EISENHOWER ,"Brennan, William, Jr.",Minton,"Monday, January 14, 1957",C,"Tuesday, March 19, 1957",TRUE,,1957,1957-1961,DWIGHT D. EISENHOWER (second term)
 "Eisenhower, Dwight",DWIGHT D. EISENHOWER ,"Stewart, Potter",Burton,"Saturday, January 17, 1959",C,"Tuesday, May 5, 1959",TRUE,,1959,1957-1961,DWIGHT D. EISENHOWER (second term)
@@ -141,26 +141,26 @@ President Last First,President,Nominee,To Replace,Nominated*,result,date,recess,
 "Nixon, Richard",RICHARD M. NIXON,"Haynsworth, Clement, Jr.",Fortas,"Thursday, August 21, 1969",R,"Friday, November 21, 1969",FALSE,,1969,1969-1973,RICHARD M. NIXON
 "Nixon, Richard",RICHARD M. NIXON,"Blackmun, Harry",Fortas,"Wednesday, April 15, 1970",C,"Tuesday, May 12, 1970",FALSE,,1970,1969-1973,RICHARD M. NIXON
 "Nixon, Richard",RICHARD M. NIXON,"Carswell, G. Harrold",Fortas,"Monday, January 19, 1970",R,"Wednesday, April 8, 1970",FALSE,,1970,1969-1973,RICHARD M. NIXON
-"Nixon, Richard",RICHARD M. NIXON,"Powell, Lewis F., Jr.",Black,"Friday, October 22, 1971",C,"Monday, December 6, 1971",FALSE,,1971,1969-1973,RICHARD M. NIXON
-"Nixon, Richard",RICHARD M. NIXON,"Rehnquist, William H.",Harlan,"Friday, October 22, 1971",C,"Friday, December 10, 1971",FALSE,,1971,1969-1973,RICHARD M. NIXON
+"Nixon, Richard",RICHARD M. NIXON,"Powell, Lewis, Jr.",Black,"Friday, October 22, 1971",C,"Monday, December 6, 1971",FALSE,,1971,1969-1973,RICHARD M. NIXON
+"Nixon, Richard",RICHARD M. NIXON,"Rehnquist, William",Harlan,"Friday, October 22, 1971",C,"Friday, December 10, 1971",FALSE,,1971,1969-1973,RICHARD M. NIXON
 "Ford, Gerald",GERALD R. FORD,"Stevens, John Paul",Douglas,"Friday, November 28, 1975",C,"Wednesday, December 17, 1975",FALSE,,1975,1973-1977,RICHARD M. NIXON/GERALD R. FORD
 "Reagan, Ronald",RONALD REAGAN ,"O'Connor, Sandra Day",Stewart,"Wednesday, August 19, 1981",C,"Monday, September 21, 1981",FALSE,,1981,1981-1985,RONALD REAGAN (first term)
 "Reagan, Ronald",RONALD REAGAN ,"Scalia, Antonin",Rehnquist,"Tuesday, June 24, 1986",C,"Wednesday, September 17, 1986",FALSE,,1986,1985-1989,RONALD REAGAN (second term)
-"Reagan, Ronald",RONALD REAGAN ,"Rehnquist, William H.",Burger,"Friday, June 20, 1986",C,"Wednesday, September 17, 1986",FALSE,TRUE,1986,1985-1989,RONALD REAGAN (second term)
-"Reagan, Ronald",RONALD REAGAN ,"Kennedy, Anthony M.",Powell,"Monday, November 30, 1987",C,"Wednesday, February 3, 1988",FALSE,,1987,1985-1989,RONALD REAGAN (second term)
-"Reagan, Ronald",RONALD REAGAN ,"Bork, Robert H.",Powell,"Tuesday, July 7, 1987",R,"Friday, October 23, 1987",FALSE,,1987,1985-1989,RONALD REAGAN (second term)
-"Bush, George H.W.",GEORGE H.W. BUSH,"Souter, David H.",Brennan,"Wednesday, July 25, 1990",C,"Tuesday, October 2, 1990",FALSE,,1990,1989-1993,GEORGE H.W. BUSH
+"Reagan, Ronald",RONALD REAGAN ,"Rehnquist, William",Burger,"Friday, June 20, 1986",C,"Wednesday, September 17, 1986",FALSE,TRUE,1986,1985-1989,RONALD REAGAN (second term)
+"Reagan, Ronald",RONALD REAGAN ,"Kennedy, Anthony",Powell,"Monday, November 30, 1987",C,"Wednesday, February 3, 1988",FALSE,,1987,1985-1989,RONALD REAGAN (second term)
+"Reagan, Ronald",RONALD REAGAN ,"Bork, Robert",Powell,"Tuesday, July 7, 1987",R,"Friday, October 23, 1987",FALSE,,1987,1985-1989,RONALD REAGAN (second term)
+"Bush, George H.W.",GEORGE H.W. BUSH,"Souter, David",Brennan,"Wednesday, July 25, 1990",C,"Tuesday, October 2, 1990",FALSE,,1990,1989-1993,GEORGE H.W. BUSH
 "Bush, George H.W.",GEORGE H.W. BUSH,"Thomas, Clarence",Marshall,"Monday, July 8, 1991",C,"Tuesday, October 15, 1991",FALSE,,1991,1989-1993,GEORGE H.W. BUSH
 "Clinton, Bill",BILL CLINTON ,"Ginsburg, Ruth Bader",White,"Tuesday, June 22, 1993",C,"Tuesday, August 3, 1993",FALSE,,1993,1993-1997,BILL CLINTON (first term)
-"Clinton, Bill",BILL CLINTON ,"Breyer, Stephen G.",Blackmun,"Tuesday, May 17, 1994",C,"Friday, July 29, 1994",FALSE,,1994,1993-1997,BILL CLINTON (first term)
+"Clinton, Bill",BILL CLINTON ,"Breyer, Stephen",Blackmun,"Tuesday, May 17, 1994",C,"Friday, July 29, 1994",FALSE,,1994,1993-1997,BILL CLINTON (first term)
 "Bush, George W.",GEORGE W. BUSH ,"Miers, Harriet",O'Connor,"Friday, October 7, 2005",W,"Friday, October 28, 2005",FALSE,,2005,2005-2009,GEORGE W. BUSH (second term)
-"Bush, George W.",GEORGE W. BUSH ,"Roberts, John G., Jr.",Rehnquist,"Tuesday, September 6, 2005",C,"Thursday, September 29, 2005",FALSE,,2005,2005-2009,GEORGE W. BUSH (second term)
-"Bush, George W.",GEORGE W. BUSH ,"Roberts, John G., Jr.",O'Connor,"Friday, July 29, 2005",W,"Tuesday, September 6, 2005",FALSE,,2005,2005-2009,GEORGE W. BUSH (second term)
-"Bush, George W.",GEORGE W. BUSH ,"Alito, Samuel A., Jr.",O'Connor,"Thursday, November 10, 2005",C,"Tuesday, January 31, 2006",FALSE,,2005,2005-2009,GEORGE W. BUSH (second term)
+"Bush, George W.",GEORGE W. BUSH ,"Roberts, John, Jr.",Rehnquist,"Tuesday, September 6, 2005",C,"Thursday, September 29, 2005",FALSE,,2005,2005-2009,GEORGE W. BUSH (second term)
+"Bush, George W.",GEORGE W. BUSH ,"Roberts, John, Jr.",O'Connor,"Friday, July 29, 2005",W,"Tuesday, September 6, 2005",FALSE,,2005,2005-2009,GEORGE W. BUSH (second term)
+"Bush, George W.",GEORGE W. BUSH ,"Alito, Samuel, Jr.",O'Connor,"Thursday, November 10, 2005",C,"Tuesday, January 31, 2006",FALSE,,2005,2005-2009,GEORGE W. BUSH (second term)
 "Obama, Barack",BARACK OBAMA ,"Sotomayor, Sonia",Souter,"Monday, June 1, 2009",C,"Thursday, August 6, 2009",FALSE,,2009,2009-2013,BARACK OBAMA (first term)
 "Obama, Barack",BARACK OBAMA ,"Kagan, Elena",Stevens,"Monday, May 10, 2010",C,"Thursday, August 5, 2010",FALSE,,2010,2009-2013,BARACK OBAMA (first term)
-"Obama, Barack",BARACK OBAMA ,"Garland, Merrick B.",Scalia,"Wednesday, March 16, 2016",N,,FALSE,,2016,2013-2017,BARACK OBAMA (second term)
-"Trump, Donald",DONALD J. TRUMP,"Gorsuch, Neil M.",Scalia,"Wednesday, February 1, 2017",C,"Friday, April 7, 2017",FALSE,,2017,2017-2021,DONALD J. TRUMP
+"Obama, Barack",BARACK OBAMA ,"Garland, Merrick",Scalia,"Wednesday, March 16, 2016",N,,FALSE,,2016,2013-2017,BARACK OBAMA (second term)
+"Trump, Donald",DONALD J. TRUMP,"Gorsuch, Neil",Scalia,"Wednesday, February 1, 2017",C,"Friday, April 7, 2017",FALSE,,2017,2017-2021,DONALD J. TRUMP
 "Trump, Donald",DONALD J. TRUMP,"Kavanaugh, Brett",Kennedy,"Tuesday, July 10, 2018",C,"Saturday, October 6, 2018",FALSE,,2018,2017-2021,DONALD J. TRUMP
 "Trump, Donald",DONALD J. TRUMP,"Barrett, Amy Coney",Ginsburg,"Tuesday, September 29, 2020",C,"Monday, October 26, 2020",FALSE,,2020,2017-2021,DONALD J. TRUMP
 "Biden, Joseph R., Jr.",JOE BIDEN,"Jackson, Ketanji Brown",Breyer,"Monday, February 28, 2022",C,"Thursday, April 7, 2022",FALSE,,2022,2021-2025,JOE BIDEN

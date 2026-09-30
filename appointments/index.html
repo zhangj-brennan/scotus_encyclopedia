@@ -251,10 +251,10 @@ a {
   <div id="chart"></div>
 
   <div id="footnote" class="footnote">
-*These presidents also elevated a justice from their previous position as an Associate Justice to the of Chief Justice (includes President Taft’s elevation of Justice White, President F.D. Roosevelt’s elevation of Justice Stone, and President Reagan’s elevation of Justice Rehnquist)
+<strong>Note:</strong> Confirmations include justices who were put in office as recess appointments while the Senate was in recess and later confirmed.
+<br>*These presidents also elevated a justice from their previous position as an Associate Justice to the office of Chief Justice (includes President Taft’s elevation of Justice White, President F.D. Roosevelt’s elevation of Justice Stone, and President Reagan’s elevation of Justice Rehnquist)
 <span id="two-president-footnote"><br>^For terms with two presidents listed, that indicates that a president died or left office and the vice president finished out the remainder of the term.</span>
-<br><strong>Note:</strong> Confirmations include justices who were put in office as recess appointments while the Senate was in recess and later confirmed.
-<br><strong>Source: </strong>U.S. Senate, Supreme Court Nominations (1789-Present), <a href="https://www.senate.gov/legislative/nominations/SupremeCourtNominations1789present.htm" target="_blank">https://www.senate.gov/legislative/nominations/SupremeCourtNominations1789present.htm</a>.
+<br><strong>Source: </strong>U.S. Senate, Supreme Court Nominations (1789–Present), <a href="https://www.senate.gov/legislative/nominations/SupremeCourtNominations1789present.htm" target="_blank">https://www.senate.gov/legislative/nominations/SupremeCourtNominations1789present.htm</a>.
 </div>
 
 <div id="tooltip" class="tooltip"></div>
@@ -317,7 +317,7 @@ president: formatTermPresidentLabel(
   d.termPresident ||
   (d.values[0] && d.values[0]["Term President"])
 ),
-     years: d.key
+     years: formatYearRange(d.key)
   })
 }
 };
@@ -331,6 +331,22 @@ function cleanText(value) {
     .replace(/√ä\d*/g, "")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+// "Sep 24, 1789" -> "September 24, 1789"; "Tuesday, December 2, 1902" -> "December 2, 1902"
+const FULL_MONTHS = {
+  Jan: "January", Feb: "February", Mar: "March", Apr: "April", May: "May", Jun: "June",
+  Jul: "July", Aug: "August", Sep: "September", Oct: "October", Nov: "November", Dec: "December"
+};
+function formatDate(value) {
+  return cleanText(value)
+    .replace(/^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),\s*/i, "")
+    .replace(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b\.?/g, m => FULL_MONTHS[m.replace(".", "")]);
+}
+
+// "1789-1793" -> "1789–1793" (en dash)
+function formatYearRange(value) {
+  return cleanText(value).replace(/(\d)\s*-\s*(\d)/g, "$1–$2");
 }
 
 // "Roberts, John G., Jr." -> "John G. Roberts Jr."
@@ -859,15 +875,41 @@ function drawSymbolShape(g, type) {
   }
 }
 
+// Blank or "(new seat)" both mean the nominee filled a newly created seat.
+// Otherwise expand the last name to the full name of the most recent justice
+// with that name confirmed (or confirmed then declined) before this nomination.
+function toReplaceLabel(d) {
+  const text = cleanText(d["To Replace"]);
+  if (!text || text.toLowerCase() === "(new seat)") return "New seat";
+
+  const nominatedAt = new Date(formatDate(d["Nominated*"]));
+  let match = null;
+  let matchAt = null;
+
+  RAW_DATA.forEach(row => {
+    if (row.result !== "C" && row.result !== "D") return;
+    const fullName = firstLastName(row.Nominee);
+    if (!` ${fullName} `.includes(` ${text} `)) return;
+    const rowAt = new Date(formatDate(row["Nominated*"]));
+    if (!(rowAt < nominatedAt)) return;
+    if (!matchAt || rowAt > matchAt) {
+      match = fullName;
+      matchAt = rowAt;
+    }
+  });
+
+  return match || text;
+}
+
 function showTooltip(event, d) {
   d3.select("#tooltip")
     .html(`
       <div class="tooltip-title">${firstLastName(d.Nominee)}</div>
 <div class="tooltip-row"><strong>President:</strong> ${cleanTermPresident(d.President)}</div>
-      <div class="tooltip-row"><strong>To replace:</strong> ${cleanText(d["To Replace"]) || "—"}</div>
-      <div class="tooltip-row"><strong>Nominated:</strong> ${cleanText(d["Nominated*"]) || "—"}</div>
-      <div class="tooltip-row"><strong>Result:</strong> ${getResultLabel(d)}${d.date ? " — " + cleanText(d.date) : ""}</div>
-      <div class="tooltip-row"><strong>Term:</strong> ${cleanText(d["Term Years"]) }</div>
+      <div class="tooltip-row"><strong>To replace:</strong> ${toReplaceLabel(d)}</div>
+      <div class="tooltip-row"><strong>Nominated:</strong> ${formatDate(d["Nominated*"]) || "—"}</div>
+      <div class="tooltip-row"><strong>Result:</strong> ${getResultLabel(d)}${d.date ? " on " + formatDate(d.date) : ""}</div>
+      <div class="tooltip-row"><strong>Presidential term:</strong> ${formatYearRange(d["Term Years"])}</div>
     `)
     .style("opacity", 1);
 
