@@ -41,7 +41,7 @@ export function getSceneConfigs() {
     {
       id: "scene5",
       stepLabel: "",
-      stepTitle: "Justices starting after 1950 are more likely to serve longer.",
+      stepTitle: "",
       stepBody: `
         <p>It’s also helpful to look at how the durability rate changes over time. This chart adds that dimension by splitting the Court’s history into two time periods: pre-1966 and post-1966.</p><br>
         <p>Before 1966, about half the justices remained on the bench for 15 years, and half did not. But after 1966, every past justice served for at least 15 years.</p>
