@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Supreme Court Tenure: Median Tenure Split</title>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .single-figure{
+      max-width:700px;
+      margin:0 auto;
+      padding:24px 24px 40px;
+    }
+  </style>
+</head>
+<body>
+  <main class="single-figure">
+    <div class="sticky-figure">
+      <div class="figure-header">
+        <div id="figureSummary" class="summary-box"></div>
+      </div>
+      <div id="figureChart" class="chart-shell"></div>
+      <div id="figureControls" class="figure-controls"></div>
+      <div id="figureHint" class="figure-hint"></div>
+      <div class="source-note">
+        <strong>Note:</strong> Tenure for current justices are calculated to September 30th 2026.<br>
+        <strong>Source:</strong> <a href="https://www.fjc.gov/history/courts/supreme-court-united-states-justices" target="_blank">FJC, Supreme Court of the United States: Justices</a>.
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { loadData } from "./js/data.js";
+    import { ScatterSurvivalChart } from "./js/chart.js";
+    import { getSceneConfigs } from "./js/scenes.js";
+
+    const scene = getSceneConfigs().find(s => s.id === "sceneMedianSplitDraggable");
+
+    const els = {
+      figureSummary: document.getElementById("figureSummary"),
+      figureHint: document.getElementById("figureHint"),
+      figureControls: document.getElementById("figureControls"),
+      chart: document.getElementById("figureChart")
+    };
+
+    const chart = new ScatterSurvivalChart({
+      container: els.chart,
+      summaryContainer: els.figureSummary,
+      hintContainer: els.figureHint
+    });
+
+    let allData = [];
+    let includeCurrentInCalculations = false;
+
+    function getFilteredData() {
+      return allData.map(d => ({
+        ...d,
+        includeInCalculations: !d.isCurrent || includeCurrentInCalculations
+      }));
+    }
+
+    function render() {
+      const data = getFilteredData();
+      chart.init(data);
+      chart.renderScene(scene.id, scene, data);
+    }
+
+    function updateControls() {
+      const btn = els.figureControls.querySelector(".js-current-toggle");
+      btn.textContent = includeCurrentInCalculations ? "Exclude current justices from calculations" : "Include current justices in calculations";
+      btn.classList.toggle("active", includeCurrentInCalculations);
+
+      els.figureControls.querySelector(".js-current-note").textContent = includeCurrentInCalculations
+        ? "Current justices are filled and included in calculations."
+        : "Current justices are outlined and excluded from calculations.";
+    }
+
+    els.figureControls.innerHTML = `
+      <div class="chart-controls">
+        <div class="chart-controls-main">
+          <button class="toggle-btn js-current-toggle" type="button">Include current justices</button>
+          <div class="controls-note js-current-note">Showing all justices.</div>
+        </div>
+      </div>
+    `;
+
+    els.figureControls.querySelector(".js-current-toggle").addEventListener("click", () => {
+      includeCurrentInCalculations = !includeCurrentInCalculations;
+      updateControls();
+      render();
+    });
+
+    allData = await loadData();
+    updateControls();
+    render();
+  </script>
+</body>
+</html>

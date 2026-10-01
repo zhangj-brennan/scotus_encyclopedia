@@ -629,7 +629,7 @@ this.renderQuadrants(counts, splitDate, threshold);
     this.g.vLine
       .interrupt()
       .style("display", null)
-      .style("stroke", "var(--accent)")
+      .style("stroke", "var(--accent2)")
       .attr("y1", margin.top)
       .attr("y2", margin.top + innerHeight)
       .attr("x1", xx)
@@ -669,7 +669,7 @@ this.renderQuadrants(counts, splitDate, threshold);
       .attr("x", xRightCenter)
       .attr("y", yCenter)
       .text(`${d3.format(".1f")(medians.right)}`)
-      .style("fill", "var(--accent)");
+      .style("fill", "#000");
 
     this.g.quad.trSub
       .attr("x", xRightCenter)
@@ -682,7 +682,7 @@ this.renderQuadrants(counts, splitDate, threshold);
         ${d3.format(".1f")(medians.left)} years vs. ${d3.format(".1f")(medians.right)} years
       </span>
       ${this.state?.sceneConfig?.medianSplitDraggable
-        ? `<span class="summary-hint">Drag the orange vertical line left or right.</span>`
+        ? `<span class="summary-hint">Drag the purple vertical line left or right.</span>`
         : ""}
     `;
   }
@@ -918,7 +918,7 @@ this.renderQuadrants(counts, splitDate, threshold);
         .style("fill", "#000");
 
       // RIGHT SIDE (highlight color)
-      const rightColor = "var(--accent)"; // or your accent color
+      const rightColor = "#000";
 
       this.g.quad.tr
         .attr("x", xRightCenter)

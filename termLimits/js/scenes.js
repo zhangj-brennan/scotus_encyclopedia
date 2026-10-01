@@ -67,7 +67,7 @@ export function getSceneConfigs() {
   stepTitle: "Median tenure after 1966 is more than 10 years longer than before 1966.",
   stepBody: `
  <p>Supreme Court justices who served on the Court prior to 1966 stayed for a median of 15.3 years. But for the justices that served on the Court after 1966, that number jumps dramatically to a median of 25.7 years (not including the current justices).</p>
- <br><p>Move the orange line to explore how median tenure compares across two time periods.</p>
+ <br><p>Move the purple line to explore how median tenure compares across two time periods.</p>
     `,
   medianOnly: true,
   medianSplitDraggable: true,
