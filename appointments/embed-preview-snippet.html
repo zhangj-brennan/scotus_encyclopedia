@@ -1,0 +1,22 @@
+<!-- Paste into Drupal (Full HTML / source view). Shows the top 400px of the chart with a
+     Show more / Show less button; the iframe resizes when the reader toggles it. -->
+<iframe id="bc-appt-preview-frame"
+        src="https://zhangj-brennan.github.io/scotus_encyclopedia/appointments/index_preview.html"
+        style="width:100%; height:440px; border:0; display:block;"
+        scrolling="no" title="Presidential nominations of a justice to the Supreme Court"></iframe>
+<script>
+(function () {
+  window.addEventListener('message', function (e) {
+    if (e.origin !== 'https://zhangj-brennan.github.io' || !e.data || e.data.type !== 'appt-preview-height') return;
+    // Look the iframe up on each message, in case the CMS re-renders it after this script runs
+    var frame = document.getElementById('bc-appt-preview-frame');
+    if (!frame) return;
+    frame.style.height = e.data.height + 'px';
+    // After "Show less", bring the chart back into view if the reader had scrolled past its top
+    if (e.data.collapsed) {
+      var top = frame.getBoundingClientRect().top;
+      if (top < 0) window.scrollBy(0, top - 120);
+    }
+  });
+})();
+</script>

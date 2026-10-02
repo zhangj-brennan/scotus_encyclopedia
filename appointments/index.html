@@ -1022,8 +1022,10 @@ if (window.parent !== window) {
     lastHeight = h;
     window.parent.postMessage({ type: "appt-height", height: h }, "*");
   };
+  postHeight();
   new ResizeObserver(postHeight).observe(document.body);
   window.addEventListener("load", postHeight);
+  document.fonts?.ready.then(postHeight);
 }
 </script>
 

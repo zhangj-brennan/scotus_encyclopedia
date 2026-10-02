@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Senate Confirmation Votes: Preview</title>
+  <style>
+    @font-face {
+      font-family: "BentonMedium";
+      src: url("../Benton Sans/Benton Sans Medium.otf");
+    }
+
+    html,
+    body {
+      margin: 0;
+      background: #fff;
+    }
+
+    /* Shows the top of the chart; grows to the full chart when expanded */
+    .preview {
+      position: relative;
+      height: 400px;
+      overflow: hidden;
+    }
+
+    .preview iframe {
+      display: block;
+      width: 100%;
+      height: 400px;
+      border: 0;
+    }
+
+    .preview-fade {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 90px;
+      background: linear-gradient(rgba(255, 255, 255, 0), #fff);
+      pointer-events: none;
+    }
+
+    .preview.expanded .preview-fade,
+    .preview.fits .preview-fade {
+      display: none;
+    }
+
+    .preview-toggle {
+      display: block;
+      margin: 8px auto 4px;
+      padding: 8px 16px;
+      border: 1px solid #000;
+      background: #fff;
+      color: #000;
+      cursor: pointer;
+      font-family: "BentonMedium", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .preview-toggle:hover {
+      box-shadow: inset 0 0 0 1px #000;
+    }
+
+    .preview-toggle[hidden] {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <main id="previewRoot">
+    <div id="previewBox" class="preview">
+      <iframe id="chartFrame" src="index.html" scrolling="no" title="Senate Votes on Supreme Court Justice Confirmations"></iframe>
+      <div class="preview-fade"></div>
+    </div>
+    <button id="previewToggle" class="preview-toggle" type="button" aria-expanded="false" aria-controls="previewBox" hidden>Show more</button>
+  </main>
+
+  <script>
+    const PREVIEW_HEIGHT = 400;
+    // Message the full chart page sends with its height
+    const CHART_MESSAGE = "senate-height";
+    // Message this page sends to the host page (Drupal) with its own height
+    const HOST_MESSAGE = "senate-preview-height";
+
+    const root = document.getElementById("previewRoot");
+    const box = document.getElementById("previewBox");
+    const frame = document.getElementById("chartFrame");
+    const toggle = document.getElementById("previewToggle");
+
+    let fullHeight = 0;
+    let expanded = false;
+    let lastPosted = 0;
+
+    function layout(collapsed = false) {
+      const fits = fullHeight > 0 && fullHeight <= PREVIEW_HEIGHT;
+
+      frame.style.height = `${fullHeight || PREVIEW_HEIGHT}px`;
+      box.style.height = `${expanded || fits ? fullHeight : PREVIEW_HEIGHT}px`;
+      box.classList.toggle("expanded", expanded);
+      box.classList.toggle("fits", fits);
+
+      toggle.hidden = !fullHeight || fits;
+      toggle.textContent = expanded ? "Show less" : "Show more";
+      toggle.setAttribute("aria-expanded", String(expanded));
+
+      postHeight(collapsed);
+    }
+
+    // Tell the host page our height so the iframe can fit the content
+    function postHeight(collapsed = false) {
+      if (window.parent === window) return;
+      const h = Math.ceil(root.getBoundingClientRect().bottom + window.scrollY);
+      if (h === lastPosted && !collapsed) return;
+      lastPosted = h;
+      window.parent.postMessage({ type: HOST_MESSAGE, height: h, collapsed }, "*");
+    }
+
+    window.addEventListener("message", e => {
+      if (e.source !== frame.contentWindow || !e.data || e.data.type !== CHART_MESSAGE) return;
+      fullHeight = e.data.height;
+      layout();
+    });
+
+    toggle.addEventListener("click", () => {
+      expanded = !expanded;
+      layout(!expanded);
+    });
+
+    layout();
+    document.fonts?.ready.then(() => postHeight());
+  </script>
+</body>
+</html>
