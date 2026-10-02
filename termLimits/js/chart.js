@@ -8,6 +8,24 @@ function formatTenure(years) {
   return oneDecimal.endsWith(".0") ? d3.format(".2f")(years) : oneDecimal;
 }
 
+// Whole-number thresholds (set by a scene) show no decimal; dragged values keep one.
+function formatThreshold(years) {
+  const rounded = Math.round(years);
+  return Math.abs(years - rounded) < 1e-6 ? String(rounded) : d3.format(".1f")(years);
+}
+
+// Render each string as its own line (tspan) under the text's x position.
+function setTextLines(selection, lines) {
+  const x = selection.attr("x");
+  selection.text(null)
+    .selectAll("tspan")
+    .data(lines)
+    .join("tspan")
+    .attr("x", x)
+    .attr("dy", (d, i) => (i ? "1.2em" : 0))
+    .text(d => d);
+}
+
 function getCalculationData(data) {
   return data.filter(d => d.includeInCalculations !== false);
 }
@@ -68,7 +86,7 @@ export function buildSummaryThreshold(threshold, stats) {
 
 export function buildSummarySplit(splitYear, threshold, counts) {
   return `
-    <span class="big">Before vs. After ${splitYear}:<br> ${Math.round(counts.left.topRate*100)}% vs. ${Math.round(counts.right.topRate*100)}% remain on the bench after ${d3.format(".1f")(threshold)} years</span>
+    <span class="big">Before vs. After ${splitYear}:<br> ${Math.round(counts.left.topRate*100)}% vs. ${Math.round(counts.right.topRate*100)}% remain on the bench after ${formatThreshold(threshold)} years</span>
   `;
 }
 
@@ -145,7 +163,7 @@ export class ScatterSurvivalChart {
     const axisFontSize = isMobile ? 24 : 24;
     const annotationFontSize = isMobile ? 30 : 24;
     const quadFontSize = isMobile ? 52 : 40;
-    const quadSubFontSize = isMobile ? 16 : 13;
+    const quadSubFontSize = isMobile ? 26 : 22;
 
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
@@ -216,7 +234,7 @@ const x = d3.scaleTime()
       .attr("text-anchor", "middle")
       .attr("class", "annotation")
       .style("font-size", `${annotationFontSize}px`)
-      .text("Start date");
+      .text("Start year");
 
     this.svg.append("text")
       .attr("transform", `translate(10, ${margin.top + innerHeight / 2}) rotate(-90)`)
@@ -446,7 +464,7 @@ moveTooltip(event) {
       .interrupt()
       .attr("x", margin.left + innerWidth - 6)
       .attr("y", yy - 8)
-      .text(`${d3.format(".1f")(threshold)} years`);
+      .text(`${formatThreshold(threshold)} years`);
   }
 
   animateScene4Bounce(data, fromThreshold, toThreshold) {
@@ -497,7 +515,7 @@ moveTooltip(event) {
     this.g.hLabel
       .attr("x", margin.left + innerWidth - 6)
       .attr("y", y(fromThreshold) - 8)
-      .text(`${d3.format(".1f")(fromThreshold)} years`)
+      .text(`${formatThreshold(fromThreshold)} years`)
       .transition()
       .duration(420)
       .ease(d3.easeBackOut.overshoot(2))
@@ -505,7 +523,7 @@ moveTooltip(event) {
       .tween("text", () => {
         const interp = d3.interpolateNumber(fromThreshold, bounceTarget);
         return (t) => {
-          this.g.hLabel.text(`${d3.format(".1f")(interp(t))} years`);
+          this.g.hLabel.text(`${formatThreshold(interp(t))} years`);
         };
       })
       .transition()
@@ -515,7 +533,7 @@ moveTooltip(event) {
       .tween("text", () => {
         const interp = d3.interpolateNumber(bounceTarget, clampedTo);
         return (t) => {
-          this.g.hLabel.text(`${d3.format(".1f")(interp(t))} years`);
+          this.g.hLabel.text(`${formatThreshold(interp(t))} years`);
         };
       });
 
@@ -576,7 +594,7 @@ moveTooltip(event) {
       .interrupt()
       .attr("x", margin.left + innerWidth - 6)
       .attr("y", yy - 8)
-      .text(`${d3.format(".1f")(threshold)} years`);
+      .text(`${formatThreshold(threshold)} years`);
 
     this.g.vLine
       .interrupt()
@@ -663,7 +681,7 @@ this.renderQuadrants(counts, splitDate, threshold);
     this.g.quad.tlSub
       .attr("x", xLeftCenter)
       .attr("y", yCenter + 38)
-      .text(`Median years before ${splitLabel}`);
+      .call(setTextLines, ["Median years", `before ${splitLabel}`]);
 
     this.g.quad.tr
       .attr("x", xRightCenter)
@@ -674,7 +692,7 @@ this.renderQuadrants(counts, splitDate, threshold);
     this.g.quad.trSub
       .attr("x", xRightCenter)
       .attr("y", yCenter + 38)
-      .text(`Median years after ${splitLabel}`);
+      .call(setTextLines, ["Median years", `after ${splitLabel}`]);
 
     this.summaryContainer.innerHTML = `
       <span class="big">
@@ -735,7 +753,7 @@ this.renderQuadrants(counts, splitDate, threshold);
         .attr("x2", margin.left + innerWidth);
 
       this.g.hLabel
-        .text(`${d3.format(".1f")(sceneConfig.threshold)} years`);
+        .text(`${formatThreshold(sceneConfig.threshold)} years`);
 
       if (shouldAnimateThreshold) {
         const prevY = y(prevThreshold);
@@ -964,7 +982,7 @@ this.renderQuadrants(counts, splitDate, threshold);
             .interrupt()
             .attr("x", margin.left + innerWidth - 6)
             .attr("y", yy - 8)
-            .text(`${d3.format(".1f")(threshold)} years`);
+            .text(`${formatThreshold(threshold)} years`);
 
           this.updateThresholdStyling(threshold);
 

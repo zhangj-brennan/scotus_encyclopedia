@@ -12,7 +12,7 @@ export function getSceneConfigs() {
         <p>Overall, the median tenure for past Supreme Court justices is 16.5 years. If the current justices are included, the number is 16.3 years.</p>
 
         <div class="legend">
-          <div class="legend-item"><span class="legend-swatch"></span><span>Former justices</span></div>
+          <div class="legend-item"><span class="legend-swatch"></span><span>Past justices</span></div>
           <div class="legend-item"><span class="legend-swatch current"></span><span>Current justices</span></div>
         </div>
       `,
