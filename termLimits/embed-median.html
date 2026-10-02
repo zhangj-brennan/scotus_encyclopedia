@@ -1,14 +1,15 @@
 <!-- Paste into Drupal (Full HTML / source view). The iframe resizes to fit the chart. -->
-<iframe id="tl-median-frame"
-        src="https://zhangj-brennan.github.io/scotus_encyclopedia/termLimits/median.html?v=5"
+<iframe id="bc-tl-median-frame"
+        src="https://zhangj-brennan.github.io/scotus_encyclopedia/termLimits/median.html?v=6"
         style="width:100%; height:900px; border:0; display:block;"
         scrolling="no" title="Supreme Court Tenure: Median Tenure Before and After 1966"></iframe>
 <script>
 (function () {
-  var frame = document.getElementById('tl-median-frame');
   window.addEventListener('message', function (e) {
-    if (e.origin !== 'https://zhangj-brennan.github.io' || e.source !== frame.contentWindow) return;
-    if (e.data && e.data.type === 'tl-single-height') frame.style.height = e.data.height + 'px';
+    if (e.origin !== 'https://zhangj-brennan.github.io' || !e.data || e.data.type !== 'tl-median-height') return;
+    // Look the iframe up on each message, in case the CMS re-renders it after this script runs
+    var frame = document.getElementById('bc-tl-median-frame');
+    if (frame) frame.style.height = e.data.height + 'px';
   });
 })();
 </script>

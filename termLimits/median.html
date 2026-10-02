@@ -113,7 +113,7 @@
         const h = Math.ceil(document.querySelector(".single-figure").getBoundingClientRect().bottom + window.scrollY);
         if (h === lastHeight) return;
         lastHeight = h;
-        window.parent.postMessage({ type: "tl-single-height", height: h }, "*");
+        window.parent.postMessage({ type: "tl-median-height", height: h }, "*");
       };
       postHeight();
       new ResizeObserver(postHeight).observe(document.body);
