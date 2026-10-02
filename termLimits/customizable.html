@@ -47,7 +47,9 @@
     const chart = new ScatterSurvivalChart({
       container: els.chart,
       summaryContainer: els.figureSummary,
-      hintContainer: els.figureHint
+      hintContainer: els.figureHint,
+      // Single-column page, so it can keep the wide chart down to a narrower width than the scrolly
+      mobileBreakpoint: 800
     });
 
     // Replace the static "Customizable Graph" title with a summary of the current line positions

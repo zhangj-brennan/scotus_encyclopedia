@@ -50,8 +50,8 @@ export const CONFIG = {
 }
 };
 
-export function getChartDimensions(viewportWidth = window.innerWidth) {
-  return viewportWidth <= CONFIG.mobileBreakpoint
+export function getChartDimensions(viewportWidth = window.innerWidth, breakpoint = CONFIG.mobileBreakpoint) {
+  return viewportWidth <= breakpoint
     ? CONFIG.chartMobile
     : CONFIG.chartDesktop;
 }

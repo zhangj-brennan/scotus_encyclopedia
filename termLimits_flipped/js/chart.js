@@ -91,7 +91,9 @@ export function buildSummarySplit(splitYear, threshold, counts) {
 }
 
 export class ScatterSurvivalChart {
-  constructor({ container, summaryContainer, hintContainer }) {
+  constructor({ container, summaryContainer, hintContainer, mobileBreakpoint = CONFIG.mobileBreakpoint }) {
+    // Viewport width at or below which the chart switches to its taller mobile dimensions
+    this.mobileBreakpoint = mobileBreakpoint;
     this.container = container;
     this.summaryContainer = summaryContainer;
     this.hintContainer = hintContainer;
@@ -101,14 +103,14 @@ export class ScatterSurvivalChart {
     this.scales = null;
     this.state = null;
     this.tooltip = null;
-    this.chartDims = getChartDimensions();
+    this.chartDims = getChartDimensions(window.innerWidth, this.mobileBreakpoint);
     this.resizeRaf = null;
   }
 
   init(data) {
     d3.select(this.container).html("");
 
-    this.chartDims = getChartDimensions(window.innerWidth);
+    this.chartDims = getChartDimensions(window.innerWidth, this.mobileBreakpoint);
 
     this.svg = d3.select(this.container)
       .append("svg")
@@ -128,7 +130,7 @@ export class ScatterSurvivalChart {
       if (this.resizeRaf) cancelAnimationFrame(this.resizeRaf);
 
       this.resizeRaf = requestAnimationFrame(() => {
-        const nextDims = getChartDimensions(window.innerWidth);
+        const nextDims = getChartDimensions(window.innerWidth, this.mobileBreakpoint);
         const changed =
           nextDims.width !== this.chartDims.width ||
           nextDims.height !== this.chartDims.height;
@@ -159,7 +161,7 @@ export class ScatterSurvivalChart {
 
   drawBase(data) {
     const { width, height, margin, xTicks, yTicks } = this.chartDims;
-    const isMobile = window.innerWidth <= CONFIG.mobileBreakpoint;
+    const isMobile = window.innerWidth <= this.mobileBreakpoint;
     const axisFontSize = isMobile ? 24 : 24;
     const annotationFontSize = isMobile ? 30 : 24;
     const quadFontSize = isMobile ? 52 : 40;
