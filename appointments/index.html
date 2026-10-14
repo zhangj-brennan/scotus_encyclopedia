@@ -361,6 +361,8 @@ function cleanTermPresident(value) {
     .toLowerCase()
     .replace(/\b\w/g, c => c.toUpperCase())
     .replace(/Fdr\/truman/i, "Franklin D. Roosevelt/Harry S. Truman")
+    .replace(/\bMckinley\b/g, "McKinley")
+    .replace(/\bJoe Biden\b/g, "Joseph R. Biden")
     .trim();
 }
 
