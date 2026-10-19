@@ -268,7 +268,6 @@ const FILTERS = {
     "Year of Birth",
     "Birth location",
     "Home State of Nominee",
-    "Religion",
     "Race/Ethnicity",
     "Gender"
   ],
@@ -291,8 +290,7 @@ const FILTERS = {
     "Appointing President",
     "Political Party Affiliation of President",
     "Justice's Reason for Departure from the Court",
-    "Justice's Age at Time of Departure from the Court",
-    "Year of Death"
+    "Justice's Age at Time of Departure from the Court"
   ]
 };
 
@@ -311,7 +309,6 @@ const LABELS = {
   "Age When Appointed": "Age when appointed",
   "Birth location": "Birth location",
   "Home State of Nominee": "Home state",
-  "Religion": "Religion",
   "Race/Ethnicity": "Race/Ethnicity",
   "Gender": "Gender",
   "Undergraduate Institution": "Undergraduate institution",
@@ -383,6 +380,42 @@ const NUMERIC_FIELDS = new Set([
   "Year of Death"
 ]);
 
+const HISTOGRAM_FIELDS = new Map([
+  ["Year of Birth", {
+    binSize: 10,
+    tickEvery: 50,
+    hint: "Click bars to filter by decade",
+    label: start => `${start}s`,
+    ariaLabel: (start, count) => `Born in the ${start}s: ${count}`
+  }],
+  ["Years of Service as a justice", {
+    binSize: 5,
+    tickEvery: 5,
+    hint: "Click bars to filter by years served",
+    label: start => `${start}–${start + 4} yrs`,
+    ariaLabel: (start, count) => `Served ${start} to ${start + 4} years: ${count}`
+  }],
+  ["Age When Appointed", {
+    binSize: 5,
+    tickEvery: 10,
+    hint: "Click bars to filter by age",
+    label: start => `${start}–${start + 4}`,
+    ariaLabel: (start, count) => `Appointed at age ${start} to ${start + 4}: ${count}`
+  }],
+  ["Justice's Age at Time of Departure from the Court", {
+    binSize: 5,
+    tickEvery: 10,
+    hint: "Click bars to filter by age",
+    label: start => `${start}–${start + 4}`,
+    ariaLabel: (start, count) => `Departed at age ${start} to ${start + 4}: ${count}`
+  }]
+]);
+
+function toBin(n, field) {
+  const { binSize } = HISTOGRAM_FIELDS.get(field);
+  return Math.floor(n / binSize) * binSize;
+}
+
 const CARD_FIELDS = [
   "Position ",
   "Birth location",
@@ -396,7 +429,6 @@ const CARD_FIELDS = [
   "Year of Death",
   "Appointing President",
   "Political Party Affiliation of President",
-  "Religion",
   "Undergraduate Institution",
   "Graduate Institution",
   "Law School",
@@ -760,6 +792,8 @@ details.open = window.innerWidth > 700 && i === 0;
       body.appendChild(renderProfessionalExperienceFilter());
     } else if (STATE_CARTOGRAM_FIELDS.has(field)) {
       body.appendChild(renderStateCartogramFilter(field));
+    } else if (HISTOGRAM_FIELDS.has(field)) {
+      body.appendChild(renderHistogramFilter(field));
     } else if (NUMERIC_FIELDS.has(field)) {
       body.appendChild(renderRangeFilter(field));
     } else {
@@ -1049,6 +1083,106 @@ function renderRangeFilter(field) {
   return wrap;
 }
 
+function renderHistogramFilter(field) {
+  const wrap = document.createElement("div");
+  wrap.className = "decade-histogram-wrap";
+
+  const config = HISTOGRAM_FIELDS.get(field);
+  const counts = new Map();
+  getBaseRows().forEach(d => {
+    const n = toNumber(d[field], field);
+    if (!Number.isFinite(n)) return;
+    const bin = toBin(n, field);
+    counts.set(bin, (counts.get(bin) || 0) + 1);
+  });
+
+  if (!counts.size) {
+    const note = document.createElement("div");
+    note.className = "option";
+    note.textContent = "No numeric values available";
+    wrap.appendChild(note);
+    return wrap;
+  }
+
+  const minDecade = Math.min(...counts.keys());
+  const maxDecade = Math.max(...counts.keys());
+  const maxCount = Math.max(...counts.values());
+  const selected = activeFilters[field];
+
+  const hint = document.createElement("div");
+  hint.className = "range-values";
+  hint.textContent = config.hint;
+  wrap.appendChild(hint);
+
+  const chart = document.createElement("div");
+  chart.className = "decade-histogram";
+
+  const axis = document.createElement("div");
+  axis.className = "decade-axis";
+
+  const binCount = Math.round((maxDecade - minDecade) / config.binSize) + 1;
+  const noun = n => showOnlyServed
+    ? (n === 1 ? "justice" : "justices")
+    : (n === 1 ? "person" : "people");
+
+  for (let decade = minDecade; decade <= maxDecade; decade += config.binSize) {
+    const index = (decade - minDecade) / config.binSize;
+    const count = counts.get(decade) || 0;
+
+    const bar = document.createElement("button");
+    bar.type = "button";
+    bar.className = "decade-bar";
+    bar.dataset.start = decade;
+    bar.disabled = count === 0;
+    bar.setAttribute("aria-label", config.ariaLabel(decade, count));
+    bar.setAttribute("aria-pressed", selected?.has(decade) ? "true" : "false");
+    if (selected && !selected.has(decade)) bar.classList.add("dimmed");
+
+    const fill = document.createElement("span");
+    fill.className = "decade-bar-fill";
+    fill.style.height = `${(count / maxCount) * 100}%`;
+    bar.appendChild(fill);
+
+    const tip = document.createElement("span");
+    tip.className = "decade-tooltip";
+    if (index < 2) tip.classList.add("align-left");
+    if (index > binCount - 3) tip.classList.add("align-right");
+    tip.textContent = `${config.label(decade)}: ${count} ${noun(count)}`;
+    fill.appendChild(tip);
+
+    bar.addEventListener("click", () => {
+      if (!activeFilters[field]) activeFilters[field] = new Set();
+
+      if (activeFilters[field].has(decade)) {
+        activeFilters[field].delete(decade);
+        if (activeFilters[field].size === 0) delete activeFilters[field];
+      } else {
+        activeFilters[field].add(decade);
+      }
+
+      const current = activeFilters[field];
+      chart.querySelectorAll(".decade-bar").forEach(other => {
+        const start = Number(other.dataset.start);
+        other.classList.toggle("dimmed", Boolean(current) && !current.has(start));
+        other.setAttribute("aria-pressed", current?.has(start) ? "true" : "false");
+      });
+
+      applyFilters();
+    });
+
+    chart.appendChild(bar);
+
+    const tick = document.createElement("span");
+    tick.className = "decade-tick";
+    tick.textContent = decade % config.tickEvery === 0 ? decade : "";
+    axis.appendChild(tick);
+  }
+
+  wrap.appendChild(chart);
+  wrap.appendChild(axis);
+  return wrap;
+}
+
 function applyFilters() {
   filtered = rows.filter(row => {
     if (showOnlyServed && !isServedOnCourt(row)) return false;
@@ -1065,6 +1199,9 @@ function applyFilters() {
           const matchesState = stateTokens.some(v => filter.has(v));
           const matchesRaw = rawParts.some(v => filter.has(v));
           if (!matchesState && !matchesRaw) return false;
+        } else if (HISTOGRAM_FIELDS.has(field)) {
+          const n = toNumber(row[field], field);
+          if (!Number.isFinite(n) || !filter.has(toBin(n, field))) return false;
         } else if (MULTI_VALUE_FIELDS.has(field)) {
     const values = splitMultiValues(row[field]);
     if (!values.some(v => filter.has(v))) return false;
@@ -1167,7 +1304,7 @@ function renderActiveFilterChips() {
         chips.push({
           field,
           value,
-          label: `${LABELS[field] || field}: ${cleanLabel(value)}`
+          label: `${LABELS[field] || field}: ${HISTOGRAM_FIELDS.has(field) ? HISTOGRAM_FIELDS.get(field).label(value) : cleanLabel(value)}`
         });
       });
       return;

@@ -562,6 +562,105 @@ details.is-closing .filter-body {
   cursor: pointer;
 }
 
+.decade-histogram-wrap {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+}
+
+.decade-histogram,
+.decade-axis {
+  display: flex;
+  gap: 2px;
+}
+
+.decade-histogram {
+  align-items: flex-end;
+  height: 90px;
+  border-bottom: 1px solid var(--text);
+}
+
+.decade-bar {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  height: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.decade-bar:disabled {
+  cursor: default;
+}
+
+.decade-bar-fill {
+  display: block;
+  width: 100%;
+  background: var(--accent);
+}
+
+.decade-bar-fill {
+  position: relative;
+}
+
+.decade-tooltip {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 3px 6px;
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 11px;
+  white-space: nowrap;
+  z-index: 30;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+
+.decade-tooltip.align-left {
+  left: 0;
+  transform: none;
+}
+
+.decade-tooltip.align-right {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
+.decade-bar:not(:disabled):hover .decade-tooltip,
+.decade-bar:focus-visible .decade-tooltip {
+  opacity: 1;
+}
+
+.decade-bar.dimmed .decade-bar-fill {
+  background: #ccc;
+}
+
+.decade-bar:not(:disabled):hover .decade-bar-fill {
+  outline: 1px solid var(--text);
+}
+
+.decade-bar:focus-visible {
+  outline: 2px solid var(--text);
+}
+
+.decade-tick {
+  flex: 1;
+  min-width: 0;
+  overflow: visible;
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--muted);
+}
+
 .state-cartogram {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
