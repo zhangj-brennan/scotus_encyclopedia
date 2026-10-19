@@ -593,6 +593,16 @@ details.is-closing .filter-body {
   cursor: pointer;
 }
 
+.decade-bar {
+  position: relative;
+  z-index: 1;
+}
+
+.decade-bar:hover,
+.decade-bar:focus-visible {
+  z-index: 40;
+}
+
 .decade-bar:disabled {
   cursor: default;
 }
