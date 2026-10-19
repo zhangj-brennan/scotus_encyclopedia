@@ -184,7 +184,7 @@ body.overlay-open {
 </div>
 
 <script>
-const CSV_FILE = "08032026.csv";
+const CSV_FILE = "10192026.csv";
 
 const FIELD_ALIASES = {
   "Position": "Position ",
@@ -290,7 +290,8 @@ const FILTERS = {
     "Appointing President",
     "Political Party Affiliation of President",
     "Justice's Reason for Departure from the Court",
-    "Justice's Age at Time of Departure from the Court"
+    "Justice's Age at Time of Departure from the Court",
+    "Senate Yea %"
   ]
 };
 
@@ -323,6 +324,7 @@ const LABELS = {
   "Justice's Reason for Departure from the Court": "Reason for departure",
   "Justice's Age at Time of Departure from the Court": "Age at departure",
   "Year of Death": "Year of death",
+  "Senate Yea %": "Senate confirmation vote (% yea)",
 
   "Served as a state trial judge": "State trial judge",
   "Served as a state appellate judge": "State appellate judge",
@@ -377,8 +379,16 @@ const NUMERIC_FIELDS = new Set([
   "Year of Birth",
   "Age When Appointed",
   "Justice's Age at Time of Departure from the Court",
-  "Year of Death"
+  "Year of Death",
+  "Senate Yea %"
 ]);
+
+// Fields holding several "; "-separated numbers (one per Senate vote)
+const MULTI_NUMBER_FIELDS = new Set([
+  "Senate Yea %"
+]);
+
+const SENATE_FIELDS = ["Senate Result", "Senate Vote", "Senate Vote Date", "Senate Yea %"];
 
 const HISTOGRAM_FIELDS = new Map([
   ["Year of Birth", {
@@ -408,12 +418,35 @@ const HISTOGRAM_FIELDS = new Map([
     hint: "Click bars to filter by age",
     label: start => `${start}–${start + 4}`,
     ariaLabel: (start, count) => `Departed at age ${start} to ${start + 4}: ${count}`
+  }],
+  ["Senate Yea %", {
+    binSize: 10,
+    tickEvery: 20,
+    hint: "Share of senators voting yea on recorded roll-call votes; voice votes are not included. Click bars to filter",
+    label: start => start === 100 ? "100% yea" : `${start}–${start + 9}% yea`,
+    ariaLabel: (start, count) => start === 100
+      ? `Unanimous yea vote: ${count}`
+      : `${start} to ${start + 9} percent yea: ${count}`
   }]
 ]);
 
 function toBin(n, field) {
   const { binSize } = HISTOGRAM_FIELDS.get(field);
   return Math.floor(n / binSize) * binSize;
+}
+
+function getNumbers(row, field) {
+  const values = MULTI_NUMBER_FIELDS.has(field)
+    ? String(row[field] || "").split(";")
+    : [row[field]];
+
+  return values
+    .map(v => toNumber(String(v ?? "").trim(), field))
+    .filter(Number.isFinite);
+}
+
+function getBins(row, field) {
+  return new Set(getNumbers(row, field).map(n => toBin(n, field)));
 }
 
 const CARD_FIELDS = [
@@ -1090,10 +1123,9 @@ function renderHistogramFilter(field) {
   const config = HISTOGRAM_FIELDS.get(field);
   const counts = new Map();
   getBaseRows().forEach(d => {
-    const n = toNumber(d[field], field);
-    if (!Number.isFinite(n)) return;
-    const bin = toBin(n, field);
-    counts.set(bin, (counts.get(bin) || 0) + 1);
+    getBins(d, field).forEach(bin => {
+      counts.set(bin, (counts.get(bin) || 0) + 1);
+    });
   });
 
   if (!counts.size) {
@@ -1200,8 +1232,7 @@ function applyFilters() {
           const matchesRaw = rawParts.some(v => filter.has(v));
           if (!matchesState && !matchesRaw) return false;
         } else if (HISTOGRAM_FIELDS.has(field)) {
-          const n = toNumber(row[field], field);
-          if (!Number.isFinite(n) || !filter.has(toBin(n, field))) return false;
+          if (![...getBins(row, field)].some(bin => filter.has(bin))) return false;
         } else if (MULTI_VALUE_FIELDS.has(field)) {
     const values = splitMultiValues(row[field]);
     if (!values.some(v => filter.has(v))) return false;
@@ -1730,9 +1761,52 @@ function renderCard(row) {
   });
 
   card.appendChild(grid);
+  renderSenateSummary(row, card);
   renderCareerSummary(row, card);
 
   return card;
+}
+
+function renderSenateSummary(row, card) {
+  const [results, votes, dates, pcts] = SENATE_FIELDS.map(field =>
+    String(row[field] || "").split(";").map(v => v.trim())
+  );
+  if (!results[0]) return;
+
+  const block = document.createElement("div");
+  block.className = "career-block";
+
+  const title = document.createElement("div");
+  title.className = "career-title";
+  title.textContent = "Senate Confirmation";
+  block.appendChild(title);
+
+  const grid = document.createElement("div");
+  grid.className = "card-grid";
+
+  results.forEach((result, i) => {
+    const k = document.createElement("div");
+    k.className = "k";
+    k.textContent = dates[i] || "Date unknown";
+
+    let text = result;
+    if (votes[i] === "Voice vote") {
+      text += " by voice vote";
+    } else if (votes[i] && votes[i] !== "No vote") {
+      text += `, ${votes[i].replace("-", "–")}`;
+      if (pcts[i]) text += ` (${pcts[i]}% yea)`;
+    }
+
+    const v = document.createElement("div");
+    v.className = "v";
+    v.textContent = text;
+
+    grid.appendChild(k);
+    grid.appendChild(v);
+  });
+
+  block.appendChild(grid);
+  card.appendChild(block);
 }
 
 function renderCareerSummary(row, card) {
