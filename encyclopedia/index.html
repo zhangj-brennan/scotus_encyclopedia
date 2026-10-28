@@ -80,7 +80,6 @@
   max-height: 88vh;
   overflow: auto;
   background: #fff;
-  border: 1px solid var(--border);
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
   padding: 18px;
 }
@@ -1279,7 +1278,7 @@ function applyFilters() {
     }
 
     if (searchTerm) {
-      const name = (row["Full Name"] || "").toLowerCase();
+      const name = `${row["Full Name"] || ""} ${toDisplayName(row["Full Name"])}`.toLowerCase();
       if (!name.includes(searchTerm)) return false;
     }
 
@@ -1486,7 +1485,7 @@ function renderCartogramLegend(minCount, maxCount) {
   [0.2, 0.6, 1].forEach(opacity => {
     const swatch = document.createElement("span");
     swatch.className = "cartogram-legend-swatch";
-    swatch.style.background = `rgba(57,149,178,${opacity})`;
+    swatch.style.background = `rgba(0,0,0,${opacity})`;
     ramp.appendChild(swatch);
   });
 
@@ -1574,7 +1573,9 @@ function renderStateCartogramFilter(field) {
       if (selected) cell.classList.add("active");
 
       const opacity = count ? 0.2 + 0.8 * (count / maxCount) : 0;
-      cell.style.background = count ? `rgba(57, 149, 178, ${opacity})` : "#eee";
+      cell.style.background = count ? `rgba(0, 0, 0, ${opacity})` : "#eee";
+      // White labels on the darker greys so they stay readable
+      if (opacity > 0.5) cell.classList.add("dark");
       cell.textContent = abbr;
       cell.title = `${abbr}: ${count}`;
 
@@ -1617,7 +1618,8 @@ if (positiveCounts.length) {
     }
 
     const opacity = 0.2 + 0.8 * (unknownCount / maxCount);
-    unknownSquare.style.background = `rgba(57, 149, 178, ${opacity})`;
+    unknownSquare.style.background = `rgba(0, 0, 0, ${opacity})`;
+    if (opacity > 0.5) unknownSquare.classList.add("dark");
 
     unknownSquare.addEventListener("click", () => {
   toggleStateCartogramFilter(field, UNKNOWN_STATE_TOKEN, unknownSquare);
@@ -1734,19 +1736,26 @@ function renderPortraitCard(row, isMissingPortrait = false) {
 
   const portrait = document.createElement("img");
   portrait.className = "portrait-large";
-  portrait.alt = fullName;
+  portrait.alt = toDisplayName(fullName);
   setupPortraitImg(portrait, isMissingPortrait ? PLACEHOLDER_PATH : getPortraitPath(fullName));
 
   const tooltip = document.createElement("div");
   tooltip.className = "portrait-tooltip";
-  const cleanName = cleanLabel(fullName || "Unnamed");
-const lastName = cleanName.split(",")[0].trim();
+  const cleanName = toDisplayName(fullName) || "Unnamed";
+const lastName = cleanLabel(fullName).split(",")[0].trim();
 
 tooltip.textContent = cleanName;
 tooltip.dataset.lastname = lastName;
 
   card.appendChild(portrait);
   card.appendChild(tooltip);
+
+  // Flip the name label to right-align when it would run past the grid's right edge
+  card.addEventListener("mouseenter", () => {
+    tooltip.classList.remove("align-right");
+    const overflow = tooltip.getBoundingClientRect().right > cardsEl.getBoundingClientRect().right;
+    tooltip.classList.toggle("align-right", overflow);
+  });
 
   card.addEventListener("click", () => {
     openPersonOverlay(row);
@@ -1793,21 +1802,21 @@ function renderCard(row) {
   portrait.className = "portrait";
 
   const fullName = (row["Full Name"] || "").trim();
-  portrait.alt = fullName;
+  portrait.alt = toDisplayName(fullName);
   setupPortraitImg(portrait, getPortraitPath(fullName));
 
   const textWrap = document.createElement("div");
 
   const name = document.createElement("div");
   name.className = "card-name";
-  name.textContent = cleanLabel(row["Full Name"] || "Unnamed");
+  name.textContent = toDisplayName(row["Full Name"]) || "Unnamed";
 
   const sub = document.createElement("div");
   sub.className = "card-sub";
   sub.textContent = [
     cleanLabel(row["Position "]),
-    row["Appointing President"]
-  ].filter(Boolean).join(" · ");
+    getServiceSpan(row)
+  ].filter(Boolean).join("\n");
 
   textWrap.appendChild(name);
   textWrap.appendChild(sub);
@@ -1877,18 +1886,34 @@ async function setCardLabelWidth() {
     "Senate Confirmation"
   ];
 
+  // Measure inside a card grid so the probe picks up the card's font size
+  const probeGrid = document.createElement("div");
+  probeGrid.className = "card-grid";
+  // Block, not grid, so the span is measured at its text width rather than a track width
+  probeGrid.style.cssText = "position:absolute;visibility:hidden;display:block";
   const probe = document.createElement("span");
   probe.className = "k";
-  probe.style.cssText = "position:absolute;visibility:hidden;white-space:nowrap";
-  document.body.appendChild(probe);
+  probe.style.whiteSpace = "nowrap";
+  probeGrid.appendChild(probe);
+  document.body.appendChild(probeGrid);
 
   const widest = Math.max(...labels.map(label => {
     probe.textContent = label;
     return probe.getBoundingClientRect().width;
   }));
 
-  probe.remove();
+  probeGrid.remove();
   document.documentElement.style.setProperty("--card-label-width", `${Math.ceil(widest)}px`);
+}
+
+// First and last year on the Court, e.g. "1790–1795" or "2018–present"
+function getServiceSpan(row) {
+  const raw = String(row["Years of Service as a justice"] || "");
+  const years = raw.match(/\d{4}/g);
+  if (!years) return "";
+
+  const end = /present/i.test(raw) ? "present" : years[years.length - 1];
+  return `${years[0]}–${end}`;
 }
 
 function renderSenateSummary(row, section) {
@@ -1981,6 +2006,15 @@ function binarySortRank(value) {
 function isAffirmative(value) {
   const s = String(value || "").trim().toLowerCase();
   return ["yes", "y", "true", "1", "x"].includes(s);
+}
+
+// "Roberts, John G., Jr." -> "John G. Roberts Jr."
+function toDisplayName(value) {
+  const [last, first, suffix] = cleanLabel(value).split(",").map(part => part.trim());
+  if (!first) return last || "";
+
+  const tidySuffix = suffix ? ` ${suffix.replace(/^Jr$/, "Jr.")}` : "";
+  return `${first} ${last}${tidySuffix}`;
 }
 
 function cleanLabel(value) {

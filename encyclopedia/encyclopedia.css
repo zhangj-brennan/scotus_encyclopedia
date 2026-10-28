@@ -152,6 +152,11 @@ body {
   transform: translateY(0);
 }
 
+.portrait-tooltip.align-right {
+  left: auto;
+  right: 0;
+}
+
 h1 {
   margin: 0 0 10px;
   font-size: 18px;
@@ -469,9 +474,12 @@ details.is-closing .filter-body {
 }
 
 .card-sub {
+  font-family: "Benton", Helvetica, Arial, sans-serif;
+  font-weight: 400;
   font-size: 12px;
   color: var(--muted);
   margin-bottom: 0;
+  white-space: pre-line;
 }
 
 .card-grid {
@@ -507,9 +515,7 @@ details.is-closing .filter-body {
 
 .card-section-title {
   margin-bottom: 8px;
-  padding: 4px 6px;
-  background: #eee;
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.1;
   font-weight: 800;
 }
@@ -726,8 +732,13 @@ details.is-closing .filter-body {
 
 .state-square.has-data { border-color: var(--border); }
 
+.state-square.dark,
+.state-extra-square.dark {
+  color: #fff;
+}
+
 .state-square.active {
-  background: var(--accent) !important;
+  background: var(--highlight) !important;
   border-color: var(--text);
   color: #000;
   outline: none;
@@ -790,7 +801,7 @@ details.is-closing .filter-body {
 }
 
 .state-extra-square.active {
-  background: var(--accent) !important;
+  background: var(--highlight) !important;
   color: #000;
 }
 
