@@ -40,9 +40,6 @@
 
 .served-toggle-wrap {
   margin: 0 0 14px;
-  padding: 8px;
-  border: 1px solid var(--border);
-  background: #fff;
 }
 
 .served-toggle-label {
@@ -52,13 +49,12 @@
   font-size: 12px;
   line-height: 1.2;
   font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
   cursor: pointer;
 }
 
 .served-toggle-label input {
   margin: 0;
+  accent-color: #000;
 }
 
 
@@ -100,8 +96,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--accent);
-  border: 1px solid var(--border);
+  background: #fff;
+  border: 0;
   font-size: 20px;
   line-height: 1;
   font-weight: 800;
@@ -143,9 +139,9 @@ body.overlay-open {
 <div class="app">
   <aside class="sidebar">
     <h1>SCOTUS Encyclopedia</h1>
+    <p class="subtitle">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
 
     <div class="load-row">
-      <button id="resetFilters">Reset filters</button>
       <input id="searchBox" class="search" placeholder="Search nominee names" />
     </div>
 
@@ -156,20 +152,31 @@ body.overlay-open {
       </label>
     </div>
 
+    <label class="sort-wrap">
+      Sort by
+      <select id="sortSelect" class="sort-select">
+        <option value="recent" selected>Most recent</option>
+        <option value="earliest">Earliest</option>
+        <option value="youngest">Youngest at appointment</option>
+        <option value="oldest">Oldest at appointment</option>
+        <option value="lastName">Last name</option>
+      </select>
+    </label>
+
     <div id="filters"></div>
   </aside>
 
   <main class="main">
     <div class="main-top">
       <div>
-  <div id="summary" class="summary">Load a CSV to begin.</div>
   <div id="activeFilterChips" class="active-filter-chips"></div>
 </div>
       <div class="view-toggle-wrap" aria-label="View mode">
-        <button id="portraitViewBtn" class="view-toggle active" type="button">Portrait grid</button>
-        <button id="infoViewBtn" class="view-toggle" type="button">Info cards</button>
+        <button id="portraitViewBtn" class="view-toggle active" type="button" aria-label="Portrait Grid" title="Portrait Grid"><svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="4" height="4"/><rect x="6" y="1" width="4" height="4"/><rect x="11" y="1" width="4" height="4"/><rect x="1" y="6" width="4" height="4"/><rect x="6" y="6" width="4" height="4"/><rect x="11" y="6" width="4" height="4"/><rect x="1" y="11" width="4" height="4"/><rect x="6" y="11" width="4" height="4"/><rect x="11" y="11" width="4" height="4"/></svg></button>
+        <button id="infoViewBtn" class="view-toggle" type="button" aria-label="Info Cards" title="Info Cards"><svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="6.5" height="6.5"/><rect x="8.5" y="1" width="6.5" height="6.5"/><rect x="1" y="8.5" width="6.5" height="6.5"/><rect x="8.5" y="8.5" width="6.5" height="6.5"/></svg></button>
       </div>
     </div>
+    <div id="summary" class="summary">Load a CSV to begin.</div>
     <div id="cards" class="cards portrait-mode"></div>
 
   </main>
@@ -310,7 +317,7 @@ const LABELS = {
   "Age When Appointed": "Age when appointed",
   "Birth location": "Birth location",
   "Home State of Nominee": "Home state",
-  "Race/Ethnicity": "Race/Ethnicity",
+  "Race/Ethnicity": "Race/ethnicity",
   "Gender": "Gender",
   "Undergraduate Institution": "Undergraduate institution",
   "Graduate Institution": "Graduate institution",
@@ -449,24 +456,46 @@ function getBins(row, field) {
   return new Set(getNumbers(row, field).map(n => toBin(n, field)));
 }
 
-const CARD_FIELDS = [
-  "Position ",
-  "Birth location",
-  "Home State of Nominee",
-  "Race/Ethnicity",
-  "Gender",
-  "Years of Service as a justice",
-  "Recess Appointment?",
-  "Age When Appointed",
-  "Justice's Age at Time of Departure from the Court",
-  "Year of Death",
-  "Appointing President",
-  "Political Party Affiliation of President",
-  "Undergraduate Institution",
-  "Graduate Institution",
-  "Law School",
-  "Supreme Court clerkship",
-  "Justice's Reason for Departure from the Court"
+// Card sections mirror the sidebar filter tabs
+const CARD_SECTIONS = [
+  {
+    key: "personal",
+    fields: [
+      "Year of Birth",
+      "Birth location",
+      "Home State of Nominee",
+      "Race/Ethnicity",
+      "Gender",
+      "Year of Death"
+    ]
+  },
+  {
+    key: "education",
+    fields: [
+      "Undergraduate Institution",
+      "Graduate Institution",
+      "Law School"
+    ]
+  },
+  {
+    key: "professionalExperience",
+    fields: ["Supreme Court clerkship"],
+    extra: renderCareerSummary
+  },
+  {
+    key: "supremeCourtService",
+    fields: [
+      "Position ",
+      "Years of Service as a justice",
+      "Recess Appointment?",
+      "Age When Appointed",
+      "Appointing President",
+      "Political Party Affiliation of President",
+      "Justice's Reason for Departure from the Court",
+      "Justice's Age at Time of Departure from the Court"
+    ],
+    extra: renderSenateSummary
+  }
 ];
 
 const STATE_CARTOGRAM_FIELDS = new Set([
@@ -558,6 +587,7 @@ let rows = [];
 let filtered = [];
 let activeFilters = {};
 let searchTerm = "";
+let sortMode = "recent";
 let viewMode = "portraits";
 let activeFilterTab = "personal";
 let showOnlyServed = true;
@@ -570,6 +600,7 @@ const searchBox = document.getElementById("searchBox");
 const portraitViewBtn = document.getElementById("portraitViewBtn");
 const infoViewBtn = document.getElementById("infoViewBtn");
 const servedOnlyToggle = document.getElementById("servedOnlyToggle");
+const sortSelect = document.getElementById("sortSelect");
 const personOverlay = document.getElementById("personOverlay");
 const personOverlayBody = document.getElementById("personOverlayBody");
 const personOverlayClose = document.getElementById("personOverlayClose");
@@ -586,17 +617,6 @@ Papa.parse(CSV_FILE, {
   }
 });
 
-document.getElementById("resetFilters").addEventListener("click", () => {
-  activeFilters = {};
-  activeFilterTab = "personal";
-  searchTerm = "";
-  searchBox.value = "";
-  showOnlyServed = true;
-  servedOnlyToggle.checked = true;
-  renderFilters();
-  applyFilters();
-});
-
 if (showMoreBtn) {
   showMoreBtn.addEventListener("click", () => {
     renderCards();
@@ -605,6 +625,11 @@ if (showMoreBtn) {
 
 searchBox.addEventListener("input", e => {
   searchTerm = e.target.value.trim().toLowerCase();
+  applyFilters();
+});
+
+sortSelect.addEventListener("change", e => {
+  sortMode = e.target.value;
   applyFilters();
 });
 
@@ -647,6 +672,11 @@ async function init(data) {
     .map(cleanRow)
     .filter(d => d["Full Name"] && d["Full Name"].trim());
 
+  // The CSV is already in appointment order, so keep that order for date sorts
+  rows.forEach((row, i) => {
+    row.__order = i;
+  });
+
   buildInstitutionAliasMap();
   normalizeInstitutionFields();
 
@@ -654,6 +684,7 @@ async function init(data) {
 
   summaryEl.textContent = "Loading portraits…";
   await preloadPortraitAvailability();
+  await setCardLabelWidth();
 
   renderFilters();
   applyFilters();
@@ -1248,27 +1279,40 @@ function applyFilters() {
     }
 
     if (searchTerm) {
-      const professionalExperienceText = CAREER_GROUPS
-        .flatMap(group => group.fields)
-        .filter(([field]) => isAffirmative(row[field]))
-        .map(([, label]) => label)
-        .join(" ");
-
-      const searchable = [
-        row["Full Name"],
-        row["Appointing President"],
-        professionalExperienceText,
-        row["Law School"],
-        row["Undergraduate Institution"]
-      ].join(" ").toLowerCase();
-
-      if (!searchable.includes(searchTerm)) return false;
+      const name = (row["Full Name"] || "").toLowerCase();
+      if (!name.includes(searchTerm)) return false;
     }
 
     return true;
   });
 
+  sortRows(filtered);
   renderCards();
+}
+
+function sortRows(list) {
+  const age = row => {
+    const n = toNumber(row["Age When Appointed"], "Age When Appointed");
+    return Number.isFinite(n) ? n : null;
+  };
+  const lastName = row => (row["Full Name"] || "").split(",")[0].trim();
+
+  // People without an age go last in either age sort
+  const byAge = dir => (a, b) => {
+    const x = age(a), y = age(b);
+    if (x === null || y === null) return (x === null) - (y === null);
+    return (x - y) * dir;
+  };
+
+  const compare = {
+    recent: (a, b) => b.__order - a.__order,
+    earliest: (a, b) => a.__order - b.__order,
+    youngest: byAge(1),
+    oldest: byAge(-1),
+    lastName: (a, b) => lastName(a).localeCompare(lastName(b))
+  }[sortMode];
+
+  list.sort((a, b) => compare(a, b) || a.__order - b.__order);
 }
 
 function renderCards() {
@@ -1278,8 +1322,7 @@ function renderCards() {
   const visible = filtered;
 
   summaryEl.textContent =
-    `Showing ${visible.length.toLocaleString()} of ${rows.length.toLocaleString()} matching people` +
-    (showOnlyServed ? " · served on the Court only" : "");
+    `Showing ${visible.length.toLocaleString()} of ${rows.length.toLocaleString()} matching people`;
 
   renderActiveFilterChips();
 
@@ -1317,6 +1360,10 @@ function renderActiveFilterChips() {
   activeFilterChipsEl.innerHTML = "";
 
   const chips = [];
+
+  if (showOnlyServed) {
+    chips.push({ field: "__served", label: "Served on the Court only" });
+  }
 
   Object.entries(activeFilters).forEach(([field, filter]) => {
     if (field === PROFESSIONAL_EXPERIENCE_FIELD && filter instanceof Set) {
@@ -1362,12 +1409,26 @@ function renderActiveFilterChips() {
 
   activeFilterChipsEl.style.display = "flex";
 
+  const clearAll = document.createElement("button");
+  clearAll.type = "button";
+  clearAll.className = "clear-all-filters";
+  clearAll.textContent = "Clear All";
+  clearAll.addEventListener("click", () => {
+    activeFilters = {};
+    showOnlyServed = false;
+    servedOnlyToggle.checked = false;
+    renderFilters();
+    applyFilters();
+  });
+
+  const heading = document.createElement("span");
+  heading.className = "active-filter-heading";
+  heading.textContent = "Active Filters:";
+  activeFilterChipsEl.appendChild(heading);
+
   chips.forEach(chip => {
     const el = document.createElement("span");
     el.className = "active-filter-chip";
-
-    const text = document.createElement("span");
-    text.textContent = chip.label;
 
     const remove = document.createElement("button");
     remove.type = "button";
@@ -1378,12 +1439,28 @@ function renderActiveFilterChips() {
       removeActiveFilterChip(chip);
     });
 
-    el.appendChild(text);
+    const text = document.createElement("span");
+    text.textContent = chip.label;
+
     el.appendChild(remove);
+    el.appendChild(text);
     activeFilterChipsEl.appendChild(el);
   });
+
+  const lineBreak = document.createElement("span");
+  lineBreak.className = "active-filter-break";
+  activeFilterChipsEl.appendChild(lineBreak);
+  activeFilterChipsEl.appendChild(clearAll);
 }
 function removeActiveFilterChip(chip) {
+  if (chip.field === "__served") {
+    showOnlyServed = false;
+    servedOnlyToggle.checked = false;
+    renderFilters();
+    applyFilters();
+    return;
+  }
+
   const filter = activeFilters[chip.field];
 
   if (filter instanceof Set) {
@@ -1739,56 +1816,103 @@ function renderCard(row) {
   top.appendChild(textWrap);
   card.appendChild(top);
 
-  const grid = document.createElement("div");
-  grid.className = "card-grid";
+  CARD_SECTIONS.forEach(({ key, fields, extra }) => {
+    const section = document.createElement("div");
+    section.className = "card-section";
 
-  CARD_FIELDS.forEach(field => {
-    const raw = row[field];
-    if (!raw) return;
+    const title = document.createElement("div");
+    title.className = "card-section-title";
+    title.textContent = LABELS[key] || key;
+    section.appendChild(title);
 
-    const k = document.createElement("div");
-    k.className = "k";
-    k.textContent = LABELS[field] || field;
+    const grid = document.createElement("div");
+    grid.className = "card-grid";
 
-    const v = document.createElement("div");
-    v.className = "v";
-    v.textContent = cleanLabel(raw);
+    fields.forEach(field => {
+      const raw = row[field];
+      if (!raw) return;
 
-    if (isMissingValue(raw)) v.classList.add("missing");
+      const k = document.createElement("div");
+      k.className = "k";
+      k.textContent = toTitleCase(LABELS[field] || field);
 
-    grid.appendChild(k);
-    grid.appendChild(v);
+      const v = document.createElement("div");
+      v.className = "v";
+      v.textContent = cleanLabel(raw);
+
+      if (isMissingValue(raw)) v.classList.add("missing");
+
+      grid.appendChild(k);
+      grid.appendChild(v);
+    });
+
+    if (grid.childElementCount) section.appendChild(grid);
+    if (extra) extra(row, section);
+
+    // Skip sections with nothing under the title
+    if (section.childElementCount > 1) card.appendChild(section);
   });
-
-  card.appendChild(grid);
-  renderSenateSummary(row, card);
-  renderCareerSummary(row, card);
 
   return card;
 }
 
-function renderSenateSummary(row, card) {
+// Card labels share LABELS with the sentence-case sidebar, so title-case them here
+const TITLE_CASE_SMALL_WORDS = new Set(["a", "an", "and", "at", "by", "for", "in", "of", "on", "the", "to"]);
+
+function toTitleCase(text) {
+  return text.replace(/[A-Za-z][\w']*/g, (word, offset) =>
+    offset > 0 && TITLE_CASE_SMALL_WORDS.has(word.toLowerCase())
+      ? word.toLowerCase()
+      : word[0].toUpperCase() + word.slice(1)
+  );
+}
+
+// Size the card label column to the widest label any card can show
+async function setCardLabelWidth() {
+  if (document.fonts) await document.fonts.ready;
+
+  const labels = [
+    ...CARD_SECTIONS.flatMap(({ fields }) => fields.map(f => toTitleCase(LABELS[f] || f))),
+    ...CAREER_GROUPS.map(group => group.label),
+    "Senate Confirmation"
+  ];
+
+  const probe = document.createElement("span");
+  probe.className = "k";
+  probe.style.cssText = "position:absolute;visibility:hidden;white-space:nowrap";
+  document.body.appendChild(probe);
+
+  const widest = Math.max(...labels.map(label => {
+    probe.textContent = label;
+    return probe.getBoundingClientRect().width;
+  }));
+
+  probe.remove();
+  document.documentElement.style.setProperty("--card-label-width", `${Math.ceil(widest)}px`);
+}
+
+function renderSenateSummary(row, section) {
   const [results, votes, dates, pcts] = SENATE_FIELDS.map(field =>
     String(row[field] || "").split(";").map(v => v.trim())
   );
   if (!results[0]) return;
 
-  const block = document.createElement("div");
-  block.className = "career-block";
+  // Add to the section's grid so the label lines up with the fields above it
+  let grid = section.querySelector(".card-grid");
+  if (!grid) {
+    grid = document.createElement("div");
+    grid.className = "card-grid";
+    section.appendChild(grid);
+  }
 
-  const title = document.createElement("div");
-  title.className = "career-title";
-  title.textContent = "Senate Confirmation";
-  block.appendChild(title);
+  const k = document.createElement("div");
+  k.className = "k";
+  k.textContent = "Senate Confirmation";
 
-  const grid = document.createElement("div");
-  grid.className = "card-grid";
+  const v = document.createElement("div");
+  v.className = "v";
 
   results.forEach((result, i) => {
-    const k = document.createElement("div");
-    k.className = "k";
-    k.textContent = dates[i] || "Date unknown";
-
     let text = result;
     if (votes[i] === "Voice vote") {
       text += " by voice vote";
@@ -1797,43 +1921,40 @@ function renderSenateSummary(row, card) {
       if (pcts[i]) text += ` (${pcts[i]}% yea)`;
     }
 
-    const v = document.createElement("div");
-    v.className = "v";
-    v.textContent = text;
-
-    grid.appendChild(k);
-    grid.appendChild(v);
+    const vote = document.createElement("div");
+    vote.className = "senate-vote";
+    vote.textContent = `${dates[i] || "Date unknown"} · ${text}`;
+    v.appendChild(vote);
   });
 
-  block.appendChild(grid);
-  card.appendChild(block);
+  grid.appendChild(k);
+  grid.appendChild(v);
 }
 
-function renderCareerSummary(row, card) {
+function renderCareerSummary(row, section) {
+  // Add to the section's grid so group labels line up with the fields above them
+  let grid = section.querySelector(".card-grid");
+
   CAREER_GROUPS.forEach(group => {
     const active = group.fields.filter(([field]) => isAffirmative(row[field]));
     if (!active.length) return;
 
-    const block = document.createElement("div");
-    block.className = "career-block";
+    if (!grid) {
+      grid = document.createElement("div");
+      grid.className = "card-grid";
+      section.appendChild(grid);
+    }
 
-    const title = document.createElement("div");
-    title.className = "career-title";
-    title.textContent = group.label;
+    const k = document.createElement("div");
+    k.className = "k";
+    k.textContent = group.label;
 
-    const badges = document.createElement("div");
-    badges.className = "career-badges";
+    const v = document.createElement("div");
+    v.className = "v";
+    v.textContent = active.map(([, label]) => label).join(", ");
 
-    active.forEach(([, label]) => {
-      const badge = document.createElement("span");
-      badge.className = "career-badge";
-      badge.textContent = label;
-      badges.appendChild(badge);
-    });
-
-    block.appendChild(title);
-    block.appendChild(badges);
-    card.appendChild(block);
+    grid.appendChild(k);
+    grid.appendChild(v);
   });
 }
 

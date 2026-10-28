@@ -20,6 +20,7 @@
   --muted: #000;
   --border: #000;
   --accent: #3995B2;
+  --highlight: #f8d333;
   --accent-soft: #fff;
   --font-sans: "BentonMedium", Helvetica, Arial, sans-serif;
 }
@@ -58,7 +59,7 @@ body {
   min-width: 0;
   height: 100%;
   overflow: auto;
-  padding: 0;
+  padding: 0 0 0 40px;
 }
 
 .main-top {
@@ -71,29 +72,27 @@ body {
 
 .view-toggle-wrap {
   display: inline-flex;
-  border: 1px solid var(--text);
+  gap: 4px;
   flex: 0 0 auto;
 }
 
 .view-toggle {
   border: 0;
-  border-right: 1px solid var(--text);
+  width: 30px;
   min-height: 30px;
-  background: #fff;
+  padding: 0;
+  background: #eee;
 }
 
-.view-toggle:last-child { border-right: 0; }
-
 .view-toggle.active {
-  background: var(--accent);
+  background: var(--highlight);
   color: #000;
 }
 .cards{
 }
 .cards.portrait-mode {
   grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-  gap: 2px 5px;
-  padding-left: 0px;
+  gap: 5px;
 }
 .portrait-large {
   filter: grayscale(100%);
@@ -107,8 +106,8 @@ body {
 .card.portrait-card {
   position: relative;
   overflow: visible;
-  margin: -15px;
-  margin-bottom: -5px;
+  margin: 0;
+  padding: 0;
   background: transparent;
   cursor: pointer;
   transition: transform 180ms ease;
@@ -158,7 +157,37 @@ h1 {
   font-size: 18px;
   line-height: 1;
   font-weight: 800;
+  border-top: 2px solid #000;
+  padding-top: 8px;
+}
 
+.subtitle {
+  margin: 0 0 14px;
+  font-family: "Benton", Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.sort-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 14px;
+  font-size: 12px;
+}
+
+.sort-select {
+  flex: 1;
+  padding: 5px 34px 5px 8px;
+  border: 0;
+  border-radius: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  background: #eee url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 14px center;
+  color: var(--text);
+  font-family: "Benton", Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  cursor: pointer;
 }
 
 .load-row {
@@ -173,29 +202,21 @@ h1 {
   z-index: 10;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 0;
+  gap: 4px;
   margin: 0 0 14px;
-  border: 1px solid var(--text);
   background: #fff;
 }
 
 .filter-tab {
   border: 0;
-  border-right: 1px solid var(--text);
   min-height: 34px;
   padding: 0 5px;
-  background: #fff;
+  background: #eee;
   font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-
-.filter-tab:last-child {
-  border-right: 0;
 }
 
 .filter-tab.active {
-  background: var(--accent);
+  background: var(--highlight);
   color: #000;
 }
 
@@ -239,22 +260,33 @@ button:hover {
   color: var(--text);
 }
 
+.view-toggle:hover,
+.filter-tab:hover,
+.clear-all-filters:hover,
+.active-filter-chip button:hover {
+  background: var(--highlight);
+}
+
 .search {
   width: 100%;
-  padding: 8px 10px;
-  border: 1px solid var(--border);
+  padding: 5px 8px;
+  border: 0;
   border-radius: 0;
   font: inherit;
-  font-size: 13px;
+  font-family: "Benton", Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  font-size: 12px;
   color: var(--text);
-  background: #fff;
+  background: #eee;
 }
 
 .summary {
-  font-size: 16px;
+  font-family: "Benton", Helvetica, Arial, sans-serif;
+  font-size: 12px;
   line-height: 1.2;
-  font-weight: 700;
-  margin: 0 0 10px;
+  font-weight: 400;
+  margin: 0;
+  text-align: right;
 }
 
 .section {
@@ -278,17 +310,23 @@ details {
   overflow: hidden;
 }
 
+details:not([open]) > summary {
+  background: #eee;
+}
+
+details[open] > summary {
+  background: var(--highlight);
+}
+
 summary {
-  padding: 2px 8px;
+  padding: 4px 6px;
   margin-bottom: 4px;
   cursor: pointer;
   font-size: 12px;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  background: #000;
-  color: #fff;
+  color: var(--text);
   list-style: none;
+  transition: background 180ms ease;
 }
 
 summary::-webkit-details-marker { display: none; }
@@ -303,11 +341,18 @@ summary::before {
 
 details:not([open]) summary::before { content: "+"; }
 
+/* Accordion contents use the Book weight so only the titles read as bold */
+.filter-body,
+.filter-body * {
+  font-family: "Benton", Helvetica, Arial, sans-serif;
+  font-weight: 400;
+}
+
 .filter-body {
   max-height: 0;
   padding: 0 8px;
   border-top: 0;
-  background: #fff;
+  background: transparent;
   overflow: hidden;
   opacity: 0;
   transform: translateY(-4px);
@@ -384,9 +429,8 @@ details.is-closing .filter-body {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
   gap: 1px;
-  padding:20px;
-  margin:0px;
-  margin-left:40px
+  padding: 8px 0 20px;
+  margin: 0;
 }
 
 .card {
@@ -432,7 +476,8 @@ details.is-closing .filter-body {
 
 .card-grid {
   display: grid;
-  grid-template-columns: 120px 1fr;
+  /* --card-label-width is measured in JS; cap it so narrow cards wrap labels instead */
+  grid-template-columns: min(var(--card-label-width, 140px), 40%) minmax(0, 1fr);
   gap: 6px 10px;
   font-size: 12px;
   line-height: 1.35;
@@ -440,10 +485,6 @@ details.is-closing .filter-body {
 
 .k {
   color: var(--muted);
-  font-size: 10px;
-  line-height: 1.1;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
 }
 
 .v {
@@ -456,38 +497,30 @@ details.is-closing .filter-body {
   font-weight: 400;
 }
 
-.career-block {
+.card-section {
   margin-top: 14px;
-  padding-top: 10px;
-  border-top: 1px solid var(--border);
 }
 
-.career-title {
-  margin-bottom: 6px;
-  font-size: 10px;
-  line-height: 1.1;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  font-weight: 800;
+.card-section > :not(.card-section-title) {
+  margin-left: 20px;
 }
 
-.career-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-}
-
-.career-badge {
-  display: inline-flex;
-  align-items: center;
-  min-height: 20px;
-  padding: 2px 6px;
-  border: 1px solid var(--border);
-  background: var(--accent);
-  font-size: 11px;
+.card-section-title {
+  margin-bottom: 8px;
+  padding: 4px 6px;
+  background: #eee;
+  font-size: 13px;
   line-height: 1.1;
   font-weight: 800;
 }
+
+.senate-vote + .senate-vote {
+  margin-top: 2px;
+}
+
+
+
+
 
 .more-wrap {
   margin: 20px 0 40px;
@@ -610,7 +643,7 @@ details.is-closing .filter-body {
 .decade-bar-fill {
   display: block;
   width: 100%;
-  background: var(--accent);
+  background: #000;
 }
 
 .decade-bar-fill {
@@ -656,6 +689,7 @@ details.is-closing .filter-body {
 
 .decade-bar:not(:disabled):hover .decade-bar-fill {
   outline: 1px solid var(--text);
+  outline-offset: 1px;
 }
 
 .decade-bar:focus-visible {
@@ -681,7 +715,7 @@ details.is-closing .filter-body {
 .state-square {
   aspect-ratio: 1 / 1;
   background: #f2f2f2;
-  color: #555;
+  color: #000;
   font-size: 10px;
   font-weight: 800;
   display: grid;
@@ -695,7 +729,7 @@ details.is-closing .filter-body {
 .state-square.active {
   background: var(--accent) !important;
   border-color: var(--text);
-  color: #fff;
+  color: #000;
   outline: none;
 }
 
@@ -708,9 +742,31 @@ details.is-closing .filter-body {
 }
 
 .non-us-wrap {
-  border-top: 1px solid var(--border);
-  padding-top: 8px;
   margin-top: 8px;
+}
+
+.non-us-wrap .option {
+  min-height: 0;
+  margin-bottom: 2px;
+  line-height: 1.1;
+}
+
+/* Square checkboxes; native ones have rounded corners that can't be restyled */
+.non-us-wrap input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: 0 0 auto;
+  width: 13px;
+  height: 13px;
+  margin: 1px 0 0;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: #fff;
+  cursor: pointer;
+}
+
+.non-us-wrap input[type="checkbox"]:checked {
+  background: #000 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2l2.4 2.4 4.6-5' fill='none' stroke='%23fff' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat center / 11px;
 }
 
 .state-extra-wrap {
@@ -741,34 +797,49 @@ details.is-closing .filter-body {
 .active-filter-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 6px 14px;
   margin-top: 6px;
   margin-bottom: 10px;
 }
 
 .active-filter-chip {
+  font-family: "Benton", Helvetica, Arial, sans-serif;
+  font-weight: 400;
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  min-height: 22px;
-  padding: 3px 7px;
-  border: 1px solid var(--border);
-  background: var(--accent);
+  font-size: 12px;
+  line-height: 1.1;
+}
+
+.active-filter-heading {
+  font-size: 12px;
+  line-height: 1.1;
+  align-self: center;
+}
+
+.active-filter-break {
+  flex-basis: 100%;
+  height: 0;
+}
+
+.clear-all-filters {
+  min-height: 0;
+  padding: 2px 6px;
   font-size: 11px;
   line-height: 1.1;
-  font-weight: 800;
 }
-
 
 .active-filter-chip button {
+  width: 14px;
+  height: 14px;
   min-height: 0;
   padding: 0;
-  border: 0;
-  background: transparent;
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1;
-  font-weight: 800;
 }
+
+
 .state-square.active,
 .state-extra-square.active {
   border: 2px solid #000;
@@ -816,13 +887,9 @@ details.is-closing .filter-body {
 
 .cards.portrait-mode {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 4px 0;
-    padding-left: 8px;
+    gap: 4px;
   }
 
-  .cards.portrait-mode .card.portrait-card {
-    margin-left: -10px;
-  }
 
   .cards.portrait-mode .portrait-large {
     width: 100%;
@@ -868,6 +935,7 @@ details.is-closing .filter-body {
   .main {
     height: auto;
     overflow: visible;
+    padding-left: 0;
   }
 
   .main-top {
