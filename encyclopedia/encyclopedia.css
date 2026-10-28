@@ -206,6 +206,36 @@ h1 {
   cursor: pointer;
 }
 
+/* Only shown in the compact mobile header */
+.filter-panel-toggle {
+  display: none;
+  width: 100%;
+  justify-content: flex-start;
+  gap: 6px;
+  padding: 4px 6px;
+  border: 0;
+  font-size: 12px;
+}
+
+/* Extra specificity so the generic button:hover white doesn't override it after a tap */
+.sidebar .filter-panel-toggle {
+  background: #eee;
+}
+
+.filter-panel-toggle::before {
+  content: "+";
+  display: inline-block;
+  width: 14px;
+}
+
+body.filters-open .sidebar .filter-panel-toggle {
+  background: var(--highlight);
+}
+
+body.filters-open .filter-panel-toggle::before {
+  content: "−";
+}
+
 .load-row {
   display: grid;
   gap: 6px;
@@ -922,10 +952,11 @@ details.is-closing .filter-body {
 }
 
 
+  /* clip, not hidden: hidden makes a scroll container, which stops sticky headers sticking */
   html,
   body {
     max-width: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   .app,
@@ -933,11 +964,12 @@ details.is-closing .filter-body {
   .main,
   .cards {
     max-width: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
+  /* Block, not grid, so the sticky sidebar can stay pinned while the grid scrolls */
   .app {
-    grid-template-columns: 1fr;
+    display: block;
     height: auto;
     overflow: visible;
   }
@@ -958,7 +990,7 @@ details.is-closing .filter-body {
   .main-top {
     position: sticky;
     top: 0;
-    z-index: 5;
+    z-index: 50;
     background: #fff;
     padding: 8px 0;
     flex-direction: column;
@@ -968,6 +1000,40 @@ details.is-closing .filter-body {
   /* View toggle first, active filters below it */
   .main-top .view-toggle-wrap {
     order: -1;
+  }
+
+  /* Compact header once the filters scroll away: title, subtitle and a Filters button stay pinned */
+  body.filters-compact .sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    padding-bottom: 8px;
+    background: #fff;
+  }
+
+  body.filters-compact .filter-panel-toggle {
+    display: flex;
+  }
+
+  body.filters-compact .filter-panel {
+    display: none;
+  }
+
+  body.filters-compact.filters-open .filter-panel {
+    display: block;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-top: 10px;
+  }
+
+  body.filters-compact .main-top {
+    top: var(--sticky-header-h, 0px);
+  }
+
+  /* A touch while scrolling triggers :hover; don't lift portraits over the pinned bars */
+  .card.portrait-card:hover {
+    z-index: auto;
+    transform: none;
   }
 
 /* No names under portraits on mobile */

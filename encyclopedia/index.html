@@ -141,6 +141,9 @@ body.overlay-open {
     <p class="subtitle">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
     <p class="source"><strong>Source: </strong><a href="#" target="_blank">Source name</a></p>
 
+    <button id="filterPanelToggle" class="filter-panel-toggle" type="button" aria-expanded="false" aria-controls="filterPanel">Filters</button>
+
+    <div id="filterPanel" class="filter-panel">
     <div class="load-row">
       <input id="searchBox" class="search" placeholder="Search nominee names" />
     </div>
@@ -164,6 +167,7 @@ body.overlay-open {
     </label>
 
     <div id="filters"></div>
+    </div>
   </aside>
 
   <main class="main">
@@ -1775,6 +1779,52 @@ function updatePortraitLabels() {
 }
 
 window.addEventListener("resize", updatePortraitLabels);
+
+// Mobile: once the filters scroll out of view, fold them away and pin a compact
+// header (title, subtitle, Filters button) above the grid
+const mobileQuery = window.matchMedia("(max-width: 700px)");
+const sidebarEl = document.querySelector(".sidebar");
+const filterPanel = document.getElementById("filterPanel");
+const filterPanelToggle = document.getElementById("filterPanelToggle");
+
+function setFilterPanelOpen(open) {
+  document.body.classList.toggle("filters-open", open);
+  filterPanelToggle.setAttribute("aria-expanded", String(open));
+}
+
+function updateCompactHeader() {
+  const compact = document.body.classList.contains("filters-compact");
+
+  if (!mobileQuery.matches) {
+    if (compact) {
+      document.body.classList.remove("filters-compact");
+      setFilterPanelOpen(false);
+    }
+    return;
+  }
+
+  if (!compact && filterPanel.getBoundingClientRect().bottom < 0) {
+    // Hiding the panel removes its height, so scroll back by that much to keep the grid in place
+    const panelHeight = filterPanel.offsetHeight;
+    document.body.classList.add("filters-compact");
+    window.scrollBy(0, -panelHeight);
+  } else if (compact && window.scrollY <= 0) {
+    document.body.classList.remove("filters-compact");
+    setFilterPanelOpen(false);
+  }
+}
+
+filterPanelToggle.addEventListener("click", () => {
+  setFilterPanelOpen(!document.body.classList.contains("filters-open"));
+});
+
+window.addEventListener("scroll", updateCompactHeader, { passive: true });
+mobileQuery.addEventListener("change", updateCompactHeader);
+
+// Keep the pinned view-toggle bar just under the pinned header
+new ResizeObserver(() => {
+  document.documentElement.style.setProperty("--sticky-header-h", `${sidebarEl.offsetHeight}px`);
+}).observe(sidebarEl);
 
 function openPersonOverlay(row) {
   personOverlayBody.innerHTML = "";
