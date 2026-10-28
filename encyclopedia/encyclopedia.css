@@ -255,8 +255,8 @@ body.filters-open .filter-panel-toggle::before {
 
 .filter-tab {
   border: 0;
-  min-height: 34px;
-  padding: 0 5px;
+  min-height: 0;
+  padding: 4px 6px;
   background: #eee;
   font-size: 11px;
 }
