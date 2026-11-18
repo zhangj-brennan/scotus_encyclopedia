@@ -41,7 +41,7 @@ body {
   grid-template-rows: auto minmax(0, 1fr);
   gap: 0px;
   height: 100vh;
-  max-width: 880px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 16px 24px 24px;
   overflow: hidden;
@@ -202,6 +202,29 @@ h1 {
 
 .source a {
   color: inherit;
+}
+
+.sidebar-sources {
+  margin: 16px 0 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--accent);
+  font-family: "Benton", Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.sidebar-sources p {
+  margin: 0 0 8px;
+}
+
+.sidebar-sources .sidebar-sources-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.sidebar-sources a {
+  color: inherit;
+  overflow-wrap: anywhere;
 }
 
 .sort-wrap {
