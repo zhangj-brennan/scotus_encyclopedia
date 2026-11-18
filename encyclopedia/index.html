@@ -39,22 +39,59 @@
 
 
 .served-toggle-wrap {
-  margin: 0 0 14px;
-}
-
-.served-toggle-label {
   display: flex;
   align-items: center;
   gap: 8px;
+  margin: 0 0 41px;
   font-size: 12px;
-  line-height: 1.2;
-  font-weight: 800;
+}
+
+.served-label {
   cursor: pointer;
 }
 
-.served-toggle-label input {
-  margin: 0;
-  accent-color: #000;
+.served-label.active {
+  font-weight: 800;
+}
+
+/* On/off switch between the two labels; knob slides right for "Only those who served" */
+.served-toggle-wrap .served-switch {
+  position: relative;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 18px;
+  min-height: 0;
+  padding: 0;
+  border: 1px solid var(--accent);
+  background: #fff;
+  cursor: pointer;
+}
+
+.served-switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  background: var(--accent);
+  transition: transform 150ms ease;
+}
+
+.served-toggle-wrap .served-switch[aria-checked="true"] {
+  background: var(--accent);
+}
+
+.served-switch[aria-checked="true"] .served-switch-knob {
+  background: #fff;
+  transform: translateX(16px);
+}
+
+.served-toggle-wrap .served-switch:hover {
+  background: #fff;
+}
+
+.served-toggle-wrap .served-switch[aria-checked="true"]:hover {
+  background: var(--accent);
 }
 
 
@@ -136,34 +173,26 @@ body.overlay-open {
 
 <body>
 <div class="app">
-  <aside class="sidebar">
+  <header class="page-header">
     <h1>SCOTUS Encyclopedia</h1>
+    <p class="subtitle">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
     <p class="source"><strong>Source: </strong><a href="#" target="_blank">Source name</a></p>
+  </header>
+
+  <aside class="sidebar">
 
     <button id="filterPanelToggle" class="filter-panel-toggle" type="button" aria-expanded="false" aria-controls="filterPanel">Filters</button>
 
     <div id="filterPanel" class="filter-panel">
     <div class="load-row">
-      <input id="searchBox" class="search" placeholder="Search nominee names" />
+      <input id="searchBox" class="search" placeholder="Search" />
     </div>
 
     <div class="served-toggle-wrap">
-      <label class="served-toggle-label">
-        <input id="servedOnlyToggle" type="checkbox" checked />
-        Show only those who served
-      </label>
+      <span class="served-label" data-served="false">Show all</span>
+      <button id="servedSwitch" type="button" class="served-switch" role="switch" aria-checked="true" aria-label="Only those who served"><span class="served-switch-knob"></span></button>
+      <span class="served-label active" data-served="true">Only those who served</span>
     </div>
-
-    <label class="sort-wrap">
-      Sort by
-      <select id="sortSelect" class="sort-select">
-        <option value="recent" selected>Most recent</option>
-        <option value="earliest">Earliest</option>
-        <option value="youngest">Youngest at appointment</option>
-        <option value="oldest">Oldest at appointment</option>
-        <option value="lastName">Last name</option>
-      </select>
-    </label>
 
     <div id="filters"></div>
     </div>
@@ -171,15 +200,27 @@ body.overlay-open {
 
   <main class="main">
     <div class="main-top">
-      <div>
-  <div id="activeFilterChips" class="active-filter-chips"></div>
-</div>
-      <div class="view-toggle-wrap" aria-label="View mode">
-        <button id="portraitViewBtn" class="view-toggle active" type="button" aria-label="Portrait Grid" title="Portrait Grid"><svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="4" height="4"/><rect x="6" y="1" width="4" height="4"/><rect x="11" y="1" width="4" height="4"/><rect x="1" y="6" width="4" height="4"/><rect x="6" y="6" width="4" height="4"/><rect x="11" y="6" width="4" height="4"/><rect x="1" y="11" width="4" height="4"/><rect x="6" y="11" width="4" height="4"/><rect x="11" y="11" width="4" height="4"/></svg></button>
-        <button id="infoViewBtn" class="view-toggle" type="button" aria-label="Info Cards" title="Info Cards"><svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="6.5" height="6.5"/><rect x="8.5" y="1" width="6.5" height="6.5"/><rect x="1" y="8.5" width="6.5" height="6.5"/><rect x="8.5" y="8.5" width="6.5" height="6.5"/></svg></button>
+      <div class="main-top-left">
+        <div id="activeFilterChips" class="active-filter-chips"></div>
+      </div>
+      <div class="main-top-right">
+        <div class="view-toggle-wrap" aria-label="View mode">
+          <button id="portraitViewBtn" class="view-toggle active" type="button" aria-label="Portrait Grid" title="Portrait Grid"><svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="4" height="4"/><rect x="6" y="1" width="4" height="4"/><rect x="11" y="1" width="4" height="4"/><rect x="1" y="6" width="4" height="4"/><rect x="6" y="6" width="4" height="4"/><rect x="11" y="6" width="4" height="4"/><rect x="1" y="11" width="4" height="4"/><rect x="6" y="11" width="4" height="4"/><rect x="11" y="11" width="4" height="4"/></svg></button>
+          <button id="infoViewBtn" class="view-toggle" type="button" aria-label="Info Cards" title="Info Cards"><svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="6.5" height="6.5"/><rect x="8.5" y="1" width="6.5" height="6.5"/><rect x="1" y="8.5" width="6.5" height="6.5"/><rect x="8.5" y="8.5" width="6.5" height="6.5"/></svg></button>
+        </div>
+        <label class="sort-wrap">
+          Sort by
+          <select id="sortSelect" class="sort-select">
+            <option value="recent" selected>Most recent</option>
+            <option value="earliest">Earliest</option>
+            <option value="youngest">Youngest at appointment</option>
+            <option value="oldest">Oldest at appointment</option>
+            <option value="lastName">Last name</option>
+          </select>
+        </label>
+        <div id="summary" class="summary">Load a CSV to begin.</div>
       </div>
     </div>
-    <div id="summary" class="summary">Load a CSV to begin.</div>
     <div id="cards" class="cards portrait-mode"></div>
 
   </main>
@@ -523,17 +564,84 @@ let activeFilters = {};
 let searchTerm = "";
 let sortMode = "recent";
 let viewMode = "portraits";
-let activeFilterTab = "personal";
+let openFilterSection = "personal";
+let openFilterField = null;
 let showOnlyServed = true;
 
 const filtersEl = document.getElementById("filters");
+
+// Accordions slide open and closed instead of snapping
+const detailsAnimations = new WeakMap();
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+function setDetailsOpen(details, open) {
+  const content = details.querySelector(":scope > summary + *");
+  const running = detailsAnimations.get(details);
+  // Start from the current height so a click mid-animation reverses smoothly
+  const startHeight = content && details.open ? content.getBoundingClientRect().height : 0;
+
+  if (running) {
+    running.cancel();
+    detailsAnimations.delete(details);
+  }
+
+  // Flags a close in progress so the header and triangle switch back right away
+  details.dataset.closing = String(!open);
+
+  if (!content || reduceMotion.matches) {
+    details.open = open;
+    return;
+  }
+
+  if (open) details.open = true;
+  const endHeight = open ? content.getBoundingClientRect().height : 0;
+
+  content.style.overflow = "hidden";
+  const animation = content.animate(
+    [{ height: `${startHeight}px` }, { height: `${endHeight}px` }],
+    { duration: 200, easing: "ease" }
+  );
+  detailsAnimations.set(details, animation);
+
+  animation.onfinish = () => {
+    detailsAnimations.delete(details);
+    content.style.overflow = "";
+    if (!open) details.open = false;
+  };
+}
+
+filtersEl.addEventListener("click", e => {
+  const summary = e.target.closest("summary");
+  if (!summary || !filtersEl.contains(summary)) return;
+
+  const details = summary.parentElement;
+  e.preventDefault();
+  // While a close is animating the element is still [open], so treat it as closing
+  const closing = detailsAnimations.has(details) && details.dataset.closing === "true";
+  setDetailsOpen(details, closing || !details.open);
+});
 const cardsEl = document.getElementById("cards");
 const summaryEl = document.getElementById("summary");
 const showMoreBtn = document.getElementById("showMore");
 const searchBox = document.getElementById("searchBox");
 const portraitViewBtn = document.getElementById("portraitViewBtn");
 const infoViewBtn = document.getElementById("infoViewBtn");
-const servedOnlyToggle = document.getElementById("servedOnlyToggle");
+const servedSwitch = document.getElementById("servedSwitch");
+const servedLabels = document.querySelectorAll(".served-label");
+
+function syncServedToggle() {
+  servedSwitch.setAttribute("aria-checked", String(showOnlyServed));
+  servedLabels.forEach(label => {
+    label.classList.toggle("active", (label.dataset.served === "true") === showOnlyServed);
+  });
+}
+
+function setShowOnlyServed(value) {
+  showOnlyServed = value;
+  syncServedToggle();
+  renderFilters();
+  applyFilters();
+}
 const sortSelect = document.getElementById("sortSelect");
 const personOverlay = document.getElementById("personOverlay");
 const personOverlayBody = document.getElementById("personOverlayBody");
@@ -567,10 +675,10 @@ sortSelect.addEventListener("change", e => {
   applyFilters();
 });
 
-servedOnlyToggle.addEventListener("change", e => {
-  showOnlyServed = e.target.checked;
-  renderFilters();
-  applyFilters();
+servedSwitch.addEventListener("click", () => setShowOnlyServed(!showOnlyServed));
+
+servedLabels.forEach(label => {
+  label.addEventListener("click", () => setShowOnlyServed(label.dataset.served === "true"));
 });
 
 personOverlayClose.addEventListener("click", closePersonOverlay);
@@ -725,84 +833,81 @@ function renderFilters() {
     })
     .filter(tab => tab.fields.length);
 
-  if (!availableTabs.some(tab => tab.sectionKey === activeFilterTab)) {
-    activeFilterTab = availableTabs[0]?.sectionKey || "personal";
-  }
-
-  const tabs = document.createElement("div");
-  tabs.className = "filter-tabs";
-
+  // Sections are accordions too: one open at a time, Personal open on load
   availableTabs.forEach(({ sectionKey, fields }) => {
-    const tab = document.createElement("button");
-    tab.type = "button";
-    tab.className = "filter-tab";
-    tab.textContent = LABELS[sectionKey] || sectionKey;
+    const sectionDetails = document.createElement("details");
+    sectionDetails.className = "filter-section";
+    sectionDetails.dataset.section = sectionKey;
+    sectionDetails.open = sectionKey === openFilterSection;
 
-    if (sectionKey === activeFilterTab) {
-      tab.classList.add("active");
-    }
+    const sectionSummary = document.createElement("summary");
+    sectionSummary.className = "filter-section-summary";
+    sectionSummary.textContent = LABELS[sectionKey] || sectionKey;
+    sectionDetails.appendChild(sectionSummary);
 
-    if (sectionHasActiveFilters(fields)) {
-      tab.classList.add("has-active");
-    }
-
-    tab.addEventListener("click", () => {
-      activeFilterTab = sectionKey;
-      renderFilters();
-    });
-
-    tabs.appendChild(tab);
-  });
-
-  filtersEl.appendChild(tabs);
-
-  const activeTab = availableTabs.find(tab => tab.sectionKey === activeFilterTab);
-  if (!activeTab) return;
-
-  const section = document.createElement("div");
-  section.className = "filter-panel";
-
-  activeTab.fields.forEach((field, i) => {
-    const details = document.createElement("details");
-details.open = window.innerWidth > 700 && i === 0;
-
-    details.addEventListener("toggle", () => {
-    if (!details.open) return;
-
-    section.querySelectorAll("details").forEach(otherDetails => {
-      if (otherDetails !== details) {
-        otherDetails.open = false;
+    sectionDetails.addEventListener("toggle", () => {
+      if (!sectionDetails.open) {
+        if (openFilterSection === sectionKey) openFilterSection = null;
+        return;
       }
+      openFilterSection = sectionKey;
+      filtersEl.querySelectorAll(".filter-section").forEach(other => {
+        if (other !== sectionDetails && other.open) setDetailsOpen(other, false);
+      });
     });
+
+    const section = document.createElement("div");
+    section.className = "filter-section-body";
+
+    fields.forEach(field => {
+      const details = document.createElement("details");
+      // Field accordions start closed; re-renders keep whichever one the user opened
+      details.open = field === openFilterField;
+
+      details.addEventListener("toggle", () => {
+        if (!details.open) {
+          if (openFilterField === field) openFilterField = null;
+          return;
+        }
+        openFilterField = field;
+
+        section.querySelectorAll("details").forEach(otherDetails => {
+          if (otherDetails !== details) {
+            if (otherDetails.open) setDetailsOpen(otherDetails, false);
+          }
+        });
+      });
+
+      const summary = document.createElement("summary");
+      summary.textContent = LABELS[field] || field;
+      details.appendChild(summary);
+
+      const body = document.createElement("div");
+      body.className = "filter-body";
+
+      if (!NUMERIC_FIELDS.has(field) && !STATE_CARTOGRAM_FIELDS.has(field)) {
+        body.classList.add("scrollable");
+      }
+
+      if (field === PROFESSIONAL_EXPERIENCE_FIELD) {
+        body.appendChild(renderProfessionalExperienceFilter());
+      } else if (STATE_CARTOGRAM_FIELDS.has(field)) {
+        body.appendChild(renderStateCartogramFilter(field));
+      } else if (HISTOGRAM_FIELDS.has(field)) {
+        body.appendChild(renderHistogramFilter(field));
+      } else if (NUMERIC_FIELDS.has(field)) {
+        body.appendChild(renderRangeFilter(field));
+      } else {
+        body.appendChild(renderCheckboxFilter(field));
+      }
+
+      details.appendChild(body);
+      section.appendChild(details);
+    });
+
+    sectionDetails.appendChild(section);
+    filtersEl.appendChild(sectionDetails);
   });
-    const summary = document.createElement("summary");
-    summary.textContent = LABELS[field] || field;
-    details.appendChild(summary);
-
-    const body = document.createElement("div");
-    body.className = "filter-body";
-
-    if (!NUMERIC_FIELDS.has(field) && !STATE_CARTOGRAM_FIELDS.has(field)) {
-      body.classList.add("scrollable");
-    }
-
-    if (field === PROFESSIONAL_EXPERIENCE_FIELD) {
-      body.appendChild(renderProfessionalExperienceFilter());
-    } else if (STATE_CARTOGRAM_FIELDS.has(field)) {
-      body.appendChild(renderStateCartogramFilter(field));
-    } else if (HISTOGRAM_FIELDS.has(field)) {
-      body.appendChild(renderHistogramFilter(field));
-    } else if (NUMERIC_FIELDS.has(field)) {
-      body.appendChild(renderRangeFilter(field));
-    } else {
-      body.appendChild(renderCheckboxFilter(field));
-    }
-
-    details.appendChild(body);
-    section.appendChild(details);
-  });
-
-  filtersEl.appendChild(section);
 }
 
 function sectionHasActiveFilters(fields) {
@@ -1032,8 +1137,8 @@ function renderRangeFilter(field) {
       `linear-gradient(to right,
         #ddd 0%,
         #ddd ${lowPct}%,
-        #3995B2 ${lowPct}%,
-        #3995B2 ${highPct}%,
+        #00415b ${lowPct}%,
+        #00415b ${highPct}%,
         #ddd ${highPct}%,
         #ddd 100%)`;
   }
@@ -1350,7 +1455,7 @@ function renderActiveFilterChips() {
   clearAll.addEventListener("click", () => {
     activeFilters = {};
     showOnlyServed = false;
-    servedOnlyToggle.checked = false;
+    syncServedToggle();
     renderFilters();
     applyFilters();
   });
@@ -1389,7 +1494,7 @@ function renderActiveFilterChips() {
 function removeActiveFilterChip(chip) {
   if (chip.field === "__served") {
     showOnlyServed = false;
-    servedOnlyToggle.checked = false;
+    syncServedToggle();
     renderFilters();
     applyFilters();
     return;
@@ -1420,7 +1525,7 @@ function renderCartogramLegend(minCount, maxCount) {
   [0.2, 0.6, 1].forEach(opacity => {
     const swatch = document.createElement("span");
     swatch.className = "cartogram-legend-swatch";
-    swatch.style.background = `rgba(0,0,0,${opacity})`;
+    swatch.style.background = `rgba(0,65,91,${opacity})`;
     ramp.appendChild(swatch);
   });
 
@@ -1508,8 +1613,8 @@ function renderStateCartogramFilter(field) {
       if (selected) cell.classList.add("active");
 
       const opacity = count ? 0.2 + 0.8 * (count / maxCount) : 0;
-      cell.style.background = count ? `rgba(0, 0, 0, ${opacity})` : "#eee";
-      // White labels on the darker greys so they stay readable
+      cell.style.background = count ? `rgba(0, 65, 91, ${opacity})` : "#eee";
+      // White labels on the darker blues so they stay readable
       if (opacity > 0.5) cell.classList.add("dark");
       cell.textContent = abbr;
       cell.title = `${abbr}: ${count}`;
@@ -1553,7 +1658,7 @@ if (positiveCounts.length) {
     }
 
     const opacity = 0.2 + 0.8 * (unknownCount / maxCount);
-    unknownSquare.style.background = `rgba(0, 0, 0, ${opacity})`;
+    unknownSquare.style.background = `rgba(0, 65, 91, ${opacity})`;
     if (opacity > 0.5) unknownSquare.classList.add("dark");
 
     unknownSquare.addEventListener("click", () => {

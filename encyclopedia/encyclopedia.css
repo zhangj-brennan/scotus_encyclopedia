@@ -19,7 +19,7 @@
   --text: #000000;
   --muted: #000;
   --border: #000;
-  --accent: #3995B2;
+  --accent: #00415b;
   --highlight: var(--accent);
   --accent-soft: #fff;
   --font-sans: "BentonMedium", Helvetica, Arial, sans-serif;
@@ -37,16 +37,19 @@ body {
 
 .app {
   display: grid;
-  grid-template-columns: minmax(360px, 30%) minmax(0, 1fr);
+  grid-template-columns: minmax(320px, 30%) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 0px;
   height: 100vh;
+  max-width: 880px;
+  margin: 0 auto;
   padding: 16px 24px 24px;
   overflow: hidden;
 }
 
 .sidebar {
   min-width: 0;
-  max-width: 400px;
+  max-width: 360px;
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
@@ -58,7 +61,8 @@ body {
 .main {
   min-width: 0;
   height: 100%;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   padding: 0 0 0 40px;
 }
 
@@ -74,19 +78,21 @@ body {
   display: inline-flex;
   gap: 4px;
   flex: 0 0 auto;
+  margin-left: auto;
 }
 
 .view-toggle {
-  border: 0;
+  border: 1px solid var(--accent);
   width: 30px;
   min-height: 30px;
   padding: 0;
-  background: #eee;
+  background: #fff;
+  color: var(--accent);
 }
 
 .view-toggle.active {
   background: var(--highlight);
-  color: #000;
+  color: #fff;
 }
 .cards{
 }
@@ -157,6 +163,20 @@ body {
   right: 0;
 }
 
+/* Everything below the full-width header uses the accent blue for text */
+.sidebar,
+.main,
+.person-overlay {
+  --text: var(--accent);
+  --muted: var(--accent);
+  color: var(--text);
+}
+
+/* Title and source span both columns so the top rule runs the full width */
+.page-header {
+  grid-column: 1 / -1;
+}
+
 h1 {
   margin: 0 0 10px;
   font-size: 18px;
@@ -192,18 +212,48 @@ h1 {
   font-size: 12px;
 }
 
+/* Above the grid: active filters on the left; view toggle, sort and match count stacked on the right */
+.main-top-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.main-top-right .summary {
+  text-align: right;
+}
+
+.main-top-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+}
+
+.main-top .sort-wrap {
+  margin: 0;
+}
+
+.main-top .sort-wrap .sort-select {
+  flex: 0 0 auto;
+}
+
 .sort-select {
   flex: 1;
   padding: 5px 34px 5px 8px;
-  border: 0;
+  border: 1px solid var(--accent);
   border-radius: 0;
   appearance: none;
   -webkit-appearance: none;
-  background: #eee url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 14px center;
-  color: var(--text);
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%2300415b' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 14px center;
   font-family: "Benton", Helvetica, Arial, sans-serif;
   font-size: 12px;
   cursor: pointer;
+  color: var(--accent);
 }
 
 /* Only shown in the compact mobile header */
@@ -213,27 +263,37 @@ h1 {
   justify-content: flex-start;
   gap: 6px;
   padding: 4px 6px;
-  border: 0;
+  border: 1px solid var(--accent);
   font-size: 12px;
+  color: var(--accent);
 }
 
 /* Extra specificity so the generic button:hover white doesn't override it after a tap */
 .sidebar .filter-panel-toggle {
-  background: #eee;
+  background: #fff;
+  color: var(--accent);
 }
 
+/* Triangle markers: pointing right when closed, down when open */
 .filter-panel-toggle::before {
-  content: "+";
+  content: "";
   display: inline-block;
-  width: 14px;
+  width: 0;
+  height: 0;
+  margin: 0 8px 0 2px;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 6px solid currentColor;
+  transition: transform 200ms ease;
 }
 
 body.filters-open .sidebar .filter-panel-toggle {
   background: var(--highlight);
+  color: #fff;
 }
 
 body.filters-open .filter-panel-toggle::before {
-  content: "−";
+  transform: rotate(90deg);
 }
 
 .load-row {
@@ -242,41 +302,19 @@ body.filters-open .filter-panel-toggle::before {
   margin-bottom: 14px;
 }
 
-.filter-tabs {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 4px;
-  margin: 0 0 14px;
-  background: #fff;
+/* Section accordions (Personal, Education, ...) wrap the field accordions */
+details.filter-section {
+  margin-bottom: 8px;
 }
 
-.filter-tab {
-  border: 0;
-  min-height: 0;
-  padding: 4px 6px;
-  background: #eee;
-  font-size: 11px;
+.filter-section > summary.filter-section-summary {
+  padding: 7px 8px;
+  font-size: 13px;
+  font-weight: 800;
 }
 
-.filter-tab.active {
-  background: var(--highlight);
-  color: #000;
-}
-
-/* .filter-tab.has-active::after {
-  content: "";
-  width: 6px;
-  height: 6px;
-  margin-left: 5px;
-  border-radius: 50%;
-  background: #000;
-  display: inline-block;
-} */
-.filter-tab.has-active::after {
-  display: none;
+.filter-section-body {
+  padding: 4px 0 6px 12px;
 }
 
 .filter-panel {
@@ -307,23 +345,28 @@ button:hover {
 }
 
 .view-toggle:hover,
-.filter-tab:hover,
 .clear-all-filters:hover,
 .active-filter-chip button:hover {
   background: var(--highlight);
+  color: #fff;
 }
 
 .search {
   width: 100%;
   padding: 5px 8px;
-  border: 0;
+  border: 1px solid var(--accent);
   border-radius: 0;
   font: inherit;
   font-family: "Benton", Helvetica, Arial, sans-serif;
   font-weight: 400;
   font-size: 12px;
-  color: var(--text);
-  background: #eee;
+  background: #fff;
+  color: var(--accent);
+}
+
+.search::placeholder {
+  color: var(--accent);
+  opacity: 0.7;
 }
 
 .summary {
@@ -332,7 +375,7 @@ button:hover {
   line-height: 1.2;
   font-weight: 400;
   margin: 0;
-  text-align: right;
+  text-align: left;
 }
 
 .section {
@@ -356,36 +399,53 @@ details {
   overflow: hidden;
 }
 
-details:not([open]) > summary {
-  background: #eee;
+details:not([open]) > summary,
+details[data-closing="true"] > summary {
+  background: #fff;
+  color: var(--accent);
 }
 
-details[open] > summary {
+details[open]:not([data-closing="true"]) > summary {
   background: var(--highlight);
+  color: #fff;
 }
 
 summary {
   padding: 4px 6px;
+  border: 1px solid var(--accent);
   margin-bottom: 4px;
   cursor: pointer;
   font-size: 12px;
   font-weight: 700;
-  color: var(--text);
   list-style: none;
   transition: background 180ms ease;
+  color: var(--accent);
 }
 
 summary::-webkit-details-marker { display: none; }
 
 summary::before {
-  content: "−";
+  content: "";
   display: inline-block;
-  width: 14px;
-  margin-right: 6px;
-  font-weight: 700;
+  width: 0;
+  height: 0;
+  vertical-align: middle;
+  margin: -2px 8px 0 2px;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 6px solid currentColor;
+  transition: transform 200ms ease;
 }
 
-details:not([open]) summary::before { content: "+"; }
+details[open]:not([data-closing="true"]) > summary::before {
+  transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  summary::before {
+    transition: none;
+  }
+}
 
 /* Accordion contents use the Book weight so only the titles read as bold */
 .filter-body,
@@ -690,7 +750,7 @@ details.is-closing .filter-body {
 .decade-bar-fill {
   display: block;
   width: 100%;
-  background: #000;
+  background: var(--accent);
 }
 
 .decade-bar-fill {
@@ -731,16 +791,18 @@ details.is-closing .filter-body {
 }
 
 .decade-bar.dimmed .decade-bar-fill {
-  background: #ccc;
+  background: rgba(0, 65, 91, 0.25);
 }
 
-.decade-bar:not(:disabled):hover .decade-bar-fill {
-  outline: 1px solid var(--text);
-  outline-offset: 1px;
-}
-
+.decade-bar:focus,
 .decade-bar:focus-visible {
-  outline: 2px solid var(--text);
+  outline: none;
+}
+
+.decade-bar:not(:disabled):hover .decade-bar-fill,
+.decade-bar:focus-visible .decade-bar-fill {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
 
 .decade-tick {
@@ -762,7 +824,7 @@ details.is-closing .filter-body {
 .state-square {
   aspect-ratio: 1 / 1;
   background: #f2f2f2;
-  color: #000;
+  color: var(--text);
   font-size: 10px;
   font-weight: 800;
   display: grid;
@@ -779,9 +841,6 @@ details.is-closing .filter-body {
 }
 
 .state-square.active {
-  background: var(--highlight) !important;
-  border-color: var(--text);
-  color: #000;
   outline: none;
 }
 
@@ -803,6 +862,11 @@ details.is-closing .filter-body {
   line-height: 1.1;
 }
 
+/* Native checkboxes fill with the dark blue when checked */
+input[type="checkbox"] {
+  accent-color: var(--accent);
+}
+
 /* Square checkboxes; native ones have rounded corners that can't be restyled */
 .non-us-wrap input[type="checkbox"] {
   appearance: none;
@@ -818,7 +882,8 @@ details.is-closing .filter-body {
 }
 
 .non-us-wrap input[type="checkbox"]:checked {
-  background: #000 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2l2.4 2.4 4.6-5' fill='none' stroke='%23fff' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat center / 11px;
+  border-color: var(--accent);
+  background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2l2.4 2.4 4.6-5' fill='none' stroke='%23fff' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat center / 11px;
 }
 
 .state-extra-wrap {
@@ -832,7 +897,7 @@ details.is-closing .filter-body {
   height: 42px;
   border: 1px solid var(--border);
   background: #eee;
-  color: #000;
+  color: var(--text);
   display: inline-grid;
   place-items: center;
   font-size: 10px;
@@ -841,17 +906,16 @@ details.is-closing .filter-body {
   cursor: pointer;
 }
 
-.state-extra-square.active {
-  background: var(--highlight) !important;
-  color: #000;
-}
 
 .active-filter-chips {
   display: flex;
   flex-wrap: wrap;
   gap: 6px 14px;
-  margin-top: 6px;
-  margin-bottom: 10px;
+  margin: 0;
+}
+
+.active-filter-chips:empty {
+  display: none;
 }
 
 .active-filter-chip {
@@ -892,16 +956,22 @@ details.is-closing .filter-body {
 }
 
 
+/* Selected states keep their shade and get one thick dark blue outline */
 .state-square.active,
 .state-extra-square.active {
-  border: 2px solid #000;
+  border: 2px solid var(--accent);
   box-sizing: border-box;
   z-index: 2;
 }
 
-.state-square.active,
-.state-extra-square.active {
-  border: 2px solid #000;
+.state-square:focus,
+.state-extra-square:focus {
+  outline: none;
+}
+
+.state-square:focus-visible,
+.state-extra-square:focus-visible {
+  border: 2px solid var(--accent);
 }
 .cartogram-legend {
   display: inline-flex;
@@ -997,9 +1067,30 @@ details.is-closing .filter-body {
     gap: 8px;
   }
 
-  /* View toggle first, active filters below it */
-  .main-top .view-toggle-wrap {
+  /* Stacked on mobile: view toggle (right-aligned), a full-width sort and the count first, then filters */
+  .main-top {
+    align-items: stretch;
+  }
+
+  .main-top-right {
     order: -1;
+    align-items: stretch;
+  }
+
+  .main-top-right .view-toggle-wrap {
+    align-self: flex-end;
+  }
+
+  .main-top-right .summary {
+    text-align: left;
+  }
+
+  .main-top-left {
+    align-items: stretch;
+  }
+
+  .main-top .sort-wrap .sort-select {
+    flex: 1;
   }
 
   /* Compact header once the filters scroll away: title, subtitle and a Filters button stay pinned */
