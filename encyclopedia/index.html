@@ -138,7 +138,6 @@ body.overlay-open {
 <div class="app">
   <aside class="sidebar">
     <h1>SCOTUS Encyclopedia</h1>
-    <p class="subtitle">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
     <p class="source"><strong>Source: </strong><a href="#" target="_blank">Source name</a></p>
 
     <button id="filterPanelToggle" class="filter-panel-toggle" type="button" aria-expanded="false" aria-controls="filterPanel">Filters</button>
@@ -195,7 +194,7 @@ body.overlay-open {
 </div>
 
 <script>
-const CSV_FILE = "10192026.csv";
+const CSV_FILE = "November update encyclopedia data.csv";
 
 const FIELD_ALIASES = {
   "Position": "Position ",
@@ -209,61 +208,61 @@ const CAREER_GROUPS = [
     key: "stateJudiciary",
     label: "State Judicial Service",
     fields: [
-      ["Served as a state trial judge", "Trial judge"],
-      ["Served as a state appellate judge", "Appellate judge"],
-      ["Served as a justice on the state's highest court", "State highest court"]
+      ["Served as a state trial judge", "Served as a state trial judge"],
+      ["Served as a state appellate judge", "Served as a state appellate judge"],
+      ["Served as a justice on the state's highest court", "Served as a justice on the state's highest court"]
     ]
   },
   {
     key: "federalJudiciary",
     label: "Federal Judicial Service",
     fields: [
-      ["Served as a federal district court judge", "District court"],
-      ["Served as a federal appellate judge", "Court of appeals"]
+      ["Served as a federal district court judge", "Served as a federal district court judge"],
+      ["Served as a federal appellate judge", "Served as a federal appellate judge"]
     ]
   },
   {
     key: "federalLegal",
     label: "Department of Justice Experience",
     fields: [
-      ["Served as an Assistant U.S. Attorney?", "Assistant U.S. Attorney"],
-      ["Served as a U.S. Attorney?", "U.S. Attorney"],
-      ["Served in the Office of the U.S. Solicitor General (but not as SG)?", "Office of Solicitor General"],
-      ["Served as the U.S. Solicitor General?", "Solicitor General"],
-      ["Served in the Office of the U.S. Attorney General (but not as AG)?", "Office of Attorney General"],
-      ["Served as the U.S. Attorney General?", "Attorney General"]
+      ["Served as an Assistant U.S. Attorney?", "Served as an Assistant U.S. Attorney?"],
+      ["Served as a U.S. Attorney?", "Served as a U.S. Attorney?"],
+      ["Served in the Office of the U.S. Solicitor General (but not as SG)?", "Served in the Office of the U.S. Solicitor General (but not as SG)?"],
+      ["Served as the U.S. Solicitor General?", "Served as the U.S. Solicitor General?"],
+      ["Served in the Office of the U.S. Attorney General (but not as AG)?", "Served in the Office of the U.S. Attorney General (but not as AG)?"],
+      ["Served as the U.S. Attorney General?", "Served as the U.S. Attorney General?"]
     ]
   },
   {
     key: "executiveBranch",
     label: "Executive Branch",
     fields: [
-      ["Served in a U.S. Cabinet (below Secretary level)?", "Cabinet, below secretary"],
-      ["Served at the Secretary level in a U.S. Cabinet?", "Cabinet secretary"],
-      ["Served in a Executive Commission, Agency, or White House Post (at a level below Head)?", "Agency / White House, below head"],
-      ["Served as Head of an Executive Commission or Agency?", "Agency head"],
-      ["Served as U.S. President", "U.S. President"]
+      ["Served in a U.S. Cabinet (below Secretary level)?", "Served in a U.S. Cabinet (below Secretary level)?"],
+      ["Served at the Secretary level in a U.S. Cabinet?", "Served at the Secretary level in a U.S. Cabinet?"],
+      ["Served in a Executive Commission, Agency, or White House Post (at a level below Head)?", "Served in a Executive Commission, Agency, or White House Post (at a level below Head)?"],
+      ["Served as Head of an Executive Commission or Agency?", "Served as Head of an Executive Commission or Agency?"],
+      ["Served as U.S. President", "Served as U.S. President"]
     ]
   },
   {
     key: "legislativeElected",
     label: "Legislative / Elected Office",
     fields: [
-      ["Served in the U.S. House of Representatives", "U.S. House"],
-      ["Served in the U.S. Senate", "U.S. Senate"],
-      ["Served as Lt. Governor", "Lt. governor"],
-      ["Served as Governor", "Governor"],
-      ["Served as Mayor", "Mayor"],
-      ["Served in a State Senate", "State senate"],
-      ["Served in a State House", "State house"],
-      ["Served on a City Council", "City council"]
+      ["Served in the U.S. House of Representatives", "Served in the U.S. House of Representatives"],
+      ["Served in the U.S. Senate", "Served in the U.S. Senate"],
+      ["Served as Lt. Governor", "Served as Lt. Governor"],
+      ["Served as Governor", "Served as Governor"],
+      ["Served as Mayor", "Served as Mayor"],
+      ["Served in a State Senate", "Served in a State Senate"],
+      ["Served in a State House", "Served in a State House"],
+      ["Served on a City Council", "Served on a City Council"]
     ]
   },
   {
     key: "otherService",
     label: "Other Service",
     fields: [
-      ["Served as a Public Defender", "Public defender"]
+      ["Served as a Public Defender", "Served as a Public Defender"]
     ]
   }
 ];
@@ -286,7 +285,6 @@ const FILTERS = {
     "Undergraduate Institution",
     "Graduate Institution",
     "Law School",
-    "State Where Nominee Read the Law",
     "State(s) in which Nominee was Admitted to the Bar"
   ],
   professionalExperience: [
@@ -296,13 +294,13 @@ const FILTERS = {
   supremeCourtService: [
     "Position ",
     "Years of Service as a justice",
+    "Senate Vote",
     "Recess Appointment?",
     "Age When Appointed",
     "Appointing President",
     "Political Party Affiliation of President",
     "Justice's Reason for Departure from the Court",
-    "Justice's Age at Time of Departure from the Court",
-    "Senate Yea %"
+    "Justice's Age at Time of Departure from the Court"
   ]
 };
 
@@ -311,57 +309,7 @@ const LABELS = {
   education: "Education",
   professionalExperience: "Professional Experience",
   supremeCourtService: "Supreme Court",
-  [PROFESSIONAL_EXPERIENCE_FIELD]: "Professional Experience",
-
-  "Full Name": "Name",
-  "Position ": "Position",
-  "Years of Service as a justice": "Years of service",
-  "Recess Appointment?": "Recess appointment",
-  "Year of Birth": "Year of birth",
-  "Age When Appointed": "Age when appointed",
-  "Birth location": "Birth location",
-  "Home State of Nominee": "Home state",
-  "Race/Ethnicity": "Race/ethnicity",
-  "Gender": "Gender",
-  "Undergraduate Institution": "Undergraduate institution",
-  "Graduate Institution": "Graduate institution",
-  "Law School": "Law school",
-  "State Where Nominee Read the Law": "State where nominee read the law",
-  "Supreme Court clerkship": "Supreme Court clerkship",
-  "State(s) in which Nominee was Admitted to the Bar": "Bar admission state(s)",
-  "Nominee's Occupation at Time of Appointment": "Occupation at appointment",
-  "Appointing President": "Appointing president",
-  "Political Party Affiliation of President": "President's party",
-  "Justice's Reason for Departure from the Court": "Reason for departure",
-  "Justice's Age at Time of Departure from the Court": "Age at departure",
-  "Year of Death": "Year of death",
-  "Senate Yea %": "Senate confirmation vote (% yea)",
-
-  "Served as a state trial judge": "State trial judge",
-  "Served as a state appellate judge": "State appellate judge",
-  "Served as a justice on the state's highest court": "State highest court justice",
-  "Served as a federal district court judge": "Federal district judge",
-  "Served as a federal appellate judge": "Federal appellate judge",
-  "Served as an Assistant U.S. Attorney?": "Assistant U.S. Attorney",
-  "Served as a U.S. Attorney?": "U.S. Attorney",
-  "Served in the Office of the U.S. Solicitor General (but not as SG)?": "Office of Solicitor General",
-  "Served as the U.S. Solicitor General?": "U.S. Solicitor General",
-  "Served in the Office of the U.S. Attorney General (but not as AG)?": "Office of Attorney General",
-  "Served as the U.S. Attorney General?": "U.S. Attorney General",
-  "Served in a U.S. Cabinet (below Secretary level)?": "Cabinet, below secretary",
-  "Served at the Secretary level in a U.S. Cabinet?": "Cabinet secretary",
-  "Served in a Executive Commission, Agency, or White House Post (at a level below Head)?": "Agency / White House, below head",
-  "Served as Head of an Executive Commission or Agency?": "Agency head",
-  "Served as U.S. President": "U.S. President",
-  "Served in the U.S. House of Representatives": "U.S. House",
-  "Served in the U.S. Senate": "U.S. Senate",
-  "Served as Lt. Governor": "Lt. governor",
-  "Served as Governor": "Governor",
-  "Served as Mayor": "Mayor",
-  "Served in a State Senate": "State senate",
-  "Served in a State House": "State house",
-  "Served on a City Council": "City council",
-  "Served as a Public Defender": "Public defender"
+  [PROFESSIONAL_EXPERIENCE_FIELD]: "Professional Experience"
 };
 
 const INSTITUTION_FIELDS = new Set([
@@ -390,16 +338,10 @@ const NUMERIC_FIELDS = new Set([
   "Year of Birth",
   "Age When Appointed",
   "Justice's Age at Time of Departure from the Court",
-  "Year of Death",
-  "Senate Yea %"
+  "Year of Death"
 ]);
 
-// Fields holding several "; "-separated numbers (one per Senate vote)
-const MULTI_NUMBER_FIELDS = new Set([
-  "Senate Yea %"
-]);
-
-const SENATE_FIELDS = ["Senate Result", "Senate Vote", "Senate Vote Date", "Senate Yea %"];
+const SENATE_FIELDS = ["Senate Result", "Senate Vote", "Senate Vote Date"];
 
 const HISTOGRAM_FIELDS = new Map([
   ["Year of Birth", {
@@ -429,15 +371,6 @@ const HISTOGRAM_FIELDS = new Map([
     hint: "Click bars to filter by age",
     label: start => `${start}–${start + 4}`,
     ariaLabel: (start, count) => `Departed at age ${start} to ${start + 4}: ${count}`
-  }],
-  ["Senate Yea %", {
-    binSize: 10,
-    tickEvery: 20,
-    hint: "Share of senators voting yea on recorded roll-call votes; voice votes are not included. Click bars to filter",
-    label: start => start === 100 ? "100% yea" : `${start}–${start + 9}% yea`,
-    ariaLabel: (start, count) => start === 100
-      ? `Unanimous yea vote: ${count}`
-      : `${start} to ${start + 9} percent yea: ${count}`
   }]
 ]);
 
@@ -447,11 +380,7 @@ function toBin(n, field) {
 }
 
 function getNumbers(row, field) {
-  const values = MULTI_NUMBER_FIELDS.has(field)
-    ? String(row[field] || "").split(";")
-    : [row[field]];
-
-  return values
+  return [row[field]]
     .map(v => toNumber(String(v ?? "").trim(), field))
     .filter(Number.isFinite);
 }
@@ -491,6 +420,7 @@ const CARD_SECTIONS = [
     fields: [
       "Position ",
       "Years of Service as a justice",
+      "Senate Vote",
       "Recess Appointment?",
       "Age When Appointed",
       "Appointing President",
@@ -1968,7 +1898,7 @@ function getServiceSpan(row) {
 }
 
 function renderSenateSummary(row, section) {
-  const [results, votes, dates, pcts] = SENATE_FIELDS.map(field =>
+  const [results, votes, dates] = SENATE_FIELDS.map(field =>
     String(row[field] || "").split(";").map(v => v.trim())
   );
   if (!results[0]) return;
@@ -1994,7 +1924,6 @@ function renderSenateSummary(row, section) {
       text += " by voice vote";
     } else if (votes[i] && votes[i] !== "No vote") {
       text += `, ${votes[i].replace("-", "–")}`;
-      if (pcts[i]) text += ` (${pcts[i]}% yea)`;
     }
 
     const vote = document.createElement("div");

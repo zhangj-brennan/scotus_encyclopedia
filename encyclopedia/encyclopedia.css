@@ -20,7 +20,7 @@
   --muted: #000;
   --border: #000;
   --accent: #3995B2;
-  --highlight: #f8d333;
+  --highlight: var(--accent);
   --accent-soft: #fff;
   --font-sans: "BentonMedium", Helvetica, Arial, sans-serif;
 }
