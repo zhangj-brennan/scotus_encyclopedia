@@ -1,12 +1,52 @@
 <!-- Paste into Drupal (Full HTML / source view).
-     The encyclopedia fills the iframe and scrolls inside it (filters and grid scroll
-     separately), so the iframe has a fixed height rather than resizing to fit.
-     The wrapper breaks out of the narrow Drupal text column to the full window width;
-     the encyclopedia centers itself inside it (max 1200px, 24px side padding). -->
+     Full window width, with the encyclopedia centered inside (max 1200px).
+     The iframe is one window tall. The Drupal page scrolls normally until the iframe reaches
+     the top of the window, where it snaps into place; only then do the encyclopedia's filters
+     and grid scroll. Scrolling past the end of the grid (or back above its start) carries on
+     scrolling the Drupal page.
+     If the site has a fixed header bar, set TOP below to its height in px. -->
 <div style="position:relative; left:50%; transform:translateX(-50%); width:100vw;">
   <iframe id="bc-encyclopedia-frame"
-          src="https://zhangj-brennan.github.io/scotus_encyclopedia/encyclopedia/index.html?v=4"
-          style="width:100%; height:85vh; min-height:600px; max-height:1000px; border:0; display:block;"
-          title="SCOTUS Encyclopedia"
-          loading="lazy"></iframe>
+          src="https://zhangj-brennan.github.io/scotus_encyclopedia/encyclopedia/index.html?v=5"
+          style="width:100%; height:100vh; height:100dvh; min-height:500px; border:0; display:block;"
+          title="SCOTUS Encyclopedia"></iframe>
 </div>
+<script>
+(function () {
+  // In the Drupal editor, preview or layout screens, leave the encyclopedia free to scroll
+  if (/\/node\/(add|\d+\/edit|preview)|\/layout\b/.test(location.pathname)) return;
+  var ORIGIN = 'https://zhangj-brennan.github.io';
+  var TOP = 0;          // height of any fixed site header the iframe should stop under
+  var sent = null, prevTop = null;
+
+  function frame() { return document.getElementById('bc-encyclopedia-frame'); }
+
+  function update() {
+    var f = frame();
+    if (!f || !f.contentWindow) return;
+    var top = f.getBoundingClientRect().top - TOP;
+    // Arriving at the top edge (from above or below) since the last check: line it up exactly.
+    // Not when leaving it (prevTop 0), so scrolling away from the pinned spot isn't pulled back.
+    var crossed = prevTop !== null && prevTop !== 0 && (prevTop > 0) !== (top > 0);
+    // (a jump of more than half a window, e.g. the End key, skips past without stopping)
+    if (crossed && top !== 0 && Math.abs(top - prevTop) <= window.innerHeight / 2) {
+      window.scrollBy(0, top);
+      top = 0;
+    }
+    prevTop = top;
+    var pinned = Math.abs(top) < 1;
+    if (pinned !== sent) {
+      sent = pinned;
+      f.contentWindow.postMessage({ type: 'bc-enc-scroll', pinned: pinned }, ORIGIN);
+    }
+  }
+
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', function () { sent = null; update(); });
+  window.addEventListener('message', function (e) {
+    if (e.origin !== ORIGIN || !e.data || e.data.type !== 'bc-enc-ready') return;
+    sent = null;   // the encyclopedia (re)loaded: send it the current state
+    update();
+  });
+})();
+</script>

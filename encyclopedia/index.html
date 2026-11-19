@@ -2156,6 +2156,20 @@ function toNumber(value, field = "") {
   const n = Number(s.replace(/[^\d.-]/g, ""));
   return Number.isFinite(n) ? n : NaN;
 }
+
+// Scroll hand-off with the Drupal embed snippet. The host page tells us whether the iframe is
+// pinned to the top of its window; until it is, our own scrolling is switched off so the wheel
+// or swipe scrolls the host page instead. Pages without the snippet never send this, so
+// nothing is locked when the encyclopedia is opened directly or embedded without it.
+(function () {
+  if (window.parent === window) return;
+  const root = document.documentElement;
+  window.addEventListener("message", (e) => {
+    if (e.source !== window.parent || !e.data || e.data.type !== "bc-enc-scroll") return;
+    root.classList.toggle("embed-scroll-locked", !e.data.pinned);
+  });
+  window.parent.postMessage({ type: "bc-enc-ready" }, "*");
+})();
 </script>
 </body>
 </html>
