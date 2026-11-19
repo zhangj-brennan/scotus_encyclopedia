@@ -71,7 +71,12 @@ body {
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 12px;
+  /* Pinned to the top of the grid's scroll area; padding (not margin) so the white covers portraits scrolling under it */
+  position: sticky;
+  top: 0;
+  z-index: 100; /* above hovered portraits (20) and their name tooltips (30) */
+  background: #fff;
+  padding-bottom: 12px;
 }
 
 .view-toggle-wrap {
@@ -97,7 +102,7 @@ body {
 .cards{
 }
 .cards.portrait-mode {
-  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  grid-template-columns: repeat(10, minmax(0, 1fr));
   gap: 5px;
 }
 .portrait-large {
