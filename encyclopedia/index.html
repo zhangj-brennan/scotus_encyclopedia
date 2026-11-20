@@ -42,7 +42,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 0 0 41px;
+  margin: 0 0 14px;
   font-size: 12px;
 }
 
@@ -174,10 +174,15 @@ body.overlay-open {
 <body>
 <div class="app">
   <header class="page-header">
-    <h1>SCOTUS Encyclopedia</h1>
+    <h1>U.S. Supreme Court justices and nominees</h1>
   </header>
 
   <aside class="sidebar">
+    <div class="header-sources">
+      <p>This encyclopedia is sourced primarily from the following two sources but see a full methodological statement <a href="#" target="_blank" rel="noopener">here</a>.</p>
+      <p>Epstein, Lee, Thomas G. Walker, Nancy Staudt, Scott Hendrickson, and Jason Roberts. (2022). &ldquo;The U.S. Supreme Court Justices Database.&rdquo; October 28. At: <a href="https://epstein.usc.edu/justicesdata" target="_blank" rel="noopener">https://epstein.usc.edu/justicesdata</a>.</p>
+      <p>Federal Judicial Center, &ldquo;Biographical Directory of Article III Federal Judges, 1789-present,&rdquo; accessed July 6, 2026, <a href="https://www.fjc.gov/history/judges" target="_blank" rel="noopener">https://www.fjc.gov/history/judges</a>.</p>
+    </div>
 
     <button id="filterPanelToggle" class="filter-panel-toggle" type="button" aria-expanded="false" aria-controls="filterPanel">Filters</button>
 
@@ -194,11 +199,6 @@ body.overlay-open {
 
     <div id="filters"></div>
 
-    <div class="sidebar-sources">
-      <p class="sidebar-sources-title">Sources</p>
-      <p>Epstein, Lee, Thomas G. Walker, Nancy Staudt, Scott Hendrickson, and Jason Roberts. (2022). &ldquo;The U.S. Supreme Court Justices Database.&rdquo; October 28. At: <a href="https://epstein.usc.edu/justicesdata" target="_blank" rel="noopener">https://epstein.usc.edu/justicesdata</a>.</p>
-      <p>Federal Judicial Center, &ldquo;Biographical Directory of Article III Federal Judges, 1789-present,&rdquo; accessed July 6, 2026, <a href="https://www.fjc.gov/history/judges" target="_blank" rel="noopener">https://www.fjc.gov/history/judges</a>.</p>
-    </div>
     </div>
   </aside>
 

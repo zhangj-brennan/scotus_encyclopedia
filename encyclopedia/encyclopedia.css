@@ -76,6 +76,7 @@ body {
   top: 0;
   z-index: 100; /* above hovered portraits (20) and their name tooltips (30) */
   background: #fff;
+  padding-top: 20px; /* lines up with the sources text atop the left column */
   padding-bottom: 12px;
 }
 
@@ -209,25 +210,18 @@ h1 {
   color: inherit;
 }
 
-.sidebar-sources {
-  margin: 16px 0 8px;
-  padding-top: 10px;
-  border-top: 1px solid var(--accent);
+.header-sources {
+  margin: 20px 0 12px;
   font-family: "Benton", Helvetica, Arial, sans-serif;
   font-size: 11px;
-  line-height: 1.4;
+  line-height: 1.2;
 }
 
-.sidebar-sources p {
-  margin: 0 0 8px;
+.header-sources p {
+  margin: 0 0 6px;
 }
 
-.sidebar-sources .sidebar-sources-title {
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-
-.sidebar-sources a {
+.header-sources a {
   color: inherit;
   overflow-wrap: anywhere;
 }
